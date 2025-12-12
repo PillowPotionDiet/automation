@@ -28,6 +28,7 @@
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set X-XSS-Protection "1; mode=block"
+    Header set Content-Security-Policy "default-src 'self' https: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:; connect-src 'self' https: data:; img-src 'self' https: data: blob:; style-src 'self' 'unsafe-inline' https:; worker-src 'self' blob:; media-src 'self' https: data: blob:; object-src 'none';"
 </IfModule>
 
 # Prevent directory listing
