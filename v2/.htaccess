@@ -11,8 +11,8 @@
     # Route webhook status endpoint
     RewriteRule ^webhook-status/(.+)$ webhook-status.php [L,QSA]
 
-    # Route all /api/geminigen/* requests to proxy.php
-    RewriteRule ^api/geminigen/(.*)$ ../proxy.php [L,QSA]
+    # Route all /api/geminigen/* requests to local proxy.php
+    RewriteRule ^api/geminigen/(.*)$ proxy.php [L,QSA]
 </IfModule>
 
 # Enable CORS
