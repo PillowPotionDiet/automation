@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Script-to-Video Generator powered by GeminiGen.ai">
+    <title>AI Script-to-Video Generator | GeminiGen.ai</title>
+    <link rel="stylesheet" href="styles-minimal.css">
+</head>
+<body>
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1 class="app-title">🎬 AI Script-to-Video Generator</h1>
+            <p class="app-subtitle">Powered by GeminiGen.ai - Veo 3.1 Fast & Nano Banana Pro</p>
+        </header>
+
+        <!-- Step 1: API Configuration & Script Input -->
+        <section id="step1" class="step-section active">
+            <!-- API Configuration Card -->
+            <div class="card api-config-card">
+                <h2>🔑 API Configuration</h2>
+
+                <div class="form-group">
+                    <label for="apiKey">GeminiGen.ai API Key</label>
+                    <div class="api-key-input-wrapper">
+                        <input
+                            type="password"
+                            id="apiKey"
+                            class="form-control"
+                            placeholder="Enter your API key..."
+                        >
+                        <button type="button" id="toggleApiKey" class="btn-icon" aria-label="Toggle API key visibility">
+                            👁️
+                        </button>
+                    </div>
+                    <small class="form-hint">Get your API key from <a href="https://geminigen.ai" target="_blank">geminigen.ai</a></small>
+                </div>
+
+                <button id="testConnection" class="btn btn-secondary">Test Connection</button>
+
+                <div id="connectionStatus" class="connection-status">
+                    <span class="status-indicator status-disconnected">●</span>
+                    <span class="status-text">Not Connected</span>
+                </div>
+
+                <!-- API Usage Display -->
+                <div id="apiUsageSection" class="api-usage-section" style="display: none;">
+                    <h3>📊 API Usage</h3>
+                    <div class="usage-stats">
+                        <div class="usage-stat">
+                            <span class="usage-label">Total Requests:</span>
+                            <span id="apiUsage" class="usage-value">0 / 3000</span>
+                        </div>
+                        <div class="usage-stat">
+                            <span class="usage-label">Per Minute:</span>
+                            <span id="rateMinute" class="usage-value">0 / 20</span>
+                        </div>
+                        <div class="usage-stat">
+                            <span class="usage-label">Per Hour:</span>
+                            <span id="rateHour" class="usage-value">0 / 200</span>
+                        </div>
+                        <div class="usage-stat">
+                            <span class="usage-label">Per Day:</span>
+                            <span id="rateDay" class="usage-value">0 / 2000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Webhook Configuration Card -->
+            <div class="card webhook-config-card">
+                <h2>📡 Webhook Notifications</h2>
+                <p class="section-description">Receive real-time notifications when generation tasks complete</p>
+
+                <div class="form-group">
+                    <label for="webhookUrl">Webhook URL</label>
+                    <input
+                        type="url"
+                        id="webhookUrl"
+                        class="form-control"
+                        placeholder="https://your-server.com/webhook"
+                    >
+                    <small class="form-hint">Enter your webhook endpoint URL to receive POST notifications</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="webhookSecret">Webhook Secret (Optional)</label>
+                    <div class="api-key-input-wrapper">
+                        <input
+                            type="password"
+                            id="webhookSecret"
+                            class="form-control"
+                            placeholder="Enter secret for signature verification"
+                        >
+                        <button type="button" id="toggleWebhookSecret" class="btn-icon" aria-label="Toggle secret visibility">
+                            👁️
+                        </button>
+                    </div>
+                    <small class="form-hint">Used to sign webhook payloads with HMAC-SHA256</small>
+                </div>
+
+                <div class="webhook-actions">
+                    <button id="saveWebhook" class="btn btn-primary">💾 Save Configuration</button>
+                    <button id="testWebhook" class="btn btn-secondary">🧪 Test Webhook</button>
+                    <button id="webhookInfo" class="btn btn-secondary">ℹ️ Info</button>
+                </div>
+
+                <div id="webhookStatus" class="webhook-status" style="display: none;">
+                    <span class="webhook-indicator">●</span>
+                    <span class="webhook-status-text">Webhook configured</span>
+                </div>
+
+                <!-- Webhook Events Configuration -->
+                <div id="webhookEventsConfig" class="webhook-events-config" style="display: none;">
+                    <h3>Event Subscriptions</h3>
+                    <div class="webhook-events-list">
+                        <label class="webhook-event-item">
+                            <input type="checkbox" id="event_imageComplete" checked>
+                            <span>✅ Image generation completed</span>
+                        </label>
+                        <label class="webhook-event-item">
+                            <input type="checkbox" id="event_imageFailed" checked>
+                            <span>❌ Image generation failed</span>
+                        </label>
+                        <label class="webhook-event-item">
+                            <input type="checkbox" id="event_videoComplete" checked>
+                            <span>🎬 Video generation completed</span>
+                        </label>
+                        <label class="webhook-event-item">
+                            <input type="checkbox" id="event_videoFailed" checked>
+                            <span>❌ Video generation failed</span>
+                        </label>
+                        <label class="webhook-event-item">
+                            <input type="checkbox" id="event_allComplete" checked>
+                            <span>🎉 All generations completed</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Script Input Section -->
+            <div class="card script-input-card">
+                <h2>📝 Script Input</h2>
+
+                <div class="form-group">
+                    <label for="scriptInput">Enter Your Script</label>
+                    <textarea
+                        id="scriptInput"
+                        class="form-control script-textarea"
+                        placeholder="Enter your script here. Separate scenes with double line breaks.
+
+Example:
+
+A sunny beach with golden sand and turquoise waves.
+
+A woman walks along the shore, leaving footprints.
+
+She picks up a seashell and smiles at the camera."
+                    ></textarea>
+                    <small class="form-hint">
+                        <span id="charCount">0</span> characters
+                    </small>
+                </div>
+
+                <!-- Configuration Options -->
+                <div class="config-options">
+                    <div class="form-group">
+                        <label for="paragraphCount">How many paragraphs?</label>
+                        <input
+                            type="number"
+                            id="paragraphCount"
+                            class="form-control"
+                            min="1"
+                            max="50"
+                            value="3"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="scenesPerParagraph">Scenes per paragraph?</label>
+                        <input
+                            type="number"
+                            id="scenesPerParagraph"
+                            class="form-control"
+                            min="1"
+                            max="10"
+                            value="3"
+                        >
+                    </div>
+                </div>
+
+                <!-- Image Generation Settings -->
+                <div class="generation-settings">
+                    <h3>🎨 Image Generation Settings</h3>
+
+                    <div class="config-options">
+                        <div class="form-group">
+                            <label for="imageModel">AI Model</label>
+                            <select id="imageModel" class="form-control">
+                                <option value="imagen-pro" selected>Imagen Pro (Nano Banana Pro) - Free</option>
+                                <option value="imagen-flash">Imagen Flash (Gemini 2.5)</option>
+                                <option value="imagen-4-fast">Imagen 4 Fast</option>
+                                <option value="imagen-4">Imagen 4</option>
+                                <option value="imagen-4-ultra">Imagen 4 Ultra</option>
+                            </select>
+                            <small class="form-hint">imagen-pro is free with 5 req/min rate limit</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="aspectRatio">Aspect Ratio</label>
+                            <select id="aspectRatio" class="form-control">
+                                <option value="16:9" selected>16:9 - Widescreen</option>
+                                <option value="9:16">9:16 - Portrait</option>
+                                <option value="1:1">1:1 - Square</option>
+                                <option value="4:3">4:3 - Standard</option>
+                                <option value="3:4">3:4 - Portrait Standard</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="artisticStyle">Artistic Style</label>
+                            <select id="artisticStyle" class="form-control">
+                                <option value="Photorealistic" selected>Photorealistic</option>
+                                <option value="None">None</option>
+                                <option value="3D Render">3D Render</option>
+                                <option value="Acrylic">Acrylic</option>
+                                <option value="Anime General">Anime General</option>
+                                <option value="Creative">Creative</option>
+                                <option value="Dynamic">Dynamic</option>
+                                <option value="Fashion">Fashion</option>
+                                <option value="Game Concept">Game Concept</option>
+                                <option value="Graphic Design 3D">Graphic Design 3D</option>
+                                <option value="Illustration">Illustration</option>
+                                <option value="Portrait">Portrait</option>
+                                <option value="Portrait Cinematic">Portrait Cinematic</option>
+                                <option value="Portrait Fashion">Portrait Fashion</option>
+                                <option value="Ray Traced">Ray Traced</option>
+                                <option value="Stock Photo">Stock Photo</option>
+                                <option value="Watercolor">Watercolor</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Generation Settings -->
+                <div class="generation-settings">
+                    <h3>🎥 Video Generation Settings</h3>
+
+                    <div class="config-options">
+                        <div class="form-group">
+                            <label for="videoModel">AI Model</label>
+                            <select id="videoModel" class="form-control">
+                                <option value="veo-3.1" selected>Veo 3.1 - Latest High-Quality</option>
+                                <option value="veo-3.1-fast">Veo 3.1 Fast - Optimized Speed</option>
+                                <option value="veo-3">Veo 3 - High-Quality</option>
+                                <option value="veo-3-fast">Veo 3 Fast - Fast Version</option>
+                                <option value="veo-2">Veo 2 - Advanced</option>
+                            </select>
+                            <small class="form-hint">8 seconds fixed duration, aspect ratio affects resolution</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="videoResolution">Resolution</label>
+                            <select id="videoResolution" class="form-control">
+                                <option value="1080p" selected>1080p - Full HD (1920x1080)</option>
+                                <option value="720p">720p - HD (1280x720)</option>
+                            </select>
+                            <small class="form-hint">Note: 9:16 portrait only supports 720p</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="videoAspectRatio">Aspect Ratio</label>
+                            <select id="videoAspectRatio" class="form-control">
+                                <option value="16:9" selected>16:9 - Widescreen</option>
+                                <option value="9:16">9:16 - Portrait (Mobile)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calculation Display -->
+                <div class="calculation-display">
+                    <p class="calc-result">
+                        Total scenes: <span id="totalScenes">3</span> × <span id="totalParagraphs">3</span> = <span id="calculatedScenes">9</span> scenes
+                    </p>
+                    <p class="calc-result">
+                        Estimated API requests: <span id="estimatedRequests">27</span> requests
+                        <small>(scenes × 3 for images & videos)</small>
+                    </p>
+                </div>
+
+                <!-- Automatic Consistency Analysis -->
+                <div class="consistency-controls">
+                    <h3>🎯 Automatic Consistency System</h3>
+
+                    <div class="auto-consistency-info">
+                        <div class="info-card">
+                            <h4>🤖 Intelligent Consistency System</h4>
+                            <p>When you click Generate, the AI automatically:</p>
+                            <ul>
+                                <li>Extracts character profiles with "Master Identity" descriptions</li>
+                                <li>Detects environment settings (lighting, weather, time of day)</li>
+                                <li>Locks attributes across ALL scenes for perfect consistency</li>
+                                <li>Injects exact descriptions into every generation prompt</li>
+                            </ul>
+                            <p class="highlight">No manual configuration needed - fully automatic</p>
+                        </div>
+
+                        <!-- Analysis Results (shown after script analysis) -->
+                        <div id="analysisResults" class="analysis-results" style="display: none;">
+                            <h4>📊 Extracted Consistency Profiles:</h4>
+                            <div id="extractedProfiles"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generate Button -->
+                <button id="generateBtn" class="btn btn-primary btn-large" disabled>
+                    🚀 Generate Images & Videos
+                </button>
+            </div>
+        </section>
+
+        <!-- Step 2: Script Breakdown -->
+        <section id="step2" class="step-section">
+            <div class="card">
+                <h2>📋 Script Breakdown</h2>
+                <button class="btn-collapse" id="toggleBreakdown">
+                    <span id="breakdownToggleIcon">▼</span> Click to expand/collapse
+                </button>
+
+                <div id="scriptBreakdown" class="script-breakdown">
+                    <!-- Breakdown will be populated here -->
+                </div>
+
+                <div class="action-buttons">
+                    <button id="approveBreakdown" class="btn btn-primary">✓ Approve</button>
+                    <button id="editBreakdown" class="btn btn-secondary">✏️ Edit</button>
+                    <button id="resplitBreakdown" class="btn btn-secondary">🔄 Re-split</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3: Frame Definitions -->
+        <section id="step3" class="step-section">
+            <div class="card">
+                <h2>🎬 Frame Definitions (Auto-Generated)</h2>
+                <button class="btn-collapse" id="toggleFrames">
+                    <span id="framesToggleIcon">▼</span> Click to expand/collapse
+                </button>
+
+                <div id="frameDefinitions" class="frame-definitions">
+                    <!-- Frame definitions will be populated here -->
+                </div>
+
+                <div class="consistency-info" id="consistencyInfo">
+                    <!-- Will show active locks info -->
+                </div>
+
+                <div class="action-buttons">
+                    <button id="approveFrames" class="btn btn-primary">✓ Approve & Generate</button>
+                    <button id="backToScript" class="btn btn-secondary">⬅️ Back</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 4: Image Generation -->
+        <section id="step4" class="step-section">
+            <!-- Statistics Dashboard -->
+            <div class="card stats-dashboard">
+                <h2>📊 GENERATION PROGRESS</h2>
+
+                <div class="overall-progress">
+                    <div class="progress-bar-container">
+                        <div id="overallProgressBar" class="progress-bar" style="width: 0%"></div>
+                    </div>
+                    <span id="overallProgressText">0%</span>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Scenes:</span>
+                        <span id="statTotalScenes" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Images Generated:</span>
+                        <span id="statImagesGenerated" class="stat-value">0 / 0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Videos Generated:</span>
+                        <span id="statVideosGenerated" class="stat-value">0 / 0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Current Status:</span>
+                        <span id="statCurrentStatus" class="stat-value">Ready</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Time Elapsed:</span>
+                        <span id="statTimeElapsed" class="stat-value">0m 0s</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Est. Remaining:</span>
+                        <span id="statTimeRemaining" class="stat-value">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">API Usage:</span>
+                        <span id="statApiUsage" class="stat-value">0 / 3000</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Cost:</span>
+                        <span id="statCost" class="stat-value">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="rate-limits-section">
+                    <h3>Rate Limits:</h3>
+                    <div class="rate-limits-grid">
+                        <div class="rate-limit-item">
+                            <span>Per Minute: <span id="rateLimitMinute">0 / 20</span></span>
+                            <span id="rateLimitMinuteStatus">✅</span>
+                        </div>
+                        <div class="rate-limit-item">
+                            <span>Per Hour: <span id="rateLimitHour">0 / 200</span></span>
+                            <span id="rateLimitHourStatus">✅</span>
+                        </div>
+                        <div class="rate-limit-item">
+                            <span>Per Day: <span id="rateLimitDay">0 / 2000</span></span>
+                            <span id="rateLimitDayStatus">✅</span>
+                        </div>
+                        <div class="rate-limit-item">
+                            <span>Total Quota: <span id="rateLimitTotal">3000 remaining</span></span>
+                            <span id="rateLimitTotalStatus">✅</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scene Grid -->
+            <div id="sceneGrid" class="scene-grid">
+                <!-- Scene cards will be populated here -->
+            </div>
+
+            <!-- Generation Log -->
+            <div class="card generation-log">
+                <div class="log-header">
+                    <h3>📜 GENERATION LOG</h3>
+                    <div class="log-controls">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="autoScrollLog" checked>
+                            Auto-scroll
+                        </label>
+                        <button id="clearLog" class="btn btn-small">Clear Log</button>
+                        <button id="exportLog" class="btn btn-small">Export Log</button>
+                    </div>
+                </div>
+                <div id="logContent" class="log-content">
+                    <div class="log-entry log-info">
+                        <span class="log-timestamp">Ready to generate</span>
+                        <span class="log-message">Click "Approve & Generate" to start</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 5: Video Generation -->
+        <section id="step5" class="step-section">
+            <div class="card">
+                <h2>🎥 Video Generation & Stitching</h2>
+                <p class="section-description">Videos are generated in three rows per paragraph: individual scenes, transitions, and final stitched video</p>
+            </div>
+
+            <div id="videoGrid" class="video-grid">
+                <!-- Video sections will be populated here -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <img id="modalImage" src="" alt="Full size image">
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="utils.js"></script>
+    <script src="rate-limiter.js"></script>
+    <script src="consistency-manager.js"></script>
+    <script src="webhook-manager.js"></script>
+    <script src="api-client.js"></script>
+    <script src="video-stitcher.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
