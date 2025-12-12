@@ -1,0 +1,18 @@
+# Apache .htaccess for routing API requests to PHP proxy
+# Rename this file to .htaccess and place it in your web root
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Route all /api/geminigen/* requests to proxy.php
+    RewriteRule ^api/geminigen/(.*)$ proxy.php [L,QSA]
+</IfModule>
+
+# Enable CORS for your domain
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Origin "https://automation.pillowpotion.com"
+    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, x-api-key"
+    Header always set Access-Control-Allow-Credentials "true"
+</IfModule>
