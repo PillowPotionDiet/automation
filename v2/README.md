@@ -103,16 +103,16 @@ chmod 755 v2/webhook-data/  # Will be created automatically
 ### Step 4: Configure Webhook on GeminiGen
 
 1. Login to [GeminiGen.ai](https://geminigen.ai)
-2. Go to **API Settings**
+2. Go to **API Settings** → **Webhooks**
 3. Add webhook URL:
    ```
-   https://automation.pillowpotion.com/webhook
+   https://automation.pillowpotion.com/v2/webhook
    ```
-4. Save
+4. Click **Save** to activate the webhook
 
 ### Step 5: Test
 
-1. Open `https://automation.pillowpotion.com/`
+1. Open `https://automation.pillowpotion.com/v2/`
 2. Enter your API key
 3. Confirm webhook configuration
 4. Click "Validate & Continue"
