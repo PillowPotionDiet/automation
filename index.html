@@ -72,77 +72,6 @@
                 </div>
             </div>
 
-            <!-- Webhook Configuration Card -->
-            <div class="card webhook-config-card">
-                <h2>📡 Webhook Notifications</h2>
-                <p class="section-description">Receive real-time notifications when generation tasks complete</p>
-
-                <div class="form-group">
-                    <label for="webhookUrl">Webhook URL</label>
-                    <input
-                        type="url"
-                        id="webhookUrl"
-                        class="form-control"
-                        placeholder="https://your-server.com/webhook"
-                    >
-                    <small class="form-hint">Enter your webhook endpoint URL to receive POST notifications</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="webhookSecret">Webhook Secret (Optional)</label>
-                    <div class="api-key-input-wrapper">
-                        <input
-                            type="password"
-                            id="webhookSecret"
-                            class="form-control"
-                            placeholder="Enter secret for signature verification"
-                        >
-                        <button type="button" id="toggleWebhookSecret" class="btn-icon" aria-label="Toggle secret visibility">
-                            👁️
-                        </button>
-                    </div>
-                    <small class="form-hint">Used to sign webhook payloads with HMAC-SHA256</small>
-                </div>
-
-                <div class="webhook-actions">
-                    <button id="saveWebhook" class="btn btn-primary">💾 Save Configuration</button>
-                    <button id="testWebhook" class="btn btn-secondary">🧪 Test Webhook</button>
-                    <button id="webhookInfo" class="btn btn-secondary">ℹ️ Info</button>
-                </div>
-
-                <div id="webhookStatus" class="webhook-status" style="display: none;">
-                    <span class="webhook-indicator">●</span>
-                    <span class="webhook-status-text">Webhook configured</span>
-                </div>
-
-                <!-- Webhook Events Configuration -->
-                <div id="webhookEventsConfig" class="webhook-events-config" style="display: none;">
-                    <h3>Event Subscriptions</h3>
-                    <div class="webhook-events-list">
-                        <label class="webhook-event-item">
-                            <input type="checkbox" id="event_imageComplete" checked>
-                            <span>✅ Image generation completed</span>
-                        </label>
-                        <label class="webhook-event-item">
-                            <input type="checkbox" id="event_imageFailed" checked>
-                            <span>❌ Image generation failed</span>
-                        </label>
-                        <label class="webhook-event-item">
-                            <input type="checkbox" id="event_videoComplete" checked>
-                            <span>🎬 Video generation completed</span>
-                        </label>
-                        <label class="webhook-event-item">
-                            <input type="checkbox" id="event_videoFailed" checked>
-                            <span>❌ Video generation failed</span>
-                        </label>
-                        <label class="webhook-event-item">
-                            <input type="checkbox" id="event_allComplete" checked>
-                            <span>🎉 All generations completed</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
             <!-- Script Input Section -->
             <div class="card script-input-card">
                 <h2>📝 Script Input</h2>
@@ -492,7 +421,6 @@ She picks up a seashell and smiles at the camera."
     <script src="utils.js"></script>
     <script src="rate-limiter.js"></script>
     <script src="consistency-manager.js"></script>
-    <script src="webhook-manager.js"></script>
     <script src="api-client.js"></script>
     <script src="video-stitcher.js"></script>
     <script src="app.js"></script>

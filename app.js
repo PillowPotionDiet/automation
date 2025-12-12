@@ -10,7 +10,6 @@ const AppState = {
     rateLimiter: null,
     consistencyManager: null,
     videoStitcher: null,
-    webhookManager: null,
 
     // User input
     apiKey: '',
@@ -61,7 +60,6 @@ function initializeApp() {
     AppState.rateLimiter = new RateLimiter();
     AppState.consistencyManager = new ConsistencyManager();
     AppState.videoStitcher = new VideoStitcher();
-    AppState.webhookManager = new WebhookManager();
 
     // Load saved API key
     const savedApiKey = loadFromStorage('apiKey');
@@ -69,14 +67,6 @@ function initializeApp() {
         document.getElementById('apiKey').value = savedApiKey;
         AppState.apiKey = savedApiKey;
         AppState.api = new GeminiGenAPI(savedApiKey);
-    }
-
-    // Load saved webhook settings
-    const webhookStatus = AppState.webhookManager.getStatus();
-    if (webhookStatus.configured) {
-        document.getElementById('webhookUrl').value = AppState.webhookManager.webhookUrl;
-        document.getElementById('webhookSecret').value = AppState.webhookManager.webhookSecret;
-        updateWebhookStatus();
     }
 
     // Load saved image generation settings
@@ -185,29 +175,6 @@ function setupEventListeners() {
 
     // Removed manual consistency toggles - now automatic
 
-    // Webhook configuration
-    document.getElementById('toggleWebhookSecret').addEventListener('click', toggleWebhookSecretVisibility);
-    document.getElementById('saveWebhook').addEventListener('click', saveWebhookConfig);
-    document.getElementById('testWebhook').addEventListener('click', testWebhookConnection);
-    document.getElementById('webhookInfo').addEventListener('click', showWebhookInfo);
-
-    // Webhook event toggles
-    document.getElementById('event_imageComplete')?.addEventListener('change', (e) => {
-        AppState.webhookManager.toggleEvent('imageGenerationCompleted', e.target.checked);
-    });
-    document.getElementById('event_imageFailed')?.addEventListener('change', (e) => {
-        AppState.webhookManager.toggleEvent('imageGenerationFailed', e.target.checked);
-    });
-    document.getElementById('event_videoComplete')?.addEventListener('change', (e) => {
-        AppState.webhookManager.toggleEvent('videoGenerationCompleted', e.target.checked);
-    });
-    document.getElementById('event_videoFailed')?.addEventListener('change', (e) => {
-        AppState.webhookManager.toggleEvent('videoGenerationFailed', e.target.checked);
-    });
-    document.getElementById('event_allComplete')?.addEventListener('change', (e) => {
-        AppState.webhookManager.toggleEvent('allGenerationsCompleted', e.target.checked);
-    });
-
     // Generate button
     document.getElementById('generateBtn').addEventListener('click', startGeneration);
 
@@ -233,153 +200,6 @@ function setupEventListeners() {
     document.getElementById('imageModal')?.addEventListener('click', (e) => {
         if (e.target.id === 'imageModal') closeImageModal();
     });
-}
-
-// ========== Webhook Management ==========
-
-/**
- * Toggle webhook secret visibility
- */
-function toggleWebhookSecretVisibility() {
-    const input = document.getElementById('webhookSecret');
-    const btn = document.getElementById('toggleWebhookSecret');
-
-    if (input.type === 'password') {
-        input.type = 'text';
-        btn.textContent = '🙈';
-    } else {
-        input.type = 'password';
-        btn.textContent = '👁️';
-    }
-}
-
-/**
- * Save webhook configuration
- */
-function saveWebhookConfig() {
-    const webhookUrl = document.getElementById('webhookUrl').value.trim();
-    const webhookSecret = document.getElementById('webhookSecret').value.trim();
-
-    if (!webhookUrl) {
-        showError('Please enter a webhook URL');
-        return;
-    }
-
-    // Validate URL format
-    try {
-        new URL(webhookUrl);
-    } catch (error) {
-        showError('Please enter a valid webhook URL');
-        return;
-    }
-
-    // Configure webhook
-    AppState.webhookManager.configure(webhookUrl, webhookSecret);
-
-    // Update UI
-    updateWebhookStatus();
-
-    showSuccess('Webhook configuration saved successfully');
-    addLog('info', `Webhook configured: ${webhookUrl}`);
-}
-
-/**
- * Test webhook connection
- */
-async function testWebhookConnection() {
-    const webhookUrl = document.getElementById('webhookUrl').value.trim();
-
-    if (!webhookUrl) {
-        showError('Please enter a webhook URL first');
-        return;
-    }
-
-    try {
-        showInfo('Testing webhook connection...');
-
-        const success = await AppState.webhookManager.testWebhook();
-
-        if (success) {
-            showSuccess('Webhook test successful! Check your endpoint for the test payload.');
-            addLog('success', 'Webhook test completed successfully');
-        } else {
-            showError('Webhook test failed. Please check your endpoint URL and try again.');
-            addLog('error', 'Webhook test failed');
-        }
-    } catch (error) {
-        console.error('Webhook test error:', error);
-        showError('Webhook test failed: ' + error.message);
-        addLog('error', `Webhook test error: ${error.message}`);
-    }
-}
-
-/**
- * Show webhook information modal
- */
-function showWebhookInfo() {
-    const infoMessage = `
-📡 WEBHOOK NOTIFICATIONS
-
-Webhooks allow you to receive real-time notifications when generation tasks complete.
-
-HOW IT WORKS:
-1. Configure your webhook endpoint URL (must be publicly accessible)
-2. Optionally add a secret for HMAC-SHA256 signature verification
-3. Select which events you want to receive notifications for
-4. When events occur, the app will send HTTP POST requests to your endpoint
-
-PAYLOAD FORMAT:
-{
-  "event": "IMAGE_GENERATION_COMPLETED",
-  "timestamp": "2025-12-12T10:30:00.000Z",
-  "data": {
-    "sceneId": "p0_s1",
-    "frameType": "start",
-    "imageUrl": "https://...",
-    "paragraphIndex": 0,
-    "sceneIndex": 1
-  }
-}
-
-SIGNATURE VERIFICATION:
-If you provide a webhook secret, each request will include an 'X-Webhook-Signature' header containing an HMAC-SHA256 signature of the payload. Use this to verify the authenticity of the webhook.
-
-SUPPORTED EVENTS:
-- IMAGE_GENERATION_COMPLETED: Image generated successfully
-- IMAGE_GENERATION_FAILED: Image generation failed
-- VIDEO_GENERATION_COMPLETED: Video generated successfully
-- VIDEO_GENERATION_FAILED: Video generation failed
-- ALL_GENERATIONS_COMPLETED: All tasks finished
-
-NOTES:
-- Your endpoint must respond with HTTP 200-299 status
-- Webhooks timeout after 10 seconds
-- Failed webhooks are logged but don't stop generation
-    `.trim();
-
-    // Show as alert for now (could be enhanced with a custom modal)
-    alert(infoMessage);
-}
-
-/**
- * Update webhook status indicator
- */
-function updateWebhookStatus() {
-    const status = AppState.webhookManager.getStatus();
-    const statusEl = document.getElementById('webhookStatus');
-
-    if (status.configured) {
-        statusEl.style.display = 'flex';
-        statusEl.querySelector('.webhook-status-text').textContent = `Webhook active: ${status.eventsCount} events enabled`;
-
-        // Show events config section
-        const eventsConfig = document.getElementById('webhookEventsConfig');
-        if (eventsConfig) {
-            eventsConfig.style.display = 'block';
-        }
-    } else {
-        statusEl.style.display = 'none';
-    }
 }
 
 // ========== API Key Management ==========
@@ -438,22 +258,22 @@ async function testApiConnection() {
 
     try {
         AppState.api = new GeminiGenAPI(AppState.apiKey);
-        const isConnected = await AppState.api.testConnection();
+        const result = await AppState.api.testConnection();
 
-        if (isConnected) {
+        if (result.success) {
             statusIndicator.className = 'status-indicator status-connected';
             statusText.textContent = 'Connected';
             show('#apiUsageSection');
-            showSuccess(getErrorMessage('CONNECTION_SUCCESS'));
+            showSuccess(result.message);
             updateGenerateButton();
         } else {
-            throw new Error('Connection failed');
+            throw new Error(result.message);
         }
     } catch (error) {
         console.error('Connection test error:', error);
         statusIndicator.className = 'status-indicator status-disconnected';
         statusText.textContent = 'Connection Failed';
-        showError(getErrorMessage('CONNECTION_FAILED'));
+        showError(error.message || getErrorMessage('CONNECTION_FAILED'));
     }
 }
 
@@ -808,15 +628,6 @@ async function generateSingleImage(frame, frameType) {
 
         addLog('success', `${frameType.toUpperCase()} frame complete for Scene ${frame.paragraphIndex + 1}.${frame.sceneIndex + 1} (${formatTime((Date.now() - AppState.startTime) / 1000)})`);
 
-        // Send webhook notification
-        await AppState.webhookManager.notifyImageGenerated(
-            sceneId,
-            frameType,
-            imageUrl,
-            frame.paragraphIndex,
-            frame.sceneIndex
-        );
-
     } catch (error) {
         console.error(`Error generating ${frameType} frame:`, error);
         addLog('error', `Failed to generate ${frameType} frame for Scene ${frame.paragraphIndex + 1}.${frame.sceneIndex + 1}: ${error.message}`);
@@ -824,15 +635,6 @@ async function generateSingleImage(frame, frameType) {
 
         // Show error state
         showImageError(sceneId, frameType);
-
-        // Send webhook notification for failure
-        await AppState.webhookManager.notifyImageFailed(
-            sceneId,
-            frameType,
-            error.message,
-            frame.paragraphIndex,
-            frame.sceneIndex
-        );
     }
 }
 
@@ -855,13 +657,6 @@ async function startVideoGeneration() {
     addLog('success', 'All videos generated successfully!');
     showSuccess('Video generation complete!');
     AppState.isGenerating = false;
-
-    // Send final webhook notification for all completions
-    await AppState.webhookManager.notifyAllComplete(
-        AppState.generatedImages,
-        AppState.generatedVideos,
-        Math.floor((Date.now() - AppState.startTime) / 1000)
-    );
 }
 
 /**
@@ -960,29 +755,11 @@ async function generateSceneVideo(frame) {
 
         addLog('success', `Video complete for Scene ${frame.paragraphIndex + 1}.${frame.sceneIndex + 1}`);
 
-        // Send webhook notification
-        await AppState.webhookManager.notifyVideoGenerated(
-            frame.sceneId,
-            'scene',
-            videoUrl,
-            frame.paragraphIndex,
-            frame.sceneIndex
-        );
-
         return videoUrl;
 
     } catch (error) {
         console.error('Error generating scene video:', error);
         addLog('error', `Failed to generate video: ${error.message}`);
-
-        // Send webhook notification for failure
-        await AppState.webhookManager.notifyVideoFailed(
-            frame.sceneId,
-            'scene',
-            error.message,
-            frame.paragraphIndex,
-            frame.sceneIndex
-        );
 
         throw error;
     }
@@ -1057,29 +834,11 @@ async function generateTransitionVideo(currentFrame, nextFrame) {
 
         addLog('success', `Transition video complete`);
 
-        // Send webhook notification
-        await AppState.webhookManager.notifyVideoGenerated(
-            `transition_${currentFrame.sceneId}_to_${nextFrame.sceneId}`,
-            'transition',
-            videoUrl,
-            currentFrame.paragraphIndex,
-            currentFrame.sceneIndex
-        );
-
         return videoUrl;
 
     } catch (error) {
         console.error('Error generating transition video:', error);
         addLog('error', `Failed to generate transition video: ${error.message}`);
-
-        // Send webhook notification for failure
-        await AppState.webhookManager.notifyVideoFailed(
-            `transition_${currentFrame.sceneId}_to_${nextFrame.sceneId}`,
-            'transition',
-            error.message,
-            currentFrame.paragraphIndex,
-            currentFrame.sceneIndex
-        );
 
         throw error;
     }

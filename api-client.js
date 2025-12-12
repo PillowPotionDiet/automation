@@ -50,13 +50,13 @@ class GeminiGenAPI {
 
     /**
      * Test API connection
-     * @returns {Promise<boolean>} True if connection successful
+     * @returns {Promise<Object>} { success: boolean, message: string, error: string }
      */
     async testConnection() {
         try {
-            // Simple API key validation test
+            // Simple API key validation test - generate a minimal test image
             const formData = new FormData();
-            formData.append('prompt', 'test connection');
+            formData.append('prompt', 'a simple test image');
             formData.append('model', this.defaultImageModel);
             formData.append('aspect_ratio', '1:1');
             formData.append('style', 'None');
@@ -69,11 +69,35 @@ class GeminiGenAPI {
                 body: formData
             });
 
-            // Accept 200-299 as successful connection
-            return response.ok;
+            // Parse response
+            const data = await response.json().catch(() => null);
+
+            if (response.ok) {
+                // Successful connection
+                return {
+                    success: true,
+                    message: 'API connection successful!',
+                    data: data
+                };
+            } else {
+                // Failed with error response
+                const errorMsg = data?.detail?.message || data?.message || `HTTP ${response.status}: ${response.statusText}`;
+                const errorCode = data?.detail?.error_code || 'UNKNOWN_ERROR';
+
+                return {
+                    success: false,
+                    message: `Connection failed: ${errorMsg}`,
+                    error: errorCode,
+                    statusCode: response.status
+                };
+            }
         } catch (error) {
             console.error('Connection test failed:', error);
-            return false;
+            return {
+                success: false,
+                message: `Network error: ${error.message}`,
+                error: 'NETWORK_ERROR'
+            };
         }
     }
 
