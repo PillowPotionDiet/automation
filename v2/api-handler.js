@@ -58,7 +58,7 @@ const APIHandler = {
      */
     async testConnection(apiKey) {
         try {
-            const response = await fetch('/v2/api/test-key', {
+            const response = await fetch('/v2/api/test-key.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -68,18 +68,17 @@ const APIHandler = {
                 })
             });
 
-            const rawText = await response.text();
-            const data = this.safeJSONParse(rawText);
+            const data = await response.json();
 
             if (data.success) {
                 return {
                     success: true,
-                    message: data.message || 'API connection successful!'
+                    message: 'API connection successful!'
                 };
             } else {
                 return {
                     success: false,
-                    message: data.message || this.getErrorMessage(data.error) || 'Connection failed'
+                    message: data.message || 'Connection failed'
                 };
             }
         } catch (error) {
