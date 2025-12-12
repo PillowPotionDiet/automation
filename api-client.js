@@ -4,23 +4,38 @@
  */
 
 class GeminiGenAPI {
-    constructor(apiKey) {
+    constructor(apiKey, options = {}) {
         this.apiKey = apiKey;
-        this.baseURL = 'https://api.geminigen.ai'; // Default base URL
 
-        // Alternative base URLs to try
+        // Use proxy mode to avoid CORS issues
+        this.useProxy = options.useProxy !== undefined ? options.useProxy : true;
+        this.proxyBaseURL = options.proxyBaseURL || window.location.origin;
+        this.baseURL = 'https://api.geminigen.ai'; // Direct API URL (not used in proxy mode)
+
+        // Alternative base URLs to try (direct mode only)
         this.baseURLs = [
             'https://api.geminigen.ai',
             'https://geminigen.ai/api',
             'https://api.geminigen.com'
         ];
 
-        // Official GeminiGen.AI endpoints
-        this.endpoints = {
+        // Proxy endpoints (when useProxy = true)
+        this.proxyEndpoints = {
+            imageGenerate: '/api/geminigen/generate-image',
+            videoGenerate: '/api/geminigen/generate-video',
+            jobStatus: '/api/geminigen/status',
+            test: '/api/geminigen/test'
+        };
+
+        // Direct GeminiGen.AI endpoints (when useProxy = false)
+        this.directEndpoints = {
             imageGenerate: '/uapi/v1/generate_image',
             videoGenerate: '/uapi/v1/video-gen/veo',
             jobStatus: '/uapi/v1/status'
         };
+
+        // Use proxy endpoints by default
+        this.endpoints = this.useProxy ? this.proxyEndpoints : this.directEndpoints;
 
         // Available models
         this.models = {
@@ -54,42 +69,53 @@ class GeminiGenAPI {
      */
     async testConnection() {
         try {
-            // Simple API key validation test - generate a minimal test image
-            const formData = new FormData();
-            formData.append('prompt', 'a simple test image');
-            formData.append('model', this.defaultImageModel);
-            formData.append('aspect_ratio', '1:1');
-            formData.append('style', 'None');
+            if (this.useProxy) {
+                // Use proxy test endpoint
+                const response = await fetch(this.proxyBaseURL + this.proxyEndpoints.test, {
+                    method: 'GET',
+                    headers: {
+                        'x-api-key': this.apiKey
+                    }
+                });
 
-            const response = await fetch(this.baseURL + this.endpoints.imageGenerate, {
-                method: 'POST',
-                headers: {
-                    'x-api-key': this.apiKey
-                },
-                body: formData
-            });
+                return await response.json();
 
-            // Parse response
-            const data = await response.json().catch(() => null);
-
-            if (response.ok) {
-                // Successful connection
-                return {
-                    success: true,
-                    message: 'API connection successful!',
-                    data: data
-                };
             } else {
-                // Failed with error response
-                const errorMsg = data?.detail?.message || data?.message || `HTTP ${response.status}: ${response.statusText}`;
-                const errorCode = data?.detail?.error_code || 'UNKNOWN_ERROR';
+                // Direct API test - generate a minimal test image
+                const formData = new FormData();
+                formData.append('prompt', 'a simple test image');
+                formData.append('model', this.defaultImageModel);
+                formData.append('aspect_ratio', '1:1');
+                formData.append('style', 'None');
 
-                return {
-                    success: false,
-                    message: `Connection failed: ${errorMsg}`,
-                    error: errorCode,
-                    statusCode: response.status
-                };
+                const response = await fetch(this.baseURL + this.endpoints.imageGenerate, {
+                    method: 'POST',
+                    headers: {
+                        'x-api-key': this.apiKey
+                    },
+                    body: formData
+                });
+
+                // Parse response
+                const data = await response.json().catch(() => null);
+
+                if (response.ok) {
+                    return {
+                        success: true,
+                        message: 'API connection successful!',
+                        data: data
+                    };
+                } else {
+                    const errorMsg = data?.detail?.message || data?.message || `HTTP ${response.status}: ${response.statusText}`;
+                    const errorCode = data?.detail?.error_code || 'UNKNOWN_ERROR';
+
+                    return {
+                        success: false,
+                        message: `Connection failed: ${errorMsg}`,
+                        error: errorCode,
+                        statusCode: response.status
+                    };
+                }
             }
         } catch (error) {
             console.error('Connection test failed:', error);
@@ -192,49 +218,89 @@ class GeminiGenAPI {
      * @returns {Promise<string>} Image URL
      */
     async generateImage(prompt, options = {}) {
-        // Build FormData for multipart/form-data request
-        const formData = new FormData();
-        formData.append('prompt', prompt);
-        formData.append('model', options.model || this.defaultImageModel);
-        formData.append('aspect_ratio', options.aspect_ratio || this.defaultAspectRatio);
-        formData.append('style', options.style || this.defaultStyle);
-
-        // Add optional parameters
-        if (options.ref_history) {
-            formData.append('ref_history', options.ref_history);
-        }
-
         try {
-            const response = await fetch(this.baseURL + this.endpoints.imageGenerate, {
-                method: 'POST',
-                headers: {
-                    'x-api-key': this.apiKey
-                    // Don't set Content-Type - browser will set it with boundary for multipart/form-data
-                },
-                body: formData
-            });
+            if (this.useProxy) {
+                // Use proxy endpoint - send as JSON
+                const body = {
+                    prompt: prompt,
+                    model: options.model || this.defaultImageModel,
+                    aspect_ratio: options.aspect_ratio || this.defaultAspectRatio,
+                    style: options.style || this.defaultStyle
+                };
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.detail?.message || `HTTP ${response.status}: ${response.statusText}`);
+                if (options.ref_history) {
+                    body.ref_history = options.ref_history;
+                }
+
+                const response = await fetch(this.proxyBaseURL + this.proxyEndpoints.imageGenerate, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': this.apiKey
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || errorData.detail?.message || `HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                // Check status
+                if (data.status === 3) {
+                    throw new Error(data.error_message || 'Image generation failed');
+                }
+
+                // Extract image URL
+                const imageUrl = data.generate_result;
+                if (!imageUrl) {
+                    throw new Error('No image URL in response');
+                }
+
+                return imageUrl;
+
+            } else {
+                // Direct API call - use FormData
+                const formData = new FormData();
+                formData.append('prompt', prompt);
+                formData.append('model', options.model || this.defaultImageModel);
+                formData.append('aspect_ratio', options.aspect_ratio || this.defaultAspectRatio);
+                formData.append('style', options.style || this.defaultStyle);
+
+                if (options.ref_history) {
+                    formData.append('ref_history', options.ref_history);
+                }
+
+                const response = await fetch(this.baseURL + this.endpoints.imageGenerate, {
+                    method: 'POST',
+                    headers: {
+                        'x-api-key': this.apiKey
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.detail?.message || `HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                // Check status
+                if (data.status === 3) {
+                    throw new Error(data.error_message || 'Image generation failed');
+                }
+
+                // Extract image URL
+                const imageUrl = data.generate_result;
+                if (!imageUrl) {
+                    throw new Error('No image URL in response');
+                }
+
+                return imageUrl;
             }
-
-            const data = await response.json();
-
-            // Check status
-            if (data.status === 3) {
-                // Failed
-                throw new Error(data.error_message || 'Image generation failed');
-            }
-
-            // Extract image URL from generate_result field
-            const imageUrl = data.generate_result;
-
-            if (!imageUrl) {
-                throw new Error('No image URL in response');
-            }
-
-            return imageUrl;
 
         } catch (error) {
             console.error('Image generation error:', error);
@@ -286,36 +352,63 @@ class GeminiGenAPI {
      * @returns {Promise<string>} Video URL
      */
     async generateVideo(prompt, options = {}, progressCallback = null) {
-        // Build FormData for multipart/form-data request
-        const formData = new FormData();
-        formData.append('prompt', prompt);
-        formData.append('model', options.model || this.defaultVideoModel);
-        formData.append('resolution', options.resolution || this.defaultVideoResolution);
-        formData.append('aspect_ratio', options.aspect_ratio || this.defaultAspectRatio);
-
-        // Add optional file URLs (for reference images)
-        if (options.file_urls) {
-            formData.append('file_urls', options.file_urls);
-        }
-
-        // Add optional reference history UUID
-        if (options.ref_history) {
-            formData.append('ref_history', options.ref_history);
-        }
-
         try {
-            // Step 1: Initiate video generation
-            const response = await fetch(this.baseURL + this.endpoints.videoGenerate, {
-                method: 'POST',
-                headers: {
-                    'x-api-key': this.apiKey
-                },
-                body: formData
-            });
+            let response;
+
+            if (this.useProxy) {
+                // Use proxy endpoint - send as JSON
+                const body = {
+                    prompt: prompt,
+                    model: options.model || this.defaultVideoModel,
+                    resolution: options.resolution || this.defaultVideoResolution,
+                    aspect_ratio: options.aspect_ratio || this.defaultAspectRatio
+                };
+
+                if (options.file_urls) {
+                    body.file_urls = options.file_urls;
+                }
+
+                if (options.ref_history) {
+                    body.ref_history = options.ref_history;
+                }
+
+                response = await fetch(this.proxyBaseURL + this.proxyEndpoints.videoGenerate, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': this.apiKey
+                    },
+                    body: JSON.stringify(body)
+                });
+
+            } else {
+                // Direct API call - use FormData
+                const formData = new FormData();
+                formData.append('prompt', prompt);
+                formData.append('model', options.model || this.defaultVideoModel);
+                formData.append('resolution', options.resolution || this.defaultVideoResolution);
+                formData.append('aspect_ratio', options.aspect_ratio || this.defaultAspectRatio);
+
+                if (options.file_urls) {
+                    formData.append('file_urls', options.file_urls);
+                }
+
+                if (options.ref_history) {
+                    formData.append('ref_history', options.ref_history);
+                }
+
+                response = await fetch(this.baseURL + this.endpoints.videoGenerate, {
+                    method: 'POST',
+                    headers: {
+                        'x-api-key': this.apiKey
+                    },
+                    body: formData
+                });
+            }
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.detail?.message || `HTTP ${response.status}: ${response.statusText}`);
+                throw new Error(errorData.message || errorData.detail?.message || `HTTP ${response.status}: ${response.statusText}`);
             }
 
             const data = await response.json();
@@ -352,7 +445,11 @@ class GeminiGenAPI {
 
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
             try {
-                const response = await fetch(`${this.baseURL}${this.endpoints.jobStatus}/${uuid}`, {
+                const url = this.useProxy
+                    ? `${this.proxyBaseURL}${this.proxyEndpoints.jobStatus}/${uuid}`
+                    : `${this.baseURL}${this.endpoints.jobStatus}/${uuid}`;
+
+                const response = await fetch(url, {
                     method: 'GET',
                     headers: {
                         'x-api-key': this.apiKey
