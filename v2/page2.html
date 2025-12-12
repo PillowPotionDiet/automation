@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeminiGen Automation - Step 2: Configure Scene Prompts</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .paragraph-section {
+            margin-bottom: 30px;
+        }
+
+        .paragraph-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+
+        .paragraph-header:hover {
+            transform: translateX(4px);
+        }
+
+        .paragraph-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .toggle-icon {
+            font-size: 20px;
+            transition: transform 0.3s;
+        }
+
+        .paragraph-section.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .paragraph-content {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .paragraph-section.collapsed .paragraph-content {
+            display: none;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .paragraph-text {
+            background: rgba(99, 102, 241, 0.05);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .scene-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .frame-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .frame-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .scene-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🎬 GeminiGen Automation</div>
+        </div>
+    </header>
+
+    <!-- Step Indicator -->
+    <div class="container">
+        <div id="stepIndicator"></div>
+
+        <!-- Main Content -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Step 2: Configure Scene Prompts</h2>
+                <p>Review and edit the starting and ending frame prompts for each scene</p>
+            </div>
+
+            <div class="info-box">
+                <h3>💡 Tips</h3>
+                <p>• Each scene needs a <strong>starting frame</strong> (how it begins) and an <strong>ending frame</strong> (how it ends)</p>
+                <p>• You can edit any prompt to better match your vision</p>
+                <p>• Click on paragraph headers to collapse/expand sections</p>
+            </div>
+
+            <div id="scenesContainer"></div>
+
+            <!-- Navigation Buttons -->
+            <div class="btn-group">
+                <button id="backBtn" class="btn btn-secondary">
+                    ← Back to Script Input
+                </button>
+                <button id="nextBtn" class="btn btn-primary">
+                    Next: Generate Images →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="state-manager.js"></script>
+    <script src="api-handler.js"></script>
+    <script src="common.js"></script>
+    <script>
+        // Initialize step indicator
+        document.getElementById('stepIndicator').innerHTML = Utils.createStepIndicator(2);
+
+        // Check if user has completed page 1
+        if (!StateManager.hasCompletedPage(1)) {
+            Utils.showError('Please complete Step 1 first');
+            setTimeout(() => Utils.navigateTo('index.html'), 2000);
+        }
+
+        // Load scenes
+        const scenes = StateManager.getScenes();
+
+        if (!scenes || scenes.length === 0) {
+            Utils.showError('No scenes found. Please restart from Step 1.');
+            setTimeout(() => Utils.navigateTo('index.html'), 2000);
+        }
+
+        // Group scenes by paragraph
+        const paragraphs = {};
+        scenes.forEach(scene => {
+            const paraIndex = scene.paragraphIndex;
+            if (!paragraphs[paraIndex]) {
+                paragraphs[paraIndex] = {
+                    text: scene.paragraphText,
+                    scenes: []
+                };
+            }
+            paragraphs[paraIndex].scenes.push(scene);
+        });
+
+        // Render scenes
+        const container = document.getElementById('scenesContainer');
+
+        Object.keys(paragraphs).sort((a, b) => a - b).forEach(paraIndex => {
+            const para = paragraphs[paraIndex];
+
+            const section = document.createElement('div');
+            section.className = 'paragraph-section';
+            section.innerHTML = `
+                <div class="paragraph-header" data-paragraph="${paraIndex}">
+                    <h3>📖 Paragraph ${paraIndex}</h3>
+                    <span class="toggle-icon">▼</span>
+                </div>
+                <div class="paragraph-content">
+                    <div class="paragraph-text">${para.text}</div>
+                    <div class="scenes-list" data-paragraph="${paraIndex}"></div>
+                </div>
+            `;
+
+            container.appendChild(section);
+
+            const scenesList = section.querySelector('.scenes-list');
+
+            para.scenes.forEach(scene => {
+                const sceneRow = document.createElement('div');
+                sceneRow.className = 'scene-row';
+                sceneRow.innerHTML = `
+                    <div class="scene-number" style="grid-column: 1 / -1; margin-bottom: 12px; font-weight: 700; color: var(--primary-color);">
+                        Scene ${scene.sceneNumber}
+                    </div>
+                    <div class="frame-group">
+                        <label class="frame-label">🎬 Starting Frame</label>
+                        <textarea
+                            class="form-textarea"
+                            data-scene="${scene.sceneNumber}"
+                            data-type="start"
+                            rows="3"
+                        >${scene.startingFrame}</textarea>
+                    </div>
+                    <div class="frame-group">
+                        <label class="frame-label">🎬 Ending Frame</label>
+                        <textarea
+                            class="form-textarea"
+                            data-scene="${scene.sceneNumber}"
+                            data-type="end"
+                            rows="3"
+                        >${scene.endingFrame}</textarea>
+                    </div>
+                `;
+
+                scenesList.appendChild(sceneRow);
+            });
+        });
+
+        // Toggle paragraph sections
+        document.querySelectorAll('.paragraph-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const section = header.closest('.paragraph-section');
+                section.classList.toggle('collapsed');
+            });
+        });
+
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', () => {
+            Utils.navigateTo('index.html');
+        });
+
+        // Next button - save edited prompts
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            // Collect all edited prompts
+            const updatedScenes = scenes.map(scene => {
+                const startInput = document.querySelector(`textarea[data-scene="${scene.sceneNumber}"][data-type="start"]`);
+                const endInput = document.querySelector(`textarea[data-scene="${scene.sceneNumber}"][data-type="end"]`);
+
+                return {
+                    ...scene,
+                    startingFrame: startInput ? startInput.value.trim() : scene.startingFrame,
+                    endingFrame: endInput ? endInput.value.trim() : scene.endingFrame
+                };
+            });
+
+            // Validate all prompts
+            const hasEmptyPrompts = updatedScenes.some(scene =>
+                !scene.startingFrame || !scene.endingFrame
+            );
+
+            if (hasEmptyPrompts) {
+                Utils.showError('All prompts must be filled out');
+                return;
+            }
+
+            // Save updated scenes
+            StateManager.saveScenes(updatedScenes);
+
+            Utils.showSuccess('Scene prompts saved!');
+
+            // Navigate to page 3
+            setTimeout(() => Utils.navigateTo('page3.html'), 500);
+        });
+    </script>
+</body>
+</html>

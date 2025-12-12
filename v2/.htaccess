@@ -1,0 +1,39 @@
+# GeminiGen Automation - Apache Configuration
+
+# Enable Rewrite Engine
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Route webhook endpoint
+    RewriteRule ^webhook$ webhook.php [L,QSA]
+
+    # Route webhook status endpoint
+    RewriteRule ^webhook-status/(.+)$ webhook-status.php [L,QSA]
+
+    # Route all /api/geminigen/* requests to proxy.php
+    RewriteRule ^api/geminigen/(.*)$ ../proxy.php [L,QSA]
+</IfModule>
+
+# Enable CORS
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, x-api-key, x-signature"
+    Header always set Access-Control-Allow-Credentials "true"
+</IfModule>
+
+# Security Headers
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Prevent directory listing
+Options -Indexes
+
+# Protect webhook data directory
+<IfModule mod_rewrite.c>
+    RewriteRule ^webhook-data/ - [F,L]
+</IfModule>
