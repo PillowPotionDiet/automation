@@ -5,6 +5,9 @@
     RewriteEngine On
     RewriteBase /
 
+    # Route API test-key endpoint
+    RewriteRule ^api/test-key$ api/test-key.php [L,QSA]
+
     # Route webhook endpoint
     RewriteRule ^webhook$ webhook.php [L,QSA]
 

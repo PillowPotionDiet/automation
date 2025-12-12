@@ -54,37 +54,32 @@ const APIHandler = {
     },
 
     /**
-     * Test API connection - DIRECT POST REQUEST
+     * Test API connection - USES BACKEND PROXY (NO CORS)
      */
     async testConnection(apiKey) {
         try {
-            const response = await fetch(this.baseURL + this.endpoints.imageGenerate, {
+            const response = await fetch('/v2/api/test-key', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': apiKey
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    prompt: 'test validation',
-                    model: 'imagen-pro'
+                    apiKey: apiKey
                 })
             });
 
             const rawText = await response.text();
             const data = this.safeJSONParse(rawText);
 
-            if (response.ok) {
+            if (data.success) {
                 return {
                     success: true,
-                    message: 'API connection successful!'
+                    message: data.message || 'API connection successful!'
                 };
             } else {
-                const errorMsg = data?.detail?.message || data?.message || `HTTP ${response.status}`;
-                const errorCode = data?.detail?.error_code || 'UNKNOWN_ERROR';
-
                 return {
                     success: false,
-                    message: this.getErrorMessage(errorCode) || errorMsg
+                    message: data.message || this.getErrorMessage(data.error) || 'Connection failed'
                 };
             }
         } catch (error) {
