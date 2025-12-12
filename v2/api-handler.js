@@ -1,15 +1,14 @@
 /**
  * API HANDLER
- * Handles all GeminiGen API calls
+ * Handles all GeminiGen API calls - DIRECT API CALLS (NO PROXY)
  */
 
 const APIHandler = {
-    baseURL: window.location.origin, // Use proxy
-    proxyEndpoints: {
-        imageGenerate: '/api/geminigen/generate-image',
-        videoGenerate: '/api/geminigen/generate-video',
-        status: '/api/geminigen/status',
-        test: '/api/geminigen/test'
+    baseURL: 'https://api.geminigen.ai',
+    endpoints: {
+        imageGenerate: '/uapi/v1/generate_image',
+        videoGenerate: '/uapi/v1/video-gen/veo',
+        status: '/uapi/v1/status'
     },
 
     /**
@@ -40,41 +39,65 @@ const APIHandler = {
     },
 
     /**
-     * Test API connection
+     * Safe JSON parser - handles HTML 404 responses
+     */
+    safeJSONParse(text) {
+        try {
+            return JSON.parse(text);
+        } catch (error) {
+            // Handle HTML responses (404 pages, etc)
+            if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+                throw new Error('Server returned HTML instead of JSON - endpoint may not exist');
+            }
+            throw error;
+        }
+    },
+
+    /**
+     * Test API connection - DIRECT POST REQUEST
      */
     async testConnection(apiKey) {
         try {
-            const response = await fetch(this.baseURL + this.proxyEndpoints.test, {
-                method: 'GET',
+            const response = await fetch(this.baseURL + this.endpoints.imageGenerate, {
+                method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     'x-api-key': apiKey
-                }
+                },
+                body: JSON.stringify({
+                    prompt: 'test validation',
+                    model: 'imagen-pro'
+                })
             });
 
-            const data = await response.json();
+            const rawText = await response.text();
+            const data = this.safeJSONParse(rawText);
 
-            if (data.success) {
+            if (response.ok) {
                 return {
                     success: true,
                     message: 'API connection successful!'
                 };
             } else {
+                const errorMsg = data?.detail?.message || data?.message || `HTTP ${response.status}`;
+                const errorCode = data?.detail?.error_code || 'UNKNOWN_ERROR';
+
                 return {
                     success: false,
-                    message: this.getErrorMessage(data.error) || data.message
+                    message: this.getErrorMessage(errorCode) || errorMsg
                 };
             }
         } catch (error) {
             console.error('Connection test error:', error);
             return {
                 success: false,
-                message: this.getErrorMessage('NETWORK_ERROR')
+                message: error.message || this.getErrorMessage('NETWORK_ERROR')
             };
         }
     },
 
     /**
-     * Generate image
+     * Generate image - DIRECT API CALL
      */
     async generateImage(apiKey, prompt, settings) {
         try {
@@ -98,7 +121,7 @@ const APIHandler = {
                 body.ref_history = settings.ref_history;
             }
 
-            const response = await fetch(this.baseURL + this.proxyEndpoints.imageGenerate, {
+            const response = await fetch(this.baseURL + this.endpoints.imageGenerate, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -107,10 +130,13 @@ const APIHandler = {
                 body: JSON.stringify(body)
             });
 
-            const data = await response.json();
+            const rawText = await response.text();
+            const data = this.safeJSONParse(rawText);
 
             if (!response.ok) {
-                throw new Error(data.error || data.message || 'Image generation failed');
+                const errorMsg = data?.detail?.message || data?.message || 'Image generation failed';
+                const errorCode = data?.detail?.error_code || null;
+                throw new Error(errorCode ? this.getErrorMessage(errorCode) : errorMsg);
             }
 
             // Return UUID for tracking
@@ -131,7 +157,7 @@ const APIHandler = {
     },
 
     /**
-     * Generate video
+     * Generate video - DIRECT API CALL
      */
     async generateVideo(apiKey, startImageUrl, endImageUrl, settings) {
         try {
@@ -158,7 +184,7 @@ const APIHandler = {
                 body.ref_history = settings.ref_history;
             }
 
-            const response = await fetch(this.baseURL + this.proxyEndpoints.videoGenerate, {
+            const response = await fetch(this.baseURL + this.endpoints.videoGenerate, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -167,10 +193,13 @@ const APIHandler = {
                 body: JSON.stringify(body)
             });
 
-            const data = await response.json();
+            const rawText = await response.text();
+            const data = this.safeJSONParse(rawText);
 
             if (!response.ok) {
-                throw new Error(data.error || data.message || 'Video generation failed');
+                const errorMsg = data?.detail?.message || data?.message || 'Video generation failed';
+                const errorCode = data?.detail?.error_code || null;
+                throw new Error(errorCode ? this.getErrorMessage(errorCode) : errorMsg);
             }
 
             return {
@@ -190,22 +219,23 @@ const APIHandler = {
     },
 
     /**
-     * Check status (for manual polling if needed)
+     * Check status - DIRECT API CALL
      * NOTE: Primary updates come from webhooks
      */
     async checkStatus(apiKey, uuid) {
         try {
-            const response = await fetch(`${this.baseURL}${this.proxyEndpoints.status}/${uuid}`, {
+            const response = await fetch(`${this.baseURL}${this.endpoints.status}/${uuid}`, {
                 method: 'GET',
                 headers: {
                     'x-api-key': apiKey
                 }
             });
 
-            const data = await response.json();
+            const rawText = await response.text();
+            const data = this.safeJSONParse(rawText);
 
             if (!response.ok) {
-                throw new Error(data.error || 'Status check failed');
+                throw new Error(data?.error || 'Status check failed');
             }
 
             return {
