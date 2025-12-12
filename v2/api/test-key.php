@@ -53,8 +53,10 @@ if (empty($apiKey)) {
 $ch = curl_init();
 
 $requestBody = json_encode([
-    'prompt' => 'validation test',
-    'model' => 'imagen-pro'
+    'input_text' => 'validation test',
+    'model_name' => 'imagen-pro',
+    'aspect_ratio' => '1:1',
+    'style' => 'None'
 ]);
 
 curl_setopt($ch, CURLOPT_URL, 'https://api.geminigen.ai/uapi/v1/generate_image');

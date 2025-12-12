@@ -96,20 +96,22 @@ const APIHandler = {
      */
     async generateImage(apiKey, prompt, settings) {
         try {
-            const body = {
-                prompt: prompt,
-                model: settings.model || 'imagen-pro',
-                aspect_ratio: settings.aspectRatio || '16:9',
-                style: settings.style || 'None'
-            };
+            let finalPrompt = prompt;
 
             // Add consistency locks if enabled
             if (settings.environmentLock) {
-                body.prompt += ' Maintain identical environment, lighting, and atmosphere.';
+                finalPrompt += ' Maintain identical environment, lighting, and atmosphere.';
             }
             if (settings.characterLock) {
-                body.prompt += ' Keep same character appearance, face, body, clothing, and colors.';
+                finalPrompt += ' Keep same character appearance, face, body, clothing, and colors.';
             }
+
+            const body = {
+                input_text: finalPrompt,
+                model_name: settings.model || 'imagen-pro',
+                aspect_ratio: settings.aspectRatio || '16:9',
+                style: settings.style || 'None'
+            };
 
             // Add ref_history if provided
             if (settings.ref_history) {
@@ -156,23 +158,23 @@ const APIHandler = {
      */
     async generateVideo(apiKey, startImageUrl, endImageUrl, settings) {
         try {
-            const prompt = `Create smooth cinematic 8-second transition from the starting frame to the ending frame. Maintain character identity, environment, lighting, colors, mood, and composition.`;
+            let finalPrompt = `Create smooth cinematic 8-second transition from the starting frame to the ending frame. Maintain character identity, environment, lighting, colors, mood, and composition.`;
+
+            // Add consistency locks
+            if (settings.environmentConsistency) {
+                finalPrompt += ' Maintain identical environment and lighting throughout.';
+            }
+            if (settings.characterConsistency) {
+                finalPrompt += ' Keep character appearance exactly the same.';
+            }
 
             const body = {
-                prompt: prompt,
-                model: settings.model || 'veo-3.1-fast',
+                input_text: finalPrompt,
+                model_name: settings.model || 'veo-3.1-fast',
                 resolution: settings.resolution || '1080p',
                 aspect_ratio: settings.aspectRatio || '16:9',
                 file_urls: startImageUrl
             };
-
-            // Add consistency locks
-            if (settings.environmentConsistency) {
-                body.prompt += ' Maintain identical environment and lighting throughout.';
-            }
-            if (settings.characterConsistency) {
-                body.prompt += ' Keep character appearance exactly the same.';
-            }
 
             // Add ref_history if provided
             if (settings.ref_history) {
