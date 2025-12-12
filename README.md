@@ -92,30 +92,74 @@ A professional web application that transforms written scripts into AI-generated
 
 ---
 
-## 🚀 Installation
+## 🚀 Installation & Deployment
 
-### Option 1: Direct Download
+### Important: CORS Fix Required
 
-1. Download all files to a directory:
-```
-script-to-video-generator/
-├── index.html
-├── styles.css
-├── app.js
-├── api-client.js
-├── rate-limiter.js
-├── consistency-manager.js
-├── video-stitcher.js
-├── utils.js
-└── README.md
-```
+GeminiGen.AI API blocks direct browser requests due to CORS restrictions. You **must** deploy a backend proxy.
 
-2. Open `index.html` in your web browser
+### Quick Deployment (2 Minutes) ⚡
 
-### Option 2: Clone Repository
+**Recommended: PHP Proxy** (No Node.js required)
 
+1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/script-to-video-generator.git
+git clone https://github.com/PillowPotionDiet/automation.git
+cd automation
+```
+
+2. Upload to your web server:
+   - Upload all files to `public_html` or `www`
+   - Rename `.htaccess-example` to `.htaccess`
+
+3. That's it! Open your site in browser.
+
+📖 **Detailed Guide**: See [PHP_PROXY_SETUP.md](PHP_PROXY_SETUP.md)
+
+---
+
+### Alternative: Node.js Proxy
+
+If you prefer Node.js:
+
+1. Clone and install:
+```bash
+git clone https://github.com/PillowPotionDiet/automation.git
+cd automation
+npm install
+```
+
+2. Start the proxy:
+```bash
+npm start
+# OR with PM2:
+pm2 start backend-proxy-example.js --name geminigen-proxy
+```
+
+📖 **Detailed Guide**: See [PROXY_SETUP.md](PROXY_SETUP.md)
+
+---
+
+### Local Development (File Protocol)
+
+**⚠️ Local files won't work due to CORS!**
+
+For local testing without a server:
+1. Use a local web server: `python -m http.server 8000`
+2. Open `http://localhost:8000`
+3. OR deploy to a hosting service
+
+---
+
+### Deployment Checklist
+
+- [ ] Clone repository
+- [ ] Deploy backend proxy (PHP or Node.js)
+- [ ] Upload frontend files
+- [ ] Test: Open site and click "Test Connection"
+- [ ] Enter API key and verify ✅ "API connection successful!"
+
+📖 **Quick Start**: See [DEPLOY_INSTRUCTIONS.md](DEPLOY_INSTRUCTIONS.md)
 cd script-to-video-generator
 ```
 
