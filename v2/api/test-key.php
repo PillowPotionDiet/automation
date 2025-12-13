@@ -18,23 +18,20 @@ if ($apiKey === "") {
     exit;
 }
 
-// Prepare test body - Try absolute minimal payload
-$payload = [
-    "body" => [
-        "prompt" => "test image"
-    ]
+// Prepare FormData payload - GeminiGen expects multipart/form-data
+$postFields = [
+    "prompt" => "test image",
+    "model" => "imagen-flash"
 ];
-
-$jsonPayload = json_encode($payload);
 
 $ch = curl_init("https://api.geminigen.ai/uapi/v1/generate_image");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    "Content-Type: application/json",
+    "Accept: application/json",
     "x-api-key: ".$apiKey
 ]);
-curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonPayload);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
 
 $response = curl_exec($ch);
 $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -43,6 +40,6 @@ curl_close($ch);
 echo json_encode([
     "success" => $status === 200,
     "status" => $status,
-    "payload_sent" => $payload,
+    "payload_sent" => $postFields,
     "geminigen_raw" => json_decode($response, true)
 ]);

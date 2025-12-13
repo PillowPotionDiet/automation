@@ -75,7 +75,7 @@ const APIHandler = {
     },
 
     /**
-     * Generate image - DIRECT API CALL
+     * Generate image - DIRECT API CALL (uses FormData)
      */
     async generateImage(apiKey, prompt, settings) {
         try {
@@ -89,27 +89,25 @@ const APIHandler = {
                 finalPrompt += ' Keep same character appearance, face, body, clothing, and colors.';
             }
 
-            const requestBody = {
-                model: settings.model || 'nanobanana-pro',
-                body: {
-                    prompt: finalPrompt
-                },
-                aspect_ratio: settings.aspectRatio || '16:9',
-                style: settings.style || 'None'
-            };
+            // GeminiGen requires FormData (multipart/form-data)
+            const formData = new FormData();
+            formData.append('prompt', finalPrompt);
+            formData.append('model', settings.model || 'nanobanana-pro');
+            formData.append('aspect_ratio', settings.aspectRatio || '16:9');
+            formData.append('style', settings.style || 'None');
 
             // Add ref_history if provided
             if (settings.ref_history) {
-                requestBody.ref_history = settings.ref_history;
+                formData.append('ref_history', settings.ref_history);
             }
 
             const response = await fetch(this.baseURL + this.endpoints.imageGenerate, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'x-api-key': apiKey
                 },
-                body: JSON.stringify(requestBody)
+                body: formData
             });
 
             const rawText = await response.text();
@@ -139,7 +137,7 @@ const APIHandler = {
     },
 
     /**
-     * Generate video - DIRECT API CALL
+     * Generate video - DIRECT API CALL (uses FormData)
      */
     async generateVideo(apiKey, startImageUrl, endImageUrl, settings) {
         try {
@@ -153,28 +151,26 @@ const APIHandler = {
                 finalPrompt += ' Keep character appearance exactly the same.';
             }
 
-            const requestBody = {
-                model: settings.model || 'veo-3.1-fast',
-                body: {
-                    prompt: finalPrompt,
-                    start_image: startImageUrl,
-                    end_image: endImageUrl
-                },
-                aspect_ratio: settings.aspectRatio || '16:9'
-            };
+            // GeminiGen requires FormData (multipart/form-data)
+            const formData = new FormData();
+            formData.append('prompt', finalPrompt);
+            formData.append('model', settings.model || 'veo-3.1-fast');
+            formData.append('start_image', startImageUrl);
+            formData.append('end_image', endImageUrl);
+            formData.append('aspect_ratio', settings.aspectRatio || '16:9');
 
             // Add ref_history if provided
             if (settings.ref_history) {
-                requestBody.ref_history = settings.ref_history;
+                formData.append('ref_history', settings.ref_history);
             }
 
             const response = await fetch(this.baseURL + this.endpoints.videoGenerate, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'x-api-key': apiKey
                 },
-                body: JSON.stringify(requestBody)
+                body: formData
             });
 
             const rawText = await response.text();
