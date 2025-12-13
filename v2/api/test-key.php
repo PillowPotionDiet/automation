@@ -18,11 +18,8 @@ if ($apiKey === "") {
     exit;
 }
 
-// Prepare test body - HYBRID: root fields + nested body.prompt
+// Prepare test body - Try absolute minimal payload
 $payload = [
-    "model" => "nanobanana-pro",
-    "aspect_ratio" => "1:1",
-    "style" => "None",
     "body" => [
         "prompt" => "test image"
     ]
