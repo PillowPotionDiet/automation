@@ -13,45 +13,72 @@ const ScriptSplitter = {
      * @param {object} options - Additional options (model, etc.)
      */
     async splitScript(provider, apiKey, rawScript, numberOfScenes, options = {}) {
-        const systemInstruction = `You are a professional screenplay and storyboard expert. Your job is to split scripts into scenes with detailed visual descriptions for AI image generation.`;
+        const systemInstruction = `You are a professional screenplay and storyboard expert specializing in visual storytelling and AI image generation prompts. Your expertise is in breaking down narratives into distinct, progressive scenes with rich visual descriptions.`;
 
         const prompt = `
-Split the following script into exactly ${numberOfScenes} scenes. For each scene, provide:
-1. Scene number
-2. Scene description (1-2 sentences summarizing what happens)
-3. Starting frame description (detailed visual description for image generation - include environment, characters, mood, lighting, composition)
-4. Ending frame description (detailed visual description for image generation - include environment, characters, mood, lighting, composition)
+TASK: Split the following script into exactly ${numberOfScenes} DISTINCT, PROGRESSIVE scenes.
 
-IMPORTANT REQUIREMENTS:
-- Each scene must have UNIQUE and DIFFERENT descriptions
-- Starting and ending frames must be VISUALLY DISTINCT from each other
-- Be specific about character positions, expressions, camera angles
-- Include details about environment, lighting, time of day, mood
-- Make descriptions rich enough for AI image generation
+CRITICAL RULES TO PREVENT REPETITION:
+1. READ THE ENTIRE SCRIPT FIRST - Understand the full narrative arc
+2. DIVIDE CHRONOLOGICALLY - Each scene must cover a DIFFERENT part of the story timeline
+3. NO REPETITION - Never reuse or copy descriptions between scenes
+4. SHOW PROGRESSION - Each scene should advance the story visually and narratively
+5. UNIQUE VISUALS - Every scene must have completely different visual elements
 
-Output format (JSON):
+FOR EACH SCENE, PROVIDE:
+1. Scene number (1 to ${numberOfScenes})
+2. Scene description: What happens in THIS SPECIFIC part of the story (1-2 sentences)
+3. Starting frame: DETAILED visual description for the OPENING of this scene
+   - Character position, expression, action
+   - Environment, location, setting details
+   - Lighting (time of day, mood lighting, light sources)
+   - Camera angle and composition
+   - Atmosphere and mood
+4. Ending frame: DETAILED visual description for the CLOSING of this scene
+   - Must be DIFFERENT from starting frame (show change/progression)
+   - Include all the same detail types as starting frame
+
+IMPORTANT VISUAL DESCRIPTION GUIDELINES:
+✓ Be SPECIFIC: "Man in blue jacket standing by oak tree at sunset" NOT "person outside"
+✓ Include COLORS, TEXTURES, MATERIALS: "red brick wall", "soft golden light", "worn leather jacket"
+✓ Describe EXPRESSIONS: "smiling warmly", "looking worried", "eyes wide with surprise"
+✓ Specify POSITIONS: "left side of frame", "center, facing camera", "background right"
+✓ Add ATMOSPHERIC DETAILS: "morning mist", "dramatic shadows", "warm cafe lighting"
+✓ Note TIME PROGRESSION: morning → afternoon → evening → night across scenes
+
+EXAMPLE OF GOOD SCENE PROGRESSION:
+Scene 1: Morning coffee shop → Character enters, orders → sits down with laptop
+Scene 2: Afternoon park → Character walks dog → stops at bench to read
+Scene 3: Evening home → Character cooks dinner → sets table with candles
+
+EXAMPLE OF BAD (REPEATED) SCENES - AVOID THIS:
+❌ Scene 1: Character in coffee shop
+❌ Scene 2: Character still in coffee shop (NO PROGRESSION!)
+❌ Scene 3: Character in coffee shop again (REPETITIVE!)
+
+OUTPUT FORMAT (JSON ONLY):
 {
   "scenes": [
     {
       "sceneNumber": 1,
-      "description": "Brief scene summary",
-      "startingFrame": "Detailed visual description for starting image",
-      "endingFrame": "Detailed visual description for ending image"
+      "description": "Opening scene - protagonist arrives at the train station in early morning light",
+      "startingFrame": "Wide shot of a bustling train station at dawn, soft orange sunlight streaming through tall glass windows. A young woman in a red coat stands on platform 7, looking up at the departure board with a hopeful expression. Her brown leather suitcase sits beside her feet. Cool blue tones in shadows contrast with warm golden light.",
+      "endingFrame": "Medium close-up of the same woman now seated on a wooden bench, her red coat unbuttoned. She's reading a paperback book with a gentle smile. The morning light has brightened to yellow-white. Her suitcase is now propped against the bench. Background shows blurred passengers walking past."
     }
   ]
 }
 
-Script to split:
+SCRIPT TO SPLIT:
 ${rawScript}
 
-Respond ONLY with valid JSON, no other text.
+RESPOND WITH VALID JSON ONLY. NO EXPLANATIONS. NO MARKDOWN. JUST THE JSON OBJECT.
 `;
 
         try {
             if (provider === 'openai') {
                 // OpenAI - Returns response immediately
                 const model = options.model || 'gpt-4o-mini';
-                const result = await GeminiGenAPI.generateTextOpenAI(
+                const result = await APIHandler.generateTextOpenAI(
                     apiKey,
                     prompt,
                     systemInstruction,
@@ -69,7 +96,7 @@ Respond ONLY with valid JSON, no other text.
 
             } else {
                 // GeminiGen - Returns UUID, needs webhook
-                const result = await GeminiGenAPI.generateText(
+                const result = await APIHandler.generateText(
                     apiKey,
                     prompt,
                     systemInstruction,

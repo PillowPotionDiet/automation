@@ -203,6 +203,7 @@
     <!-- Scripts -->
     <script src="state-manager.js?v=6.0"></script>
     <script src="api-handler.js?v=19.0"></script>
+    <script src="script-splitter.js?v=1.0"></script>
     <script src="common.js?v=5.0"></script>
     <script>
         // Initialize step indicator
@@ -325,13 +326,14 @@
             }
         });
 
-        // Form submission
-        document.getElementById('scriptForm').addEventListener('submit', (e) => {
+        // Form submission with AI-powered script splitting
+        document.getElementById('scriptForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const script = document.getElementById('scriptInput').value.trim();
             const numParagraphs = parseInt(document.getElementById('numParagraphs').value);
             const scenesPerParagraph = parseInt(document.getElementById('scenesPerParagraph').value);
+            const totalScenes = Utils.calculateTotalScenes(numParagraphs, scenesPerParagraph);
 
             if (!script) {
                 Utils.showError('Please enter a script');
@@ -343,34 +345,65 @@
                 script,
                 numParagraphs,
                 scenesPerParagraph,
-                totalScenes: Utils.calculateTotalScenes(numParagraphs, scenesPerParagraph)
+                totalScenes
             };
-
             StateManager.saveScriptData(scriptData);
 
-            // Generate scene structure
-            const paragraphs = Utils.splitScriptIntoParagraphs(script, numParagraphs);
-            const scenes = [];
-            let sceneIndex = 1;
+            // Get AI provider settings
+            const aiSettings = StateManager.getAIProviderSettings();
+            const provider = aiSettings.provider || 'openai';
+            const apiKey = provider === 'openai' ? aiSettings.openaiKey : StateManager.getApiKey();
+            const options = provider === 'openai' ? { model: aiSettings.openaiModel } : {};
 
-            paragraphs.forEach((paragraphText, paraIndex) => {
-                for (let i = 0; i < scenesPerParagraph; i++) {
-                    const prompts = Utils.generateScenePrompts(paragraphText, sceneIndex, scenesPerParagraph);
-                    scenes.push({
-                        sceneNumber: sceneIndex,
-                        paragraphIndex: paraIndex + 1,
-                        paragraphText: paragraphText,
-                        startingFrame: prompts.startingFrame,
-                        endingFrame: prompts.endingFrame
-                    });
-                    sceneIndex++;
+            // Show loading
+            Utils.showLoading('🤖 AI is splitting your script into scenes...');
+
+            try {
+                // Use AI to split script into scenes
+                const result = await ScriptSplitter.splitScript(
+                    provider,
+                    apiKey,
+                    script,
+                    totalScenes,
+                    options
+                );
+
+                Utils.hideLoading();
+
+                if (!result.success) {
+                    Utils.showError(result.message || 'Failed to split script');
+                    return;
                 }
-            });
 
-            StateManager.saveScenes(scenes);
+                if (result.requiresWebhook) {
+                    // GeminiGen - needs webhook polling
+                    Utils.showLoading('Waiting for GeminiGen AI response...');
+                    Utils.hideLoading();
+                    Utils.showError('GeminiGen text generation requires webhook polling. Please use OpenAI for now.');
+                    return;
+                }
 
-            // Navigate to page 2
-            Utils.navigateTo('page2.html');
+                // OpenAI - got scenes immediately
+                if (!result.scenes || result.scenes.length === 0) {
+                    Utils.showError('No scenes were generated. Please try again.');
+                    return;
+                }
+
+                // Save AI-generated scenes
+                StateManager.saveScenes(result.scenes);
+
+                Utils.showSuccess(`✅ Successfully split script into ${result.scenes.length} unique scenes!`);
+
+                // Navigate to page 2 after short delay
+                setTimeout(() => {
+                    Utils.navigateTo('page2.html');
+                }, 1500);
+
+            } catch (error) {
+                Utils.hideLoading();
+                console.error('Script splitting error:', error);
+                Utils.showError('Failed to split script: ' + error.message);
+            }
         });
     </script>
 </body>
