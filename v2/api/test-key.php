@@ -19,9 +19,11 @@ if ($apiKey === "") {
 }
 
 // Prepare test body
-$body = [
+$payload = [
     "model" => "nanobanana-pro",
-    "prompt" => "test image",
+    "body" => [
+        "prompt" => "test image"
+    ],
     "aspect_ratio" => "1:1",
     "style" => "None"
 ];
@@ -33,7 +35,7 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
     "Content-Type: application/json",
     "x-api-key: ".$apiKey
 ]);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
 
 $response = curl_exec($ch);
 $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);

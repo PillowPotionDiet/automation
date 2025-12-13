@@ -89,16 +89,18 @@ const APIHandler = {
                 finalPrompt += ' Keep same character appearance, face, body, clothing, and colors.';
             }
 
-            const body = {
+            const requestBody = {
                 model: settings.model || 'nanobanana-pro',
-                prompt: finalPrompt,
+                body: {
+                    prompt: finalPrompt
+                },
                 aspect_ratio: settings.aspectRatio || '16:9',
                 style: settings.style || 'None'
             };
 
             // Add ref_history if provided
             if (settings.ref_history) {
-                body.ref_history = settings.ref_history;
+                requestBody.ref_history = settings.ref_history;
             }
 
             const response = await fetch(this.baseURL + this.endpoints.imageGenerate, {
@@ -107,7 +109,7 @@ const APIHandler = {
                     'Content-Type': 'application/json',
                     'x-api-key': apiKey
                 },
-                body: JSON.stringify(body)
+                body: JSON.stringify(requestBody)
             });
 
             const rawText = await response.text();
@@ -151,17 +153,19 @@ const APIHandler = {
                 finalPrompt += ' Keep character appearance exactly the same.';
             }
 
-            const body = {
+            const requestBody = {
                 model: settings.model || 'veo-3.1-fast',
-                prompt: finalPrompt,
-                start_image: startImageUrl,
-                end_image: endImageUrl,
+                body: {
+                    prompt: finalPrompt,
+                    start_image: startImageUrl,
+                    end_image: endImageUrl
+                },
                 aspect_ratio: settings.aspectRatio || '16:9'
             };
 
             // Add ref_history if provided
             if (settings.ref_history) {
-                body.ref_history = settings.ref_history;
+                requestBody.ref_history = settings.ref_history;
             }
 
             const response = await fetch(this.baseURL + this.endpoints.videoGenerate, {
@@ -170,7 +174,7 @@ const APIHandler = {
                     'Content-Type': 'application/json',
                     'x-api-key': apiKey
                 },
-                body: JSON.stringify(body)
+                body: JSON.stringify(requestBody)
             });
 
             const rawText = await response.text();
