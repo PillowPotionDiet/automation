@@ -56,17 +56,17 @@ if (!$record) {
 
 // Extract relevant data from webhook
 $webhookData = $record['data'];
-$eventType = $webhookData['event_type'] ?? '';
+$event_name = $record['event_name'] ?? '';
 
 // Prepare response based on event type
 $response = [
     'uuid' => $uuid,
-    'event_type' => $eventType,
+    'event_name' => $event_name,
     'timestamp' => $record['timestamp']
 ];
 
 // Map webhook data to standard response format
-if ($eventType === 'IMAGE_GENERATION_COMPLETED' || $eventType === 'VIDEO_GENERATION_COMPLETED') {
+if ($event_name === 'IMAGE_GENERATION_COMPLETED' || $event_name === 'VIDEO_GENERATION_COMPLETED') {
     // Extract status info
     $response['status'] = $webhookData['status'] ?? 2; // 1=processing, 2=completed, 3=failed
     $response['status_percentage'] = $webhookData['status_percentage'] ?? 100;

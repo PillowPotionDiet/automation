@@ -83,23 +83,26 @@ if (!is_dir($storageDir)) {
     mkdir($storageDir, 0755, true);
 }
 
-// Extract UUID from data
-$uuid = $data['uuid'] ?? null;
-$event_type = $data['event_type'] ?? '';
+// Extract data from GeminiGen webhook payload
+// Structure: { event_name, event_uuid, data: { uuid, ... } }
+$event_name = $data['event_name'] ?? '';
+$webhookData = $data['data'] ?? null;
 
-if (!$uuid) {
+if (!$webhookData || !isset($webhookData['uuid'])) {
     http_response_code(400);
-    echo json_encode(['error' => 'Missing uuid']);
+    echo json_encode(['error' => 'Missing data or uuid in webhook payload']);
     exit;
 }
+
+$uuid = $webhookData['uuid'];
 
 // Create storage record
 $record = [
     'uuid' => $uuid,
-    'event_type' => $event_type,
+    'event_name' => $event_name,
     'event_uuid' => $eventUuid,
     'timestamp' => time(),
-    'data' => $data
+    'data' => $webhookData  // Store the inner 'data' object
 ];
 
 // Save to file
@@ -108,7 +111,7 @@ file_put_contents($filename, json_encode($record, JSON_PRETTY_PRINT));
 
 // Log webhook event
 $logFile = $storageDir . '/webhook.log';
-$logEntry = date('Y-m-d H:i:s') . ' - ' . $event_type . ' - UUID: ' . $uuid . PHP_EOL;
+$logEntry = date('Y-m-d H:i:s') . ' - ' . $event_name . ' - UUID: ' . $uuid . PHP_EOL;
 file_put_contents($logFile, $logEntry, FILE_APPEND);
 
 // ========================================
@@ -120,7 +123,7 @@ echo json_encode([
     'success' => true,
     'message' => 'Webhook received',
     'uuid' => $uuid,
-    'event_type' => $event_type
+    'event_name' => $event_name
 ]);
 
 // Clean up old webhook data (older than 24 hours)
