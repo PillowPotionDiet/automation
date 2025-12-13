@@ -8,6 +8,7 @@ const StateManager = {
     keys: {
         apiKey: 'geminigen_api_key',
         webhookConfigured: 'webhook_configured',
+        aiProviderSettings: 'ai_provider_settings',
         scriptData: 'script_data',
         imageSettings: 'image_settings',
         videoSettings: 'video_settings',
@@ -227,6 +228,24 @@ const StateManager = {
     findActiveRequest(uuid) {
         const requests = this.getActiveRequests();
         return requests.find(r => r.uuid === uuid);
+    },
+
+    /**
+     * Get AI provider settings
+     */
+    getAIProviderSettings() {
+        return this.load('aiProviderSettings') || {
+            provider: 'openai',
+            openaiKey: '',
+            openaiModel: 'gpt-4o-mini'
+        };
+    },
+
+    /**
+     * Save AI provider settings
+     */
+    saveAIProviderSettings(settings) {
+        return this.save('aiProviderSettings', settings);
     }
 };
 

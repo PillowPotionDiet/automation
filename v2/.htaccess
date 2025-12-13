@@ -8,6 +8,7 @@
     # Route API endpoints
     RewriteRule ^api/test-key$ api/test-key.php [L,QSA]
     RewriteRule ^api/generate-text$ api/generate-text.php [L,QSA]
+    RewriteRule ^api/openai-text$ api/openai-text.php [L,QSA]
     RewriteRule ^api/generate-image$ api/generate-image.php [L,QSA]
     RewriteRule ^api/generate-video$ api/generate-video.php [L,QSA]
 

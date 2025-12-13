@@ -245,6 +245,55 @@ const APIHandler = {
     },
 
     /**
+     * Generate text with OpenAI - USES BACKEND PROXY (NO CORS)
+     * Returns response immediately (no webhook needed)
+     */
+    async generateTextOpenAI(apiKey, prompt, systemInstruction = "", model = "gpt-4o-mini", temperature = 0.7) {
+        try {
+            const requestBody = {
+                apiKey: apiKey,
+                prompt: prompt,
+                model: model,
+                temperature: temperature
+            };
+
+            // Add system instruction if provided
+            if (systemInstruction) {
+                requestBody.systemInstruction = systemInstruction;
+            }
+
+            const response = await fetch('/v2/api/openai-text', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.message || 'OpenAI request failed');
+            }
+
+            // OpenAI returns response immediately
+            return {
+                success: true,
+                responseText: data.response_text,
+                model: data.model,
+                usage: data.usage
+            };
+
+        } catch (error) {
+            console.error('OpenAI text generation error:', error);
+            return {
+                success: false,
+                message: error.message
+            };
+        }
+    },
+
+    /**
      * Check status - DIRECT API CALL
      * NOTE: Primary updates come from webhooks
      */

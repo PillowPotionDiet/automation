@@ -1,12 +1,18 @@
 /**
  * Script Splitter - Uses AI to intelligently split scripts into scenes
  * with starting and ending frame descriptions
+ * Supports both GeminiGen and OpenAI providers
  */
 const ScriptSplitter = {
     /**
-     * Split script into scenes using GeminiGen AI
+     * Split script into scenes using AI
+     * @param {string} provider - "geminigen" or "openai"
+     * @param {string} apiKey - API key for the provider
+     * @param {string} rawScript - The raw script text
+     * @param {number} numberOfScenes - How many scenes to split into
+     * @param {object} options - Additional options (model, etc.)
      */
-    async splitScript(apiKey, rawScript, numberOfScenes) {
+    async splitScript(provider, apiKey, rawScript, numberOfScenes, options = {}) {
         const systemInstruction = `You are a professional screenplay and storyboard expert. Your job is to split scripts into scenes with detailed visual descriptions for AI image generation.`;
 
         const prompt = `
@@ -42,24 +48,46 @@ Respond ONLY with valid JSON, no other text.
 `;
 
         try {
-            // Call GeminiGen text generation API
-            const result = await GeminiGenAPI.generateText(
-                apiKey,
-                prompt,
-                systemInstruction,
-                0.7
-            );
+            if (provider === 'openai') {
+                // OpenAI - Returns response immediately
+                const model = options.model || 'gpt-4o-mini';
+                const result = await GeminiGenAPI.generateTextOpenAI(
+                    apiKey,
+                    prompt,
+                    systemInstruction,
+                    model,
+                    0.7
+                );
 
-            if (!result.success) {
-                throw new Error(result.message || 'AI processing failed');
+                if (!result.success) {
+                    throw new Error(result.message || 'OpenAI request failed');
+                }
+
+                // Parse response immediately
+                const parsed = this.parseAIResponse(result.responseText);
+                return parsed;
+
+            } else {
+                // GeminiGen - Returns UUID, needs webhook
+                const result = await GeminiGenAPI.generateText(
+                    apiKey,
+                    prompt,
+                    systemInstruction,
+                    0.7
+                );
+
+                if (!result.success) {
+                    throw new Error(result.message || 'GeminiGen request failed');
+                }
+
+                // Return UUID for webhook tracking
+                return {
+                    success: true,
+                    uuid: result.uuid,
+                    message: 'Script splitting started. Waiting for AI response...',
+                    requiresWebhook: true
+                };
             }
-
-            // Return UUID for webhook tracking
-            return {
-                success: true,
-                uuid: result.uuid,
-                message: 'Script splitting started. Waiting for AI response...'
-            };
 
         } catch (error) {
             console.error('Script splitting error:', error);
