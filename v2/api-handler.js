@@ -90,8 +90,8 @@ const APIHandler = {
             }
 
             const body = {
-                input_text: finalPrompt,
-                model_name: settings.model || 'imagen-pro',
+                model: settings.model || 'nanobanana-pro',
+                prompt: finalPrompt,
                 aspect_ratio: settings.aspectRatio || '16:9',
                 style: settings.style || 'None'
             };
@@ -152,11 +152,11 @@ const APIHandler = {
             }
 
             const body = {
-                input_text: finalPrompt,
-                model_name: settings.model || 'veo-3.1-fast',
-                resolution: settings.resolution || '1080p',
-                aspect_ratio: settings.aspectRatio || '16:9',
-                file_urls: startImageUrl
+                model: settings.model || 'veo-3.1-fast',
+                prompt: finalPrompt,
+                start_image: startImageUrl,
+                end_image: endImageUrl,
+                aspect_ratio: settings.aspectRatio || '16:9'
             };
 
             // Add ref_history if provided

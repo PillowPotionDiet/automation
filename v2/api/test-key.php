@@ -20,8 +20,8 @@ if ($apiKey === "") {
 
 // Prepare test body
 $body = [
-    "input_text" => "Test image generation",
-    "model_name" => "imagen-pro",
+    "model" => "nanobanana-pro",
+    "prompt" => "test image",
     "aspect_ratio" => "1:1",
     "style" => "None"
 ];
