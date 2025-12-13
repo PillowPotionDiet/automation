@@ -7,23 +7,51 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css?v=5.0">
     <style>
-        .images-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .image-card {
+        /* Scene Row Container - One scene per row */
+        .scene-row {
+            margin-bottom: 30px;
             background: var(--card-bg);
             border: 2px solid var(--border-color);
             border-radius: 12px;
+            padding: 20px;
+        }
+
+        .scene-header {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .scene-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .scene-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Images Grid - 2 columns (start frame + end frame) */
+        .scene-images {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .image-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
             padding: 16px;
             position: relative;
         }
 
         .image-card.generating {
             border-color: var(--primary-color);
+            animation: pulse 2s infinite;
         }
 
         .image-card.completed {
@@ -32,6 +60,19 @@
 
         .image-card.error {
             border-color: var(--error-color);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .frame-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            text-transform: uppercase;
         }
 
         .image-placeholder {
@@ -59,6 +100,15 @@
             margin-bottom: 8px;
         }
 
+        .image-prompt {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            line-height: 1.4;
+            max-height: 60px;
+            overflow-y: auto;
+        }
+
         .image-actions {
             display: flex;
             gap: 8px;
@@ -69,6 +119,13 @@
             flex: 1;
             padding: 8px;
             font-size: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .scene-images {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -114,14 +171,14 @@
             <p><strong>Progress:</strong> <span id="progressText">0 / 0 completed</span></p>
         </div>
 
-        <!-- Images Grid -->
+        <!-- Images by Scene -->
         <div class="card">
             <div class="card-header">
                 <h2>Generated Images</h2>
-                <p>Starting and ending frames for each scene</p>
+                <p>Starting and ending frames for each scene (organized by scene)</p>
             </div>
 
-            <div id="imagesGrid" class="images-grid"></div>
+            <div id="imagesContainer"></div>
         </div>
 
         <!-- Navigation Buttons -->
@@ -216,7 +273,7 @@
 
     <!-- Scripts -->
     <script src="state-manager.js?v=5.0"></script>
-    <script src="api-handler.js?v=17.0"></script>
+    <script src="api-handler.js?v=18.0"></script>
     <script src="common.js?v=5.0"></script>
     <script src="generation-controller.js?v=5.0"></script>
     <script src="download-manager.js?v=5.0"></script>
@@ -242,49 +299,71 @@
         // Image cards storage
         const imageCards = {};
 
-        // Create image grid
-        const imagesGrid = document.getElementById('imagesGrid');
+        // Create scene rows (one row per scene)
+        const imagesContainer = document.getElementById('imagesContainer');
 
         scenes.forEach(scene => {
-            // Starting frame card
-            const startCard = createImageCard(scene.sceneNumber, 'start', `Scene ${scene.sceneNumber} - Starting Frame`);
-            imagesGrid.appendChild(startCard);
-            imageCards[`scene_${scene.sceneNumber}_start`] = startCard;
+            // Create scene row
+            const sceneRow = document.createElement('div');
+            sceneRow.className = 'scene-row';
+            sceneRow.dataset.scene = scene.sceneNumber;
 
-            // Ending frame card
-            const endCard = createImageCard(scene.sceneNumber, 'end', `Scene ${scene.sceneNumber} - Ending Frame`);
-            imagesGrid.appendChild(endCard);
-            imageCards[`scene_${scene.sceneNumber}_end`] = endCard;
-        });
+            sceneRow.innerHTML = `
+                <div class="scene-header">
+                    <div class="scene-title">Scene ${scene.sceneNumber}</div>
+                    <div class="scene-description">${scene.description || 'No description'}</div>
+                </div>
+                <div class="scene-images">
+                    <!-- Starting frame card -->
+                    <div class="image-card" data-scene="${scene.sceneNumber}" data-type="start">
+                        <div class="frame-label">🎬 Starting Frame</div>
+                        <div class="image-placeholder">🖼️</div>
+                        <div class="image-info">
+                            <span class="badge badge-warning">Pending</span>
+                        </div>
+                        <div class="image-prompt">${scene.startingFrame || 'No prompt'}</div>
+                        <div class="progress-bar" style="display: none;">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="image-info" style="display: none;">
+                            Credit Used: <strong class="credit-used">0</strong>
+                        </div>
+                        <div class="image-actions" style="display: none;">
+                            <button class="btn btn-secondary download-btn">📥 Download</button>
+                            <button class="btn btn-primary regenerate-btn">🔄 Regenerate</button>
+                        </div>
+                    </div>
 
-        function createImageCard(sceneNumber, type, title) {
-            const card = document.createElement('div');
-            card.className = 'image-card';
-            card.dataset.scene = sceneNumber;
-            card.dataset.type = type;
-
-            card.innerHTML = `
-                <div class="image-info"><strong>${title}</strong></div>
-                <div class="image-placeholder">
-                    🖼️
-                </div>
-                <div class="image-info">
-                    <span class="badge badge-warning">Pending</span>
-                </div>
-                <div class="progress-bar" style="display: none;">
-                    <div class="progress-fill" style="width: 0%"></div>
-                </div>
-                <div class="image-info" style="display: none;">
-                    Credit Used: <strong class="credit-used">0</strong>
-                </div>
-                <div class="image-actions" style="display: none;">
-                    <button class="btn btn-secondary download-btn">📥 Download</button>
-                    <button class="btn btn-primary regenerate-btn">🔄 Regenerate</button>
+                    <!-- Ending frame card -->
+                    <div class="image-card" data-scene="${scene.sceneNumber}" data-type="end">
+                        <div class="frame-label">🎬 Ending Frame</div>
+                        <div class="image-placeholder">🖼️</div>
+                        <div class="image-info">
+                            <span class="badge badge-warning">Pending</span>
+                        </div>
+                        <div class="image-prompt">${scene.endingFrame || 'No prompt'}</div>
+                        <div class="progress-bar" style="display: none;">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="image-info" style="display: none;">
+                            Credit Used: <strong class="credit-used">0</strong>
+                        </div>
+                        <div class="image-actions" style="display: none;">
+                            <button class="btn btn-secondary download-btn">📥 Download</button>
+                            <button class="btn btn-primary regenerate-btn">🔄 Regenerate</button>
+                        </div>
+                    </div>
                 </div>
             `;
 
-            return card;
-        }
+            imagesContainer.appendChild(sceneRow);
+
+            // Store card references
+            const startCard = sceneRow.querySelector('[data-type="start"]');
+            const endCard = sceneRow.querySelector('[data-type="end"]');
+            imageCards[`scene_${scene.sceneNumber}_start`] = startCard;
+            imageCards[`scene_${scene.sceneNumber}_end`] = endCard;
+        });
 
         // Show settings modal
         const savedSettings = StateManager.getImageSettings();

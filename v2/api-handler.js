@@ -195,6 +195,56 @@ const APIHandler = {
     },
 
     /**
+     * Generate text - USES BACKEND PROXY (NO CORS)
+     * Used for AI-powered script splitting into scenes
+     */
+    async generateText(apiKey, prompt, systemInstruction = "", temperature = 0.7) {
+        try {
+            const requestBody = {
+                apiKey: apiKey,
+                prompt: prompt,
+                model: 'gemini-2.5-pro',
+                temperature: temperature
+            };
+
+            // Add system instruction if provided
+            if (systemInstruction) {
+                requestBody.systemInstruction = systemInstruction;
+            }
+
+            const response = await fetch('/v2/api/generate-text', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                const errorCode = data.error_code;
+                throw new Error(errorCode ? this.getErrorMessage(errorCode) : data.message);
+            }
+
+            // Return UUID for webhook tracking
+            return {
+                success: true,
+                uuid: data.uuid,
+                status: data.status,
+                message: data.message
+            };
+
+        } catch (error) {
+            console.error('Text generation error:', error);
+            return {
+                success: false,
+                message: error.message
+            };
+        }
+    },
+
+    /**
      * Check status - DIRECT API CALL
      * NOTE: Primary updates come from webhooks
      */
