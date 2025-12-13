@@ -75,7 +75,7 @@ const APIHandler = {
     },
 
     /**
-     * Generate image - DIRECT API CALL (uses FormData)
+     * Generate image - USES BACKEND PROXY (NO CORS)
      */
     async generateImage(apiKey, prompt, settings) {
         try {
@@ -89,34 +89,32 @@ const APIHandler = {
                 finalPrompt += ' Keep same character appearance, face, body, clothing, and colors.';
             }
 
-            // GeminiGen requires FormData (multipart/form-data)
-            const formData = new FormData();
-            formData.append('prompt', finalPrompt);
-            formData.append('model', settings.model || 'nanobanana-pro');
-            formData.append('aspect_ratio', settings.aspectRatio || '16:9');
-            formData.append('style', settings.style || 'None');
+            const requestBody = {
+                apiKey: apiKey,
+                prompt: finalPrompt,
+                model: settings.model || 'nanobanana-pro',
+                aspectRatio: settings.aspectRatio || '16:9',
+                style: settings.style || 'None'
+            };
 
             // Add ref_history if provided
             if (settings.ref_history) {
-                formData.append('ref_history', settings.ref_history);
+                requestBody.refHistory = settings.ref_history;
             }
 
-            const response = await fetch(this.baseURL + this.endpoints.imageGenerate, {
+            const response = await fetch('/v2/api/generate-image', {
                 method: 'POST',
                 headers: {
-                    'Accept': 'application/json',
-                    'x-api-key': apiKey
+                    'Content-Type': 'application/json'
                 },
-                body: formData
+                body: JSON.stringify(requestBody)
             });
 
-            const rawText = await response.text();
-            const data = this.safeJSONParse(rawText);
+            const data = await response.json();
 
-            if (!response.ok) {
-                const errorMsg = data?.detail?.message || data?.message || 'Image generation failed';
-                const errorCode = data?.detail?.error_code || null;
-                throw new Error(errorCode ? this.getErrorMessage(errorCode) : errorMsg);
+            if (!data.success) {
+                const errorCode = data.error_code;
+                throw new Error(errorCode ? this.getErrorMessage(errorCode) : data.message);
             }
 
             // Return UUID for tracking
@@ -137,7 +135,7 @@ const APIHandler = {
     },
 
     /**
-     * Generate video - DIRECT API CALL (uses FormData)
+     * Generate video - USES BACKEND PROXY (NO CORS)
      */
     async generateVideo(apiKey, startImageUrl, endImageUrl, settings) {
         try {
@@ -151,35 +149,33 @@ const APIHandler = {
                 finalPrompt += ' Keep character appearance exactly the same.';
             }
 
-            // GeminiGen requires FormData (multipart/form-data)
-            const formData = new FormData();
-            formData.append('prompt', finalPrompt);
-            formData.append('model', settings.model || 'veo-3.1-fast');
-            formData.append('start_image', startImageUrl);
-            formData.append('end_image', endImageUrl);
-            formData.append('aspect_ratio', settings.aspectRatio || '16:9');
+            const requestBody = {
+                apiKey: apiKey,
+                prompt: finalPrompt,
+                startImage: startImageUrl,
+                endImage: endImageUrl,
+                model: settings.model || 'veo-3.1-fast',
+                aspectRatio: settings.aspectRatio || '16:9'
+            };
 
             // Add ref_history if provided
             if (settings.ref_history) {
-                formData.append('ref_history', settings.ref_history);
+                requestBody.refHistory = settings.ref_history;
             }
 
-            const response = await fetch(this.baseURL + this.endpoints.videoGenerate, {
+            const response = await fetch('/v2/api/generate-video', {
                 method: 'POST',
                 headers: {
-                    'Accept': 'application/json',
-                    'x-api-key': apiKey
+                    'Content-Type': 'application/json'
                 },
-                body: formData
+                body: JSON.stringify(requestBody)
             });
 
-            const rawText = await response.text();
-            const data = this.safeJSONParse(rawText);
+            const data = await response.json();
 
-            if (!response.ok) {
-                const errorMsg = data?.detail?.message || data?.message || 'Video generation failed';
-                const errorCode = data?.detail?.error_code || null;
-                throw new Error(errorCode ? this.getErrorMessage(errorCode) : errorMsg);
+            if (!data.success) {
+                const errorCode = data.error_code;
+                throw new Error(errorCode ? this.getErrorMessage(errorCode) : data.message);
             }
 
             return {

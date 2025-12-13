@@ -5,8 +5,10 @@
     RewriteEngine On
     RewriteBase /
 
-    # Route API test-key endpoint
+    # Route API endpoints
     RewriteRule ^api/test-key$ api/test-key.php [L,QSA]
+    RewriteRule ^api/generate-image$ api/generate-image.php [L,QSA]
+    RewriteRule ^api/generate-video$ api/generate-video.php [L,QSA]
 
     # Route webhook endpoint
     RewriteRule ^webhook$ webhook.php [L,QSA]
