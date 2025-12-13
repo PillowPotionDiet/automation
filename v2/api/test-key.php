@@ -18,15 +18,15 @@ if ($apiKey === "") {
     exit;
 }
 
-// Prepare test body
+// Prepare test body - TRY FLAT STRUCTURE WITHOUT BODY WRAPPER
 $payload = [
+    "prompt" => "test image",
     "model" => "nanobanana-pro",
-    "body" => [
-        "prompt" => "test image"
-    ],
     "aspect_ratio" => "1:1",
     "style" => "None"
 ];
+
+$jsonPayload = json_encode($payload);
 
 $ch = curl_init("https://api.geminigen.ai/uapi/v1/generate_image");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -35,7 +35,7 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
     "Content-Type: application/json",
     "x-api-key: ".$apiKey
 ]);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonPayload);
 
 $response = curl_exec($ch);
 $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -44,5 +44,6 @@ curl_close($ch);
 echo json_encode([
     "success" => $status === 200,
     "status" => $status,
+    "payload_sent" => $payload,
     "geminigen_raw" => json_decode($response, true)
 ]);
