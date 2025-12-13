@@ -481,7 +481,7 @@
 
                 try {
                     // Poll webhook endpoint for updates
-                    const response = await fetch(`/webhook-status/${uuid}`);
+                    const response = await fetch(`/v2/webhook-status/${uuid}`);
                     const data = await response.json();
 
                     if (data.status === 2) {
