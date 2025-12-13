@@ -57,37 +57,21 @@ const APIHandler = {
      * Test API connection - USES BACKEND PROXY (NO CORS)
      */
     async testConnection(apiKey) {
-        try {
-            const response = await fetch('/v2/api/test-key.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    apiKey: apiKey
-                })
-            });
+        console.log("TEST CONNECTION STARTED", apiKey);
 
-            const data = await response.json();
+        const response = await fetch('/v2/api/test-key.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                apiKey: apiKey
+            })
+        });
 
-            if (data.success) {
-                return {
-                    success: true,
-                    message: 'API connection successful!'
-                };
-            } else {
-                return {
-                    success: false,
-                    message: data.message || 'Connection failed'
-                };
-            }
-        } catch (error) {
-            console.error('Connection test error:', error);
-            return {
-                success: false,
-                message: error.message || this.getErrorMessage('NETWORK_ERROR')
-            };
-        }
+        const result = await response.json();
+        console.log("TEST CONNECTION RESULT:", result);
+        return result;
     },
 
     /**
