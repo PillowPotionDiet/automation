@@ -18,12 +18,14 @@ if ($apiKey === "") {
     exit;
 }
 
-// Prepare test body - TRY FLAT STRUCTURE WITHOUT BODY WRAPPER
+// Prepare test body - HYBRID: root fields + nested body.prompt
 $payload = [
-    "prompt" => "test image",
     "model" => "nanobanana-pro",
     "aspect_ratio" => "1:1",
-    "style" => "None"
+    "style" => "None",
+    "body" => [
+        "prompt" => "test image"
+    ]
 ];
 
 $jsonPayload = json_encode($payload);
