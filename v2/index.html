@@ -219,49 +219,6 @@
                     >
                 </div>
 
-                <!-- AI Provider for Script Splitting -->
-                <div class="form-group" style="margin-top: 20px;">
-                    <label class="form-label">
-                        AI Provider for Script Splitting
-                        <span style="font-size: 11px; color: var(--text-secondary); font-weight: normal; margin-left: 8px;">
-                            (Choose which AI to use for splitting your script into scenes)
-                        </span>
-                    </label>
-                    <select id="aiProvider" class="form-select">
-                        <option value="geminigen">GeminiGen (Paid - $40/1M chars, requires webhook)</option>
-                        <option value="openai" selected>OpenAI (Best - Free tier available, instant response)</option>
-                    </select>
-                </div>
-
-                <!-- OpenAI API Key (shown conditionally) -->
-                <div class="form-group" id="openaiKeyGroup" style="display: block;">
-                    <label class="form-label" for="openaiKeyInput">
-                        OpenAI API Key
-                        <span style="color: var(--error-color);">*</span>
-                        <a href="https://platform.openai.com/api-keys" target="_blank" style="font-size: 11px; margin-left: 8px; color: var(--primary-color);">Get API Key</a>
-                    </label>
-                    <input
-                        type="password"
-                        id="openaiKeyInput"
-                        class="form-input"
-                        placeholder="Enter your OpenAI API key (sk-...)"
-                        autocomplete="off"
-                    >
-                    <p style="font-size: 11px; color: var(--text-secondary); margin-top: 6px;">
-                        💡 Models: gpt-4o-mini (cheap, fast), gpt-4o (best quality)
-                    </p>
-                </div>
-
-                <!-- OpenAI Model Selection (shown conditionally) -->
-                <div class="form-group" id="openaiModelGroup" style="display: block;">
-                    <label class="form-label">OpenAI Model</label>
-                    <select id="openaiModel" class="form-select">
-                        <option value="gpt-4o-mini" selected>GPT-4o Mini (Recommended - Fast & Cheap)</option>
-                        <option value="gpt-4o">GPT-4o (Best Quality)</option>
-                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                    </select>
-                </div>
-
                 <!-- Webhook Instructions -->
                 <div class="info-box" style="background: rgba(245, 158, 11, 0.1); border-left-color: var(--warning-color);">
                     <h3>⚠️ Webhook Setup Required</h3>
@@ -342,32 +299,10 @@
             }
         });
 
-        // AI Provider selection handler
-        const aiProviderSelect = document.getElementById('aiProvider');
-        const openaiKeyGroup = document.getElementById('openaiKeyGroup');
-        const openaiModelGroup = document.getElementById('openaiModelGroup');
-
-        function toggleAIProviderFields() {
-            const provider = aiProviderSelect.value;
-            if (provider === 'openai') {
-                openaiKeyGroup.style.display = 'block';
-                openaiModelGroup.style.display = 'block';
-            } else {
-                openaiKeyGroup.style.display = 'none';
-                openaiModelGroup.style.display = 'none';
-            }
-        }
-
-        aiProviderSelect.addEventListener('change', toggleAIProviderFields);
-        toggleAIProviderFields(); // Initialize
-
         // Validation button handler
         document.getElementById('validateBtn').addEventListener('click', async () => {
             const apiKey = document.getElementById('apiKeyInput').value.trim();
             const webhookConfirmed = document.getElementById('webhookConfirm').checked;
-            const aiProvider = document.getElementById('aiProvider').value;
-            const openaiKey = document.getElementById('openaiKeyInput').value.trim();
-            const openaiModel = document.getElementById('openaiModel').value;
             const errorDiv = document.getElementById('validationError');
 
             // Clear previous errors
@@ -376,12 +311,6 @@
             // Validate inputs
             if (!apiKey) {
                 errorDiv.textContent = 'Please enter your GeminiGen API key';
-                errorDiv.style.display = 'block';
-                return;
-            }
-
-            if (aiProvider === 'openai' && !openaiKey) {
-                errorDiv.textContent = 'Please enter your OpenAI API key';
                 errorDiv.style.display = 'block';
                 return;
             }
@@ -404,13 +333,6 @@
                 // Save API key and webhook status
                 StateManager.saveApiKey(apiKey);
                 StateManager.setWebhookConfigured(true);
-
-                // Save AI provider settings
-                StateManager.saveAIProviderSettings({
-                    provider: aiProvider,
-                    openaiKey: openaiKey,
-                    openaiModel: openaiModel
-                });
 
                 // Hide modal
                 document.getElementById('validationModal').style.display = 'none';
