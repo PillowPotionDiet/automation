@@ -6,6 +6,48 @@
     <title>GeminiGen Automation - Step 1: Script Input</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css?v=5.0">
+    <style>
+        .brain-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .brain-option:hover {
+            border-color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .brain-option input[type="radio"] {
+            margin-top: 4px;
+            cursor: pointer;
+        }
+
+        .brain-option input[type="radio"]:checked + .brain-option-content {
+            color: var(--primary-color);
+        }
+
+        .brain-option-content {
+            flex: 1;
+        }
+
+        .brain-option-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .brain-option-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+    </style>
 </head>
 <body>
     <!-- Header -->
@@ -94,6 +136,60 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Brain Selection Modal (BLOCKING) -->
+    <div id="brainSelectionModal" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>🧠 Select Processing Brain</h2>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 20px;">
+                    Choose how you want to process your script into scenes:
+                </p>
+
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <!-- Storyboard Brain Option -->
+                    <label class="brain-option" for="brainStoryboard">
+                        <input type="radio" name="brainType" id="brainStoryboard" value="storyboard" checked>
+                        <div class="brain-option-content">
+                            <div class="brain-option-title">✅ Storyboard Brain (Internal Logic)</div>
+                            <div class="brain-option-desc">
+                                Fast and simple. Uses basic splitting logic to generate scene prompts.
+                                Best for quick prototypes.
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- GeminiGen Brain Option -->
+                    <label class="brain-option" for="brainGeminigen">
+                        <input type="radio" name="brainType" id="brainGeminigen" value="geminigen">
+                        <div class="brain-option-content">
+                            <div class="brain-option-title">✅ GeminiGen Brain (AI-Powered)</div>
+                            <div class="brain-option-desc">
+                                Advanced 5-step AI pipeline:
+                                <ol style="margin: 8px 0 0 20px; font-size: 12px;">
+                                    <li>Character Identification</li>
+                                    <li>Environment Identification</li>
+                                    <li>Script → Paragraph Splitting</li>
+                                    <li>Paragraph → Scene Generation</li>
+                                    <li>Scene → Frame Prompts</li>
+                                </ol>
+                                <div style="margin-top: 8px; color: var(--warning-color); font-size: 11px;">
+                                    ⚠️ Uses GeminiGen API credits. Takes longer but produces better results.
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmBrainBtn" class="btn btn-primary">
+                    Continue with Selected Brain →
+                </button>
+            </div>
         </div>
     </div>
 
@@ -201,9 +297,10 @@
     </div>
 
     <!-- Scripts -->
-    <script src="state-manager.js?v=6.0"></script>
+    <script src="state-manager.js?v=7.0"></script>
     <script src="api-handler.js?v=19.0"></script>
     <script src="common.js?v=5.0"></script>
+    <script src="geminigen-brain.js?v=1.0"></script>
     <script>
         // Initialize step indicator
         document.getElementById('stepIndicator').innerHTML = Utils.createStepIndicator(1);
@@ -325,7 +422,7 @@
             }
         });
 
-        // Form submission
+        // Form submission - Show brain selection modal
         document.getElementById('scriptForm').addEventListener('submit', (e) => {
             e.preventDefault();
 
@@ -338,7 +435,7 @@
                 return;
             }
 
-            // Save data
+            // Save script data
             const scriptData = {
                 script,
                 numParagraphs,
@@ -348,29 +445,76 @@
 
             StateManager.saveScriptData(scriptData);
 
-            // Generate scene structure
-            const paragraphs = Utils.splitScriptIntoParagraphs(script, numParagraphs);
-            const scenes = [];
-            let sceneIndex = 1;
+            // Show brain selection modal
+            document.getElementById('brainSelectionModal').style.display = 'flex';
+        });
 
-            paragraphs.forEach((paragraphText, paraIndex) => {
-                for (let i = 0; i < scenesPerParagraph; i++) {
-                    const prompts = Utils.generateScenePrompts(paragraphText, sceneIndex, scenesPerParagraph);
-                    scenes.push({
-                        sceneNumber: sceneIndex,
-                        paragraphIndex: paraIndex + 1,
-                        paragraphText: paragraphText,
-                        startingFrame: prompts.startingFrame,
-                        endingFrame: prompts.endingFrame
-                    });
-                    sceneIndex++;
+        // Brain selection confirmation
+        document.getElementById('confirmBrainBtn').addEventListener('click', async () => {
+            const selectedBrain = document.querySelector('input[name="brainType"]:checked').value;
+
+            // Save brain type
+            StateManager.saveBrainType(selectedBrain);
+
+            // Hide modal
+            document.getElementById('brainSelectionModal').style.display = 'none';
+
+            // Get script data
+            const scriptData = StateManager.getScriptData();
+
+            if (selectedBrain === 'geminigen') {
+                // Run GeminiGen Brain Pipeline
+                Utils.showLoading('Initializing GeminiGen Brain Pipeline...');
+
+                const apiKey = StateManager.getApiKey();
+
+                const result = await GeminiGenBrain.runCompletePipeline(
+                    {
+                        apiKey: apiKey,
+                        script: scriptData.script,
+                        paragraphCount: scriptData.numParagraphs,
+                        scenesPerParagraph: scriptData.scenesPerParagraph
+                    },
+                    (message) => {
+                        // Progress callback
+                        Utils.showLoading(message);
+                    }
+                );
+
+                Utils.hideLoading();
+
+                if (result.success) {
+                    Utils.showSuccess(`Pipeline completed! Used ${result.creditsUsed.total} credits.`);
+                    setTimeout(() => Utils.navigateTo('page2.html'), 1500);
+                } else {
+                    Utils.showError('Pipeline failed: ' + result.message);
                 }
-            });
 
-            StateManager.saveScenes(scenes);
+            } else {
+                // Use Storyboard Brain (existing logic)
+                const paragraphs = Utils.splitScriptIntoParagraphs(scriptData.script, scriptData.numParagraphs);
+                const scenes = [];
+                let sceneIndex = 1;
 
-            // Navigate to page 2
-            Utils.navigateTo('page2.html');
+                paragraphs.forEach((paragraphText, paraIndex) => {
+                    for (let i = 0; i < scriptData.scenesPerParagraph; i++) {
+                        const prompts = Utils.generateScenePrompts(paragraphText, sceneIndex, scriptData.scenesPerParagraph);
+                        scenes.push({
+                            sceneNumber: sceneIndex,
+                            paragraphIndex: paraIndex + 1,
+                            paragraphText: paragraphText,
+                            startingFrame: prompts.startingFrame,
+                            endingFrame: prompts.endingFrame
+                        });
+                        sceneIndex++;
+                    }
+                });
+
+                StateManager.saveScenes(scenes);
+
+                // Navigate to page 2
+                Utils.navigateTo('page2.html');
+            }
         });
     </script>
 </body>

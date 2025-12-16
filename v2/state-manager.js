@@ -9,13 +9,19 @@ const StateManager = {
         apiKey: 'geminigen_api_key',
         webhookConfigured: 'webhook_configured',
         aiProviderSettings: 'ai_provider_settings',
+        brainType: 'brain_type',
+        extractedCharacters: 'extracted_characters',
+        extractedEnvironments: 'extracted_environments',
         scriptData: 'script_data',
         imageSettings: 'image_settings',
         videoSettings: 'video_settings',
         scenes: 'scenes',
+        characterDefinitions: 'character_definitions',
         generatedImages: 'generated_images',
         generatedVideos: 'generated_videos',
-        activeRequests: 'active_requests'
+        activeRequests: 'active_requests',
+        creditsUsed: 'credits_used',
+        paragraphs: 'paragraphs'
     },
 
     /**
@@ -246,6 +252,108 @@ const StateManager = {
      */
     saveAIProviderSettings(settings) {
         return this.save('aiProviderSettings', settings);
+    },
+
+    /**
+     * Get character definitions
+     */
+    getCharacterDefinitions() {
+        return this.load('characterDefinitions') || [];
+    },
+
+    /**
+     * Save character definitions
+     */
+    saveCharacterDefinitions(characters) {
+        return this.save('characterDefinitions', characters);
+    },
+
+    /**
+     * Get brain type (storyboard or geminigen)
+     */
+    getBrainType() {
+        return this.load('brainType') || 'storyboard';
+    },
+
+    /**
+     * Save brain type
+     */
+    saveBrainType(brainType) {
+        return this.save('brainType', brainType);
+    },
+
+    /**
+     * Get extracted characters (from GeminiGen Brain)
+     */
+    getExtractedCharacters() {
+        return this.load('extractedCharacters') || [];
+    },
+
+    /**
+     * Save extracted characters
+     */
+    saveExtractedCharacters(characters) {
+        return this.save('extractedCharacters', characters);
+    },
+
+    /**
+     * Get extracted environments (from GeminiGen Brain)
+     */
+    getExtractedEnvironments() {
+        return this.load('extractedEnvironments') || [];
+    },
+
+    /**
+     * Save extracted environments
+     */
+    saveExtractedEnvironments(environments) {
+        return this.save('extractedEnvironments', environments);
+    },
+
+    /**
+     * Get credits used
+     */
+    getCreditsUsed() {
+        return this.load('creditsUsed') || {
+            characterExtraction: 0,
+            environmentExtraction: 0,
+            paragraphSplitting: 0,
+            sceneGeneration: 0,
+            frameGeneration: 0,
+            total: 0
+        };
+    },
+
+    /**
+     * Save credits used
+     */
+    saveCreditsUsed(credits) {
+        return this.save('creditsUsed', credits);
+    },
+
+    /**
+     * Add credits to existing total
+     */
+    addCredits(step, amount) {
+        const credits = this.getCreditsUsed();
+        credits[step] = (credits[step] || 0) + amount;
+        credits.total = (credits.total || 0) + amount;
+        this.saveCreditsUsed(credits);
+        return credits;
+    },
+
+    /**
+     * Get paragraphs
+     */
+    getParagraphs() {
+        return this.load('paragraphs') || [];
+    },
+
+    /**
+     * Save paragraphs
+     */
+    saveParagraphs(paragraphs) {
+        return this.save('paragraphs', paragraphs);
     }
 };
 

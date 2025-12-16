@@ -100,6 +100,54 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Character Definition Styles */
+        .character-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .character-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .character-number {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .remove-character-btn {
+            background: var(--error-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .remove-character-btn:hover {
+            opacity: 0.8;
+        }
+
+        .character-fields {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .character-fields {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -128,6 +176,44 @@
                 <p>• Click on paragraph headers to collapse/expand sections</p>
             </div>
 
+            <!-- Credits Used (GeminiGen Brain only) -->
+            <div id="creditsBox" style="display: none;" class="info-box" style="background: rgba(34, 197, 94, 0.1); border-left-color: var(--success-color);">
+                <h3>💰 Credits Used (GeminiGen Brain)</h3>
+                <div id="creditsBreakdown"></div>
+            </div>
+
+            <!-- Extracted Characters (GeminiGen Brain only) -->
+            <div id="extractedCharactersCard" style="display: none;" class="card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1)); border: 2px solid var(--primary-color); margin-bottom: 30px;">
+                <div class="card-header">
+                    <h3>👥 Extracted Characters (AI-Identified)</h3>
+                    <p>Characters automatically identified by GeminiGen Brain</p>
+                </div>
+                <div id="extractedCharactersList"></div>
+            </div>
+
+            <!-- Extracted Environments (GeminiGen Brain only) -->
+            <div id="extractedEnvironmentsCard" style="display: none;" class="card" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1)); border: 2px solid var(--success-color); margin-bottom: 30px;">
+                <div class="card-header">
+                    <h3>🌍 Extracted Environments (AI-Identified)</h3>
+                    <p>Environments automatically identified by GeminiGen Brain</p>
+                </div>
+                <div id="extractedEnvironmentsList"></div>
+            </div>
+
+            <!-- Global Character Definitions -->
+            <div class="card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1)); border: 2px solid var(--primary-color); margin-bottom: 30px;">
+                <div class="card-header">
+                    <h3>👤 Global Character Definitions</h3>
+                    <p>Define your characters here to ensure consistent appearance across all scenes</p>
+                </div>
+
+                <div id="charactersList"></div>
+
+                <button id="addCharacterBtn" class="btn btn-secondary" style="margin-top: 16px;">
+                    ➕ Add Character
+                </button>
+            </div>
+
             <div id="scenesContainer"></div>
 
             <!-- Navigation Buttons -->
@@ -143,7 +229,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="state-manager.js?v=6.0"></script>
+    <script src="state-manager.js?v=7.0"></script>
     <script src="api-handler.js?v=19.0"></script>
     <script src="common.js?v=5.0"></script>
     <script>
@@ -154,6 +240,74 @@
         if (!StateManager.hasCompletedPage(1)) {
             Utils.showError('Please complete Step 1 first');
             setTimeout(() => Utils.navigateTo('index.html'), 2000);
+        }
+
+        // Check if GeminiGen Brain was used
+        const brainType = StateManager.getBrainType();
+
+        if (brainType === 'geminigen') {
+            // Display credits used
+            const credits = StateManager.getCreditsUsed();
+            const creditsBox = document.getElementById('creditsBox');
+            const creditsBreakdown = document.getElementById('creditsBreakdown');
+
+            creditsBox.style.display = 'block';
+            creditsBreakdown.innerHTML = `
+                <p><strong>Character Extraction:</strong> ${credits.characterExtraction || 0} credits</p>
+                <p><strong>Environment Extraction:</strong> ${credits.environmentExtraction || 0} credits</p>
+                <p><strong>Paragraph Splitting:</strong> ${credits.paragraphSplitting || 0} credits</p>
+                <p><strong>Scene Generation:</strong> ${credits.sceneGeneration || 0} credits</p>
+                <p><strong>Frame Generation:</strong> ${credits.frameGeneration || 0} credits</p>
+                <p style="margin-top: 12px; padding-top: 12px; border-top: 2px solid var(--border-color); font-size: 16px;"><strong>Total:</strong> ${credits.total || 0} credits</p>
+            `;
+
+            // Display extracted characters
+            const extractedChars = StateManager.getExtractedCharacters();
+            if (extractedChars.length > 0) {
+                const extractedCharsCard = document.getElementById('extractedCharactersCard');
+                const extractedCharsList = document.getElementById('extractedCharactersList');
+
+                extractedCharsCard.style.display = 'block';
+                extractedCharsList.innerHTML = '';
+
+                extractedChars.forEach((char, index) => {
+                    const charDiv = document.createElement('div');
+                    charDiv.className = 'character-card';
+                    charDiv.innerHTML = `
+                        <div class="character-header">
+                            <div class="character-number">${char.name}</div>
+                        </div>
+                        <div style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
+                            ${char.content}
+                        </div>
+                    `;
+                    extractedCharsList.appendChild(charDiv);
+                });
+            }
+
+            // Display extracted environments
+            const extractedEnvs = StateManager.getExtractedEnvironments();
+            if (extractedEnvs.length > 0) {
+                const extractedEnvsCard = document.getElementById('extractedEnvironmentsCard');
+                const extractedEnvsList = document.getElementById('extractedEnvironmentsList');
+
+                extractedEnvsCard.style.display = 'block';
+                extractedEnvsList.innerHTML = '';
+
+                extractedEnvs.forEach((env, index) => {
+                    const envDiv = document.createElement('div');
+                    envDiv.className = 'character-card';
+                    envDiv.innerHTML = `
+                        <div class="character-header">
+                            <div class="character-number">${env.name}</div>
+                        </div>
+                        <div style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
+                            ${env.content}
+                        </div>
+                    `;
+                    extractedEnvsList.appendChild(envDiv);
+                });
+            }
         }
 
         // Load scenes
@@ -239,6 +393,89 @@
             });
         });
 
+        // ========================================
+        // CHARACTER DEFINITIONS
+        // ========================================
+
+        let characters = StateManager.getCharacterDefinitions();
+
+        // Render character definitions
+        function renderCharacters() {
+            const charactersList = document.getElementById('charactersList');
+            charactersList.innerHTML = '';
+
+            if (characters.length === 0) {
+                charactersList.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: var(--text-secondary);">
+                        No characters defined yet. Click "Add Character" to define your first character.
+                    </div>
+                `;
+                return;
+            }
+
+            characters.forEach((char, index) => {
+                const card = document.createElement('div');
+                card.className = 'character-card';
+                card.innerHTML = `
+                    <div class="character-header">
+                        <div class="character-number">Character ${index + 1}</div>
+                        <button class="remove-character-btn" data-index="${index}">🗑️ Remove</button>
+                    </div>
+                    <div class="character-fields">
+                        <div class="form-group">
+                            <label class="form-label">Character Name</label>
+                            <input
+                                type="text"
+                                class="form-input"
+                                data-index="${index}"
+                                data-field="name"
+                                value="${char.name || ''}"
+                                placeholder="e.g., Sarah, John, The Detective"
+                            />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Detailed Appearance Description</label>
+                            <textarea
+                                class="form-textarea"
+                                data-index="${index}"
+                                data-field="description"
+                                rows="4"
+                                placeholder="Describe the character's appearance in detail: age, gender, face shape, hair color/style, eye color, skin tone, body build, height, typical clothing, accessories, etc. Be very specific!"
+                            >${char.description || ''}</textarea>
+                        </div>
+                    </div>
+                `;
+                charactersList.appendChild(card);
+            });
+
+            // Add event listeners for remove buttons
+            document.querySelectorAll('.remove-character-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.closest('.remove-character-btn').dataset.index);
+                    characters.splice(index, 1);
+                    renderCharacters();
+                });
+            });
+
+            // Add event listeners for input changes
+            document.querySelectorAll('[data-index][data-field]').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    const field = e.target.dataset.field;
+                    characters[index][field] = e.target.value;
+                });
+            });
+        }
+
+        // Add character button
+        document.getElementById('addCharacterBtn').addEventListener('click', () => {
+            characters.push({ name: '', description: '' });
+            renderCharacters();
+        });
+
+        // Initial render
+        renderCharacters();
+
         // Back button
         document.getElementById('backBtn').addEventListener('click', () => {
             Utils.navigateTo('index.html');
@@ -270,6 +507,9 @@
 
             // Save updated scenes
             StateManager.saveScenes(updatedScenes);
+
+            // Save character definitions
+            StateManager.saveCharacterDefinitions(characters);
 
             Utils.showSuccess('Scene prompts saved!');
 
