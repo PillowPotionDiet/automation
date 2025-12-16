@@ -339,7 +339,19 @@
 
                 Utils.showSuccess('API key validated successfully!');
             } else {
-                errorDiv.textContent = result.message;
+                // Extract detailed error message from API response
+                let errorMessage = result.message || 'API validation failed';
+
+                // Check for detailed error in geminigen_raw
+                if (result.geminigen_raw && result.geminigen_raw.detail) {
+                    if (result.geminigen_raw.detail.error_message) {
+                        errorMessage = result.geminigen_raw.detail.error_message;
+                    } else if (result.geminigen_raw.detail.error_code) {
+                        errorMessage = APIHandler.getErrorMessage(result.geminigen_raw.detail.error_code);
+                    }
+                }
+
+                errorDiv.textContent = errorMessage;
                 errorDiv.style.display = 'block';
             }
         });

@@ -75,6 +75,28 @@ const APIHandler = {
     },
 
     /**
+     * Extract detailed error message from API response
+     */
+    extractErrorMessage(data) {
+        // Check for detailed error in geminigen_raw
+        if (data.geminigen_raw && data.geminigen_raw.detail) {
+            if (data.geminigen_raw.detail.error_message) {
+                return data.geminigen_raw.detail.error_message;
+            }
+            if (data.geminigen_raw.detail.error_code) {
+                return this.getErrorMessage(data.geminigen_raw.detail.error_code);
+            }
+        }
+
+        // Fall back to top-level error_code or message
+        if (data.error_code) {
+            return this.getErrorMessage(data.error_code);
+        }
+
+        return data.message || 'Unknown error occurred';
+    },
+
+    /**
      * Generate image - USES BACKEND PROXY (NO CORS)
      */
     async generateImage(apiKey, prompt, settings) {
@@ -113,8 +135,7 @@ const APIHandler = {
             const data = await response.json();
 
             if (!data.success) {
-                const errorCode = data.error_code;
-                throw new Error(errorCode ? this.getErrorMessage(errorCode) : data.message);
+                throw new Error(this.extractErrorMessage(data));
             }
 
             // Return UUID for tracking
@@ -174,8 +195,7 @@ const APIHandler = {
             const data = await response.json();
 
             if (!data.success) {
-                const errorCode = data.error_code;
-                throw new Error(errorCode ? this.getErrorMessage(errorCode) : data.message);
+                throw new Error(this.extractErrorMessage(data));
             }
 
             return {
@@ -223,8 +243,7 @@ const APIHandler = {
             const data = await response.json();
 
             if (!data.success) {
-                const errorCode = data.error_code;
-                throw new Error(errorCode ? this.getErrorMessage(errorCode) : data.message);
+                throw new Error(this.extractErrorMessage(data));
             }
 
             // Return UUID for webhook tracking
