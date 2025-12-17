@@ -1,0 +1,385 @@
+/* =====================================================
+   AI Video Generator - Text to Video Theme
+   Blue/Cyan gradient theme for Text to Video tool
+   ===================================================== */
+
+/* =====================================================
+   Theme Variables
+   ===================================================== */
+.theme-text-to-video {
+    --theme-primary: #4facfe;
+    --theme-secondary: #00f2fe;
+    --theme-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --theme-gradient-soft: linear-gradient(135deg, rgba(79, 172, 254, 0.1) 0%, rgba(0, 242, 254, 0.1) 100%);
+    --theme-shadow: 0 10px 30px rgba(79, 172, 254, 0.3);
+    --theme-glow: 0 0 40px rgba(79, 172, 254, 0.4);
+}
+
+/* =====================================================
+   Tool Page Header
+   ===================================================== */
+.theme-text-to-video .tool-page-header {
+    background: var(--theme-gradient);
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-text-to-video .tool-page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: rotate 30s linear infinite;
+}
+
+/* =====================================================
+   Buttons
+   ===================================================== */
+.theme-text-to-video .btn-theme {
+    background: var(--theme-gradient);
+    color: var(--white);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-text-to-video .btn-theme:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(79, 172, 254, 0.4);
+}
+
+.theme-text-to-video .btn-theme-outline {
+    background: transparent;
+    border: 2px solid var(--theme-primary);
+    color: var(--theme-primary);
+}
+
+.theme-text-to-video .btn-theme-outline:hover {
+    background: var(--theme-gradient);
+    border-color: transparent;
+    color: var(--white);
+}
+
+/* =====================================================
+   Step Indicator
+   ===================================================== */
+.theme-text-to-video .step.active .step-number,
+.theme-text-to-video .step.completed .step-number {
+    background: var(--theme-gradient);
+}
+
+.theme-text-to-video .step-line.active {
+    background: var(--theme-gradient);
+}
+
+.theme-text-to-video .step.active .step-label {
+    color: var(--theme-primary);
+}
+
+/* =====================================================
+   Cards
+   ===================================================== */
+.theme-text-to-video .tool-card {
+    border-color: transparent;
+    transition: all 0.3s ease;
+}
+
+.theme-text-to-video .tool-card:hover {
+    border-color: var(--theme-primary);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-text-to-video .tool-card.selected {
+    border-color: var(--theme-primary);
+    background: var(--theme-gradient-soft);
+}
+
+/* =====================================================
+   Progress Bar
+   ===================================================== */
+.theme-text-to-video .progress-bar {
+    background: var(--gray-200);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.theme-text-to-video .progress-fill {
+    background: var(--theme-gradient);
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+/* =====================================================
+   Input Focus
+   ===================================================== */
+.theme-text-to-video input:focus,
+.theme-text-to-video select:focus,
+.theme-text-to-video textarea:focus {
+    border-color: var(--theme-primary);
+    box-shadow: 0 0 0 4px rgba(79, 172, 254, 0.1);
+}
+
+/* =====================================================
+   Accent Elements
+   ===================================================== */
+.theme-text-to-video .accent-text {
+    color: var(--theme-primary);
+}
+
+.theme-text-to-video .accent-bg {
+    background: var(--theme-gradient-soft);
+}
+
+.theme-text-to-video .accent-border {
+    border-color: var(--theme-primary);
+}
+
+/* =====================================================
+   Loading Animation
+   ===================================================== */
+.theme-text-to-video .spinner {
+    border-top-color: var(--theme-primary);
+}
+
+.theme-text-to-video .loading-dots span {
+    background: var(--theme-gradient);
+}
+
+/* =====================================================
+   Credits Badge
+   ===================================================== */
+.theme-text-to-video .credits-badge {
+    background: var(--theme-gradient);
+}
+
+/* =====================================================
+   Selection Highlight
+   ===================================================== */
+.theme-text-to-video .selection-card.selected {
+    border-color: var(--theme-primary);
+    box-shadow: var(--theme-glow);
+}
+
+.theme-text-to-video .selection-card.selected::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--theme-gradient);
+}
+
+/* =====================================================
+   Floating Shapes Animation
+   ===================================================== */
+.theme-text-to-video .floating-shapes .shape-1 {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+.theme-text-to-video .floating-shapes .shape-2 {
+    background: linear-gradient(135deg, #0099ff, #4facfe);
+}
+
+.theme-text-to-video .floating-shapes .shape-3 {
+    background: linear-gradient(135deg, #00f2fe, #00d4aa);
+}
+
+/* =====================================================
+   Tool Specific - Prompt Input
+   ===================================================== */
+.theme-text-to-video .prompt-input-container {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+.theme-text-to-video .prompt-input {
+    width: 100%;
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    padding-right: 120px;
+    min-height: 120px;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.8;
+    transition: all 0.3s ease;
+    resize: vertical;
+}
+
+.theme-text-to-video .prompt-input:focus {
+    border-color: var(--theme-primary);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-text-to-video .prompt-actions {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    display: flex;
+    gap: 8px;
+}
+
+.theme-text-to-video .prompt-enhance-btn {
+    padding: 8px 16px;
+    background: var(--theme-gradient-soft);
+    color: var(--theme-primary);
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.theme-text-to-video .prompt-enhance-btn:hover {
+    background: var(--theme-gradient);
+    color: var(--white);
+}
+
+/* =====================================================
+   Video Settings Panel
+   ===================================================== */
+.theme-text-to-video .settings-panel {
+    background: var(--white);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+}
+
+.theme-text-to-video .settings-panel h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-size: 1rem;
+}
+
+.theme-text-to-video .settings-panel h3 span {
+    color: var(--theme-primary);
+}
+
+.theme-text-to-video .setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.theme-text-to-video .setting-row:last-child {
+    border-bottom: none;
+}
+
+.theme-text-to-video .setting-label {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.theme-text-to-video .setting-value {
+    display: flex;
+    gap: 8px;
+}
+
+.theme-text-to-video .setting-btn {
+    padding: 8px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.theme-text-to-video .setting-btn:hover {
+    border-color: var(--theme-primary);
+    color: var(--theme-primary);
+}
+
+.theme-text-to-video .setting-btn.active {
+    background: var(--theme-gradient);
+    border-color: transparent;
+    color: var(--white);
+}
+
+/* =====================================================
+   Video Generation Card
+   ===================================================== */
+.theme-text-to-video .generation-card {
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.theme-text-to-video .generation-card:hover {
+    border-color: var(--theme-primary);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-text-to-video .generation-card.generating {
+    border-color: var(--theme-primary);
+    animation: pulseGlowBlue 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlowBlue {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(79, 172, 254, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 20px 10px rgba(79, 172, 254, 0.2);
+    }
+}
+
+/* =====================================================
+   Duration Selector
+   ===================================================== */
+.theme-text-to-video .duration-selector {
+    display: flex;
+    gap: 12px;
+}
+
+.theme-text-to-video .duration-option {
+    flex: 1;
+    padding: 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-text-to-video .duration-option:hover {
+    border-color: var(--theme-primary);
+    background: var(--theme-gradient-soft);
+}
+
+.theme-text-to-video .duration-option.selected {
+    border-color: var(--theme-primary);
+    background: var(--theme-gradient-soft);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-text-to-video .duration-option .duration-time {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--theme-primary);
+}
+
+.theme-text-to-video .duration-option .duration-credits {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+/* =====================================================
+   Tooltip
+   ===================================================== */
+.theme-text-to-video .tooltip {
+    background: var(--theme-gradient);
+    color: var(--white);
+}
+
+.theme-text-to-video .tooltip::after {
+    border-top-color: var(--theme-primary);
+}

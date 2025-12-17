@@ -1,0 +1,487 @@
+/* =====================================================
+   AI Video Generator - Text to Image Theme
+   Green/Teal gradient theme for Text to Image tool
+   ===================================================== */
+
+/* =====================================================
+   Theme Variables
+   ===================================================== */
+.theme-text-to-image {
+    --theme-primary: #43e97b;
+    --theme-secondary: #38f9d7;
+    --theme-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    --theme-gradient-soft: linear-gradient(135deg, rgba(67, 233, 123, 0.1) 0%, rgba(56, 249, 215, 0.1) 100%);
+    --theme-shadow: 0 10px 30px rgba(67, 233, 123, 0.3);
+    --theme-glow: 0 0 40px rgba(67, 233, 123, 0.4);
+}
+
+/* =====================================================
+   Tool Page Header
+   ===================================================== */
+.theme-text-to-image .tool-page-header {
+    background: var(--theme-gradient);
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-text-to-image .tool-page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: rotate 30s linear infinite;
+}
+
+/* =====================================================
+   Buttons
+   ===================================================== */
+.theme-text-to-image .btn-theme {
+    background: var(--theme-gradient);
+    color: var(--dark);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-text-to-image .btn-theme:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(67, 233, 123, 0.4);
+}
+
+.theme-text-to-image .btn-theme-outline {
+    background: transparent;
+    border: 2px solid var(--theme-primary);
+    color: var(--theme-primary);
+}
+
+.theme-text-to-image .btn-theme-outline:hover {
+    background: var(--theme-gradient);
+    border-color: transparent;
+    color: var(--dark);
+}
+
+/* =====================================================
+   Step Indicator
+   ===================================================== */
+.theme-text-to-image .step.active .step-number,
+.theme-text-to-image .step.completed .step-number {
+    background: var(--theme-gradient);
+    color: var(--dark);
+}
+
+.theme-text-to-image .step-line.active {
+    background: var(--theme-gradient);
+}
+
+.theme-text-to-image .step.active .step-label {
+    color: var(--theme-primary);
+}
+
+/* =====================================================
+   Cards
+   ===================================================== */
+.theme-text-to-image .tool-card {
+    border-color: transparent;
+    transition: all 0.3s ease;
+}
+
+.theme-text-to-image .tool-card:hover {
+    border-color: var(--theme-primary);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-text-to-image .tool-card.selected {
+    border-color: var(--theme-primary);
+    background: var(--theme-gradient-soft);
+}
+
+/* =====================================================
+   Progress Bar
+   ===================================================== */
+.theme-text-to-image .progress-bar {
+    background: var(--gray-200);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.theme-text-to-image .progress-fill {
+    background: var(--theme-gradient);
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+/* =====================================================
+   Input Focus
+   ===================================================== */
+.theme-text-to-image input:focus,
+.theme-text-to-image select:focus,
+.theme-text-to-image textarea:focus {
+    border-color: var(--theme-primary);
+    box-shadow: 0 0 0 4px rgba(67, 233, 123, 0.1);
+}
+
+/* =====================================================
+   Accent Elements
+   ===================================================== */
+.theme-text-to-image .accent-text {
+    color: var(--theme-primary);
+}
+
+.theme-text-to-image .accent-bg {
+    background: var(--theme-gradient-soft);
+}
+
+.theme-text-to-image .accent-border {
+    border-color: var(--theme-primary);
+}
+
+/* =====================================================
+   Loading Animation
+   ===================================================== */
+.theme-text-to-image .spinner {
+    border-top-color: var(--theme-primary);
+}
+
+.theme-text-to-image .loading-dots span {
+    background: var(--theme-gradient);
+}
+
+/* =====================================================
+   Credits Badge
+   ===================================================== */
+.theme-text-to-image .credits-badge {
+    background: var(--theme-gradient);
+    color: var(--dark);
+}
+
+/* =====================================================
+   Selection Highlight
+   ===================================================== */
+.theme-text-to-image .selection-card.selected {
+    border-color: var(--theme-primary);
+    box-shadow: var(--theme-glow);
+}
+
+.theme-text-to-image .selection-card.selected::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--theme-gradient);
+}
+
+/* =====================================================
+   Floating Shapes Animation
+   ===================================================== */
+.theme-text-to-image .floating-shapes .shape-1 {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+}
+
+.theme-text-to-image .floating-shapes .shape-2 {
+    background: linear-gradient(135deg, #00d4aa, #43e97b);
+}
+
+.theme-text-to-image .floating-shapes .shape-3 {
+    background: linear-gradient(135deg, #38f9d7, #00f2fe);
+}
+
+/* =====================================================
+   Tool Specific - Image Prompt
+   ===================================================== */
+.theme-text-to-image .image-prompt-container {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+.theme-text-to-image .image-prompt {
+    width: 100%;
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    min-height: 100px;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.8;
+    transition: all 0.3s ease;
+    resize: vertical;
+}
+
+.theme-text-to-image .image-prompt:focus {
+    border-color: var(--theme-primary);
+    box-shadow: var(--theme-shadow);
+}
+
+/* =====================================================
+   Style Presets
+   ===================================================== */
+.theme-text-to-image .style-presets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.theme-text-to-image .style-preset {
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-text-to-image .style-preset:hover {
+    border-color: var(--theme-primary);
+    background: var(--theme-gradient-soft);
+}
+
+.theme-text-to-image .style-preset.selected {
+    border-color: var(--theme-primary);
+    background: var(--theme-gradient-soft);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-text-to-image .style-preset-icon {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
+.theme-text-to-image .style-preset-name {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* =====================================================
+   Aspect Ratio Selector
+   ===================================================== */
+.theme-text-to-image .aspect-ratios {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.theme-text-to-image .aspect-ratio-btn {
+    flex: 1;
+    padding: 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-text-to-image .aspect-ratio-btn:hover {
+    border-color: var(--theme-primary);
+}
+
+.theme-text-to-image .aspect-ratio-btn.selected {
+    border-color: var(--theme-primary);
+    background: var(--theme-gradient-soft);
+}
+
+.theme-text-to-image .aspect-ratio-preview {
+    display: inline-block;
+    border: 2px solid var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.theme-text-to-image .aspect-ratio-btn.selected .aspect-ratio-preview {
+    border-color: var(--theme-primary);
+    background: var(--theme-gradient-soft);
+}
+
+.theme-text-to-image .aspect-ratio-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Square */
+.theme-text-to-image .aspect-1-1 {
+    width: 32px;
+    height: 32px;
+}
+
+/* Portrait */
+.theme-text-to-image .aspect-9-16 {
+    width: 24px;
+    height: 40px;
+}
+
+/* Landscape */
+.theme-text-to-image .aspect-16-9 {
+    width: 40px;
+    height: 24px;
+}
+
+/* =====================================================
+   Image Gallery
+   ===================================================== */
+.theme-text-to-image .image-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.theme-text-to-image .image-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 1;
+    transition: all 0.3s ease;
+}
+
+.theme-text-to-image .image-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.theme-text-to-image .image-card:hover {
+    transform: scale(1.02);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-text-to-image .image-card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(transparent 50%, rgba(0,0,0,0.8));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: flex;
+    align-items: flex-end;
+    padding: 16px;
+}
+
+.theme-text-to-image .image-card:hover .image-card-overlay {
+    opacity: 1;
+}
+
+.theme-text-to-image .image-card-actions {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+.theme-text-to-image .image-action-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.theme-text-to-image .image-action-btn.download {
+    background: var(--theme-gradient);
+    color: var(--dark);
+}
+
+.theme-text-to-image .image-action-btn.regenerate {
+    background: rgba(255,255,255,0.2);
+    color: var(--white);
+}
+
+/* =====================================================
+   Generation Status
+   ===================================================== */
+.theme-text-to-image .generation-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.theme-text-to-image .generation-status.generating {
+    animation: pulseGlowGreen 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlowGreen {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(67, 233, 123, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 20px 10px rgba(67, 233, 123, 0.2);
+    }
+}
+
+.theme-text-to-image .generation-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--theme-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* =====================================================
+   Model Selection
+   ===================================================== */
+.theme-text-to-image .model-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.theme-text-to-image .model-option {
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-text-to-image .model-option:hover {
+    border-color: var(--theme-primary);
+    background: var(--theme-gradient-soft);
+}
+
+.theme-text-to-image .model-option.selected {
+    border-color: var(--theme-primary);
+    background: var(--theme-gradient-soft);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-text-to-image .model-option .model-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.theme-text-to-image .model-option .model-credits {
+    font-size: 0.8125rem;
+    color: var(--theme-primary);
+    font-weight: 600;
+}
+
+/* =====================================================
+   Tooltip
+   ===================================================== */
+.theme-text-to-image .tooltip {
+    background: var(--theme-gradient);
+    color: var(--dark);
+}
+
+.theme-text-to-image .tooltip::after {
+    border-top-color: var(--theme-primary);
+}

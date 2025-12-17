@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script to Video - AI Video Generator</title>
+    <link rel="icon" href="/assets/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/common.css">
+    <link rel="stylesheet" href="/assets/css/tools-hub.css">
+    <link rel="stylesheet" href="/assets/css/themes/script-to-video.css">
+</head>
+<body class="theme-script-to-video">
+    <!-- Global Header -->
+    <header class="global-header">
+        <div class="header-left">
+            <a href="/tools/" class="logo-link">
+                <img src="/assets/images/logo.png" alt="AI Video Generator">
+                <span>AI Video Gen</span>
+            </a>
+            <a href="/tools/" class="back-to-tools">← Back to Tools</a>
+        </div>
+        <div class="header-center">
+            <h1>📝 Script to Video</h1>
+        </div>
+        <div class="header-right">
+            <div class="credits-badge">
+                <span class="credits-icon">💎</span>
+                <span id="credits-balance">0</span>
+                <span class="credits-label">Credits</span>
+            </div>
+            <div class="user-menu">
+                <span id="user-email">user@example.com</span>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="page-wrapper">
+        <div class="tools-hub-content" style="max-width: 1000px;">
+            <!-- Tool Header -->
+            <div class="welcome-section" style="margin-bottom: 32px;">
+                <h1>Script to Video <span class="gradient-text">Converter</span></h1>
+                <p>Transform your written scripts into stunning AI-generated videos</p>
+            </div>
+
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step-1">
+                    <div class="step-number">1</div>
+                    <span class="step-label">Script</span>
+                </div>
+                <div class="step-line" id="line-1"></div>
+                <div class="step" id="step-2">
+                    <div class="step-number">2</div>
+                    <span class="step-label">Scenes</span>
+                </div>
+                <div class="step-line" id="line-2"></div>
+                <div class="step" id="step-3">
+                    <div class="step-number">3</div>
+                    <span class="step-label">Generate</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Script Input -->
+            <div class="card step-content" id="content-1">
+                <h2 style="margin-bottom: 24px;">Enter Your Script</h2>
+
+                <div class="form-group">
+                    <label>Script Title</label>
+                    <input type="text" id="script-title" placeholder="My Amazing Story">
+                </div>
+
+                <div class="form-group">
+                    <label>Script Content</label>
+                    <textarea class="script-input" id="script-content" placeholder="Paste or write your script here...
+
+Your script will be automatically split into scenes. Each scene will be converted into a video segment.
+
+Tips:
+- Use clear, descriptive language
+- Break into natural paragraphs for scene detection
+- Include visual descriptions for better results"></textarea>
+                    <div class="char-counter">
+                        <span id="char-count">0</span> / 5000 characters
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end;">
+                    <button class="btn btn-theme" onclick="analyzeScript()">Analyze Script →</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Scene Configuration -->
+            <div class="card step-content hidden" id="content-2">
+                <h2 style="margin-bottom: 24px;">Configure Scenes</h2>
+
+                <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                    AI has detected <strong id="scene-count">0</strong> scenes in your script.
+                    Review and customize each scene's visual prompt.
+                </p>
+
+                <div id="scenes-container">
+                    <!-- Scenes will be dynamically generated -->
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 24px;">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">← Back to Script</button>
+                    <button class="btn btn-theme" onclick="goToStep(3)">Review & Generate →</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Generate -->
+            <div class="card step-content hidden" id="content-3">
+                <h2 style="margin-bottom: 24px;">Review & Generate</h2>
+
+                <div style="background: var(--gray-100); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 8px;" id="final-title">Script Title</h4>
+                    <p style="color: var(--text-secondary);">
+                        <span id="final-scene-count">0</span> scenes •
+                        <span id="final-duration">0</span> seconds estimated
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label>Select AI Model</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px;">
+                        <div class="model-card selected" data-model="kling-pro" data-credits="60">
+                            <div style="font-weight: 700;">Kling 1.6 Pro</div>
+                            <div style="font-size: 0.8125rem; color: var(--text-secondary);">Best quality</div>
+                            <span class="model-badge">60 credits/scene</span>
+                        </div>
+                        <div class="model-card" data-model="kling-standard" data-credits="30">
+                            <div style="font-weight: 700;">Kling 1.6 Standard</div>
+                            <div style="font-size: 0.8125rem; color: var(--text-secondary);">Fast & efficient</div>
+                            <span class="model-badge">30 credits/scene</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: var(--theme-gradient-soft); border-radius: 12px; padding: 20px; text-align: center; margin: 24px 0;">
+                    <div style="font-size: 0.9375rem; color: var(--text-secondary);">Total Cost</div>
+                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--theme-primary);" id="total-credits">0</div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary);">credits for <span id="credits-scenes">0</span> scenes</div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between;">
+                    <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
+                    <button class="btn btn-theme btn-large" id="generate-btn" onclick="generateVideo()">
+                        🚀 Generate Video
+                    </button>
+                </div>
+
+                <!-- Progress -->
+                <div class="hidden" id="progress-section" style="margin-top: 32px;">
+                    <h3 style="margin-bottom: 16px;">Generating Your Video...</h3>
+                    <div id="scene-progress">
+                        <!-- Scene progress items will be generated -->
+                    </div>
+                </div>
+
+                <!-- Result -->
+                <div class="hidden" id="result-section" style="margin-top: 32px;">
+                    <h3 style="margin-bottom: 16px;">Your Video is Ready!</h3>
+                    <div style="border-radius: 16px; overflow: hidden; background: #000;">
+                        <video controls style="width: 100%;" id="final-video">
+                            <source src="" type="video/mp4">
+                        </video>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-top: 16px;">
+                        <button class="btn btn-theme" onclick="downloadVideo()">⬇️ Download</button>
+                        <button class="btn btn-secondary" onclick="location.reload()">Create Another</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/common.js"></script>
+    <script>
+        let scenes = [];
+        let selectedModel = 'kling-pro';
+        let creditsPerScene = 60;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user) {
+                window.location.href = '/auth/login.html';
+                return;
+            }
+
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('credits-balance').textContent = App.formatNumber(user.credits || 0);
+
+            // Character count
+            document.getElementById('script-content').addEventListener('input', (e) => {
+                const count = e.target.value.length;
+                document.getElementById('char-count').textContent = count;
+                const counter = document.querySelector('.char-counter');
+                counter.className = 'char-counter' + (count > 4500 ? ' warning' : '') + (count > 5000 ? ' danger' : '');
+            });
+
+            // Model selection
+            document.querySelectorAll('.model-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    selectedModel = card.dataset.model;
+                    creditsPerScene = parseInt(card.dataset.credits);
+                    updateCost();
+                });
+            });
+        });
+
+        function updateCost() {
+            const total = scenes.length * creditsPerScene;
+            document.getElementById('total-credits').textContent = total;
+            document.getElementById('credits-scenes').textContent = scenes.length;
+        }
+
+        async function analyzeScript() {
+            const content = document.getElementById('script-content').value.trim();
+            if (!content) {
+                App.toast('Please enter your script', 'error');
+                return;
+            }
+
+            App.showLoading('Analyzing script...');
+
+            // Simple scene detection by paragraphs
+            const paragraphs = content.split(/\n\n+/).filter(p => p.trim().length > 20);
+            scenes = paragraphs.map((text, index) => ({
+                id: index + 1,
+                text: text.trim(),
+                prompt: generateScenePrompt(text)
+            }));
+
+            App.hideLoading();
+
+            if (scenes.length === 0) {
+                App.toast('Could not detect scenes. Please add more content.', 'error');
+                return;
+            }
+
+            renderScenes();
+            goToStep(2);
+        }
+
+        function generateScenePrompt(text) {
+            // Simple prompt generation - in production, use AI
+            const firstSentence = text.split('.')[0];
+            return firstSentence + ', cinematic style, high quality, professional lighting';
+        }
+
+        function renderScenes() {
+            const container = document.getElementById('scenes-container');
+            container.innerHTML = scenes.map((scene, index) => `
+                <div class="scene-card" style="border: 2px solid var(--border-color); border-radius: 16px; padding: 20px; margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span class="frame-indicator">Scene ${scene.id}</span>
+                        <button class="btn btn-small btn-secondary" onclick="removeScene(${index})">Remove</button>
+                    </div>
+                    <div style="background: var(--gray-100); padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">${scene.text.substring(0, 200)}...</p>
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label style="font-size: 0.8125rem;">Visual Prompt</label>
+                        <textarea style="min-height: 80px;" onchange="updateScenePrompt(${index}, this.value)">${scene.prompt}</textarea>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('scene-count').textContent = scenes.length;
+        }
+
+        function updateScenePrompt(index, prompt) {
+            scenes[index].prompt = prompt;
+        }
+
+        function removeScene(index) {
+            scenes.splice(index, 1);
+            renderScenes();
+            updateCost();
+        }
+
+        function goToStep(step) {
+            for (let i = 1; i <= 3; i++) {
+                const stepEl = document.getElementById(`step-${i}`);
+                const lineEl = document.getElementById(`line-${i-1}`);
+                const content = document.getElementById(`content-${i}`);
+
+                if (i < step) {
+                    stepEl.classList.add('completed');
+                    stepEl.classList.remove('active');
+                    if (lineEl) lineEl.classList.add('active');
+                } else if (i === step) {
+                    stepEl.classList.add('active');
+                    stepEl.classList.remove('completed');
+                    content.classList.remove('hidden');
+                } else {
+                    stepEl.classList.remove('active', 'completed');
+                }
+
+                if (i !== step) content.classList.add('hidden');
+            }
+
+            if (step === 3) {
+                document.getElementById('final-title').textContent = document.getElementById('script-title').value || 'Untitled Script';
+                document.getElementById('final-scene-count').textContent = scenes.length;
+                document.getElementById('final-duration').textContent = scenes.length * 5;
+                updateCost();
+            }
+        }
+
+        async function generateVideo() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const totalCost = scenes.length * creditsPerScene;
+
+            if (user.credits < totalCost) {
+                App.toast('Insufficient credits!', 'error');
+                return;
+            }
+
+            document.getElementById('generate-btn').classList.add('hidden');
+            document.getElementById('progress-section').classList.remove('hidden');
+
+            // Create progress UI
+            const progressContainer = document.getElementById('scene-progress');
+            progressContainer.innerHTML = scenes.map((scene, index) => `
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--gray-100); border-radius: 8px; margin-bottom: 8px;" id="scene-progress-${index}">
+                    <div class="spinner" style="width: 24px; height: 24px; border-width: 3px;"></div>
+                    <span>Scene ${index + 1}: Waiting...</span>
+                </div>
+            `).join('');
+
+            try {
+                const response = await App.apiPost('/tools/script-to-video.php', {
+                    title: document.getElementById('script-title').value,
+                    scenes: scenes,
+                    model: selectedModel
+                });
+
+                if (response.success) {
+                    // Simulate progress for demo
+                    for (let i = 0; i < scenes.length; i++) {
+                        await new Promise(r => setTimeout(r, 3000));
+                        const el = document.getElementById(`scene-progress-${i}`);
+                        el.innerHTML = `
+                            <span style="color: var(--success); font-size: 1.25rem;">✓</span>
+                            <span>Scene ${i + 1}: Complete</span>
+                        `;
+                    }
+
+                    // Show result
+                    document.getElementById('progress-section').classList.add('hidden');
+                    document.getElementById('result-section').classList.remove('hidden');
+                    document.getElementById('final-video').src = response.data.video_url;
+
+                    App.updateCreditsDisplay();
+                    App.toast('Video generated successfully!', 'success');
+                } else {
+                    App.toast(response.error || 'Generation failed', 'error');
+                    document.getElementById('generate-btn').classList.remove('hidden');
+                    document.getElementById('progress-section').classList.add('hidden');
+                }
+            } catch (e) {
+                App.toast('Failed to generate video', 'error');
+                document.getElementById('generate-btn').classList.remove('hidden');
+                document.getElementById('progress-section').classList.add('hidden');
+            }
+        }
+
+        function downloadVideo() {
+            const video = document.getElementById('final-video');
+            App.downloadFile(video.src, 'script-to-video.mp4');
+        }
+    </script>
+</body>
+</html>

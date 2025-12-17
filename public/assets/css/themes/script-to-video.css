@@ -1,0 +1,298 @@
+/* =====================================================
+   AI Video Generator - Script to Video Theme
+   Orange/Red gradient theme for Script to Video tool
+   ===================================================== */
+
+/* =====================================================
+   Theme Variables
+   ===================================================== */
+.theme-script-to-video {
+    --theme-primary: #f093fb;
+    --theme-secondary: #f5576c;
+    --theme-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --theme-gradient-soft: linear-gradient(135deg, rgba(240, 147, 251, 0.1) 0%, rgba(245, 87, 108, 0.1) 100%);
+    --theme-shadow: 0 10px 30px rgba(240, 147, 251, 0.3);
+    --theme-glow: 0 0 40px rgba(240, 147, 251, 0.4);
+}
+
+/* =====================================================
+   Tool Page Header
+   ===================================================== */
+.theme-script-to-video .tool-page-header {
+    background: var(--theme-gradient);
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-script-to-video .tool-page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: rotate 30s linear infinite;
+}
+
+/* =====================================================
+   Buttons
+   ===================================================== */
+.theme-script-to-video .btn-theme {
+    background: var(--theme-gradient);
+    color: var(--white);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-script-to-video .btn-theme:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(240, 147, 251, 0.4);
+}
+
+.theme-script-to-video .btn-theme-outline {
+    background: transparent;
+    border: 2px solid var(--theme-primary);
+    color: var(--theme-primary);
+}
+
+.theme-script-to-video .btn-theme-outline:hover {
+    background: var(--theme-gradient);
+    border-color: transparent;
+    color: var(--white);
+}
+
+/* =====================================================
+   Step Indicator
+   ===================================================== */
+.theme-script-to-video .step.active .step-number,
+.theme-script-to-video .step.completed .step-number {
+    background: var(--theme-gradient);
+}
+
+.theme-script-to-video .step-line.active {
+    background: var(--theme-gradient);
+}
+
+.theme-script-to-video .step.active .step-label {
+    color: var(--theme-primary);
+}
+
+/* =====================================================
+   Cards
+   ===================================================== */
+.theme-script-to-video .tool-card {
+    border-color: transparent;
+    transition: all 0.3s ease;
+}
+
+.theme-script-to-video .tool-card:hover {
+    border-color: var(--theme-primary);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-script-to-video .tool-card.selected {
+    border-color: var(--theme-primary);
+    background: var(--theme-gradient-soft);
+}
+
+/* =====================================================
+   Progress Bar
+   ===================================================== */
+.theme-script-to-video .progress-bar {
+    background: var(--gray-200);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.theme-script-to-video .progress-fill {
+    background: var(--theme-gradient);
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+/* =====================================================
+   Input Focus
+   ===================================================== */
+.theme-script-to-video input:focus,
+.theme-script-to-video select:focus,
+.theme-script-to-video textarea:focus {
+    border-color: var(--theme-primary);
+    box-shadow: 0 0 0 4px rgba(240, 147, 251, 0.1);
+}
+
+/* =====================================================
+   Accent Elements
+   ===================================================== */
+.theme-script-to-video .accent-text {
+    color: var(--theme-primary);
+}
+
+.theme-script-to-video .accent-bg {
+    background: var(--theme-gradient-soft);
+}
+
+.theme-script-to-video .accent-border {
+    border-color: var(--theme-primary);
+}
+
+/* =====================================================
+   Loading Animation
+   ===================================================== */
+.theme-script-to-video .spinner {
+    border-top-color: var(--theme-primary);
+}
+
+.theme-script-to-video .loading-dots span {
+    background: var(--theme-gradient);
+}
+
+/* =====================================================
+   Credits Badge
+   ===================================================== */
+.theme-script-to-video .credits-badge {
+    background: var(--theme-gradient);
+}
+
+/* =====================================================
+   Selection Highlight
+   ===================================================== */
+.theme-script-to-video .selection-card.selected {
+    border-color: var(--theme-primary);
+    box-shadow: var(--theme-glow);
+}
+
+.theme-script-to-video .selection-card.selected::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--theme-gradient);
+}
+
+/* =====================================================
+   Floating Shapes Animation
+   ===================================================== */
+.theme-script-to-video .floating-shapes .shape-1 {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+}
+
+.theme-script-to-video .floating-shapes .shape-2 {
+    background: linear-gradient(135deg, #ff6b6b, #f093fb);
+}
+
+.theme-script-to-video .floating-shapes .shape-3 {
+    background: linear-gradient(135deg, #f5576c, #ff9a9e);
+}
+
+/* =====================================================
+   Tool Specific - Script Input
+   ===================================================== */
+.theme-script-to-video .script-input {
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    min-height: 200px;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.8;
+    transition: all 0.3s ease;
+    resize: vertical;
+}
+
+.theme-script-to-video .script-input:focus {
+    border-color: var(--theme-primary);
+    box-shadow: var(--theme-shadow);
+}
+
+/* Character counter */
+.theme-script-to-video .char-counter {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+.theme-script-to-video .char-counter.warning {
+    color: #d39e00;
+}
+
+.theme-script-to-video .char-counter.danger {
+    color: var(--danger);
+}
+
+/* =====================================================
+   Video Preview Card
+   ===================================================== */
+.theme-script-to-video .video-preview-card {
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.theme-script-to-video .video-preview-card:hover {
+    border-color: var(--theme-primary);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-script-to-video .video-preview-card.generating {
+    border-color: var(--theme-primary);
+    animation: pulseGlowOrange 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlowOrange {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(240, 147, 251, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 20px 10px rgba(240, 147, 251, 0.2);
+    }
+}
+
+/* =====================================================
+   Model Selection Cards
+   ===================================================== */
+.theme-script-to-video .model-card {
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-script-to-video .model-card:hover {
+    border-color: var(--theme-primary);
+    background: var(--theme-gradient-soft);
+}
+
+.theme-script-to-video .model-card.selected {
+    border-color: var(--theme-primary);
+    background: var(--theme-gradient-soft);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-script-to-video .model-card .model-badge {
+    background: var(--theme-gradient);
+    color: var(--white);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+}
+
+/* =====================================================
+   Tooltip
+   ===================================================== */
+.theme-script-to-video .tooltip {
+    background: var(--theme-gradient);
+    color: var(--white);
+}
+
+.theme-script-to-video .tooltip::after {
+    border-top-color: var(--theme-primary);
+}

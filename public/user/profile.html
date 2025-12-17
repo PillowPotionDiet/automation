@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - AI Video Generator</title>
+    <link rel="icon" href="/assets/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/common.css">
+    <link rel="stylesheet" href="/assets/css/tools-hub.css">
+</head>
+<body>
+    <!-- Global Header -->
+    <header class="global-header">
+        <div class="header-left">
+            <a href="/tools/" class="logo-link">
+                <img src="/assets/images/logo.png" alt="AI Video Generator">
+                <span>AI Video Gen</span>
+            </a>
+            <a href="/tools/" class="back-to-tools">← Back to Tools</a>
+        </div>
+        <div class="header-center">
+            <h1>My Profile</h1>
+        </div>
+        <div class="header-right">
+            <div class="credits-badge">
+                <span class="credits-icon">💎</span>
+                <span id="credits-balance">0</span>
+                <span class="credits-label">Credits</span>
+            </div>
+            <div class="user-menu">
+                <span id="user-email">user@example.com</span>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="page-wrapper">
+        <div class="tools-hub-content" style="max-width: 800px;">
+            <!-- Profile Card -->
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <h2 class="card-title">Account Information</h2>
+                </div>
+                <div style="display: flex; align-items: center; gap: 24px; margin-bottom: 24px;">
+                    <div style="width: 100px; height: 100px; border-radius: 20px; background: var(--primary-gradient); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: white;" id="user-avatar">
+                        👤
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.5rem; margin-bottom: 4px;" id="profile-email">user@example.com</h3>
+                        <p style="color: var(--text-secondary);">Member since <span id="member-since">January 2024</span></p>
+                        <span class="badge badge-success" id="user-status">Active</span>
+                    </div>
+                </div>
+
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="email" disabled style="background: var(--gray-100);">
+                    </div>
+                    <div class="form-group">
+                        <label>API Key (for external integrations)</label>
+                        <div style="display: flex; gap: 12px;">
+                            <input type="text" id="api-key" readonly style="flex: 1; font-family: monospace;">
+                            <button type="button" class="btn btn-secondary" onclick="copyApiKey()">Copy</button>
+                            <button type="button" class="btn btn-secondary" onclick="regenerateApiKey()">Regenerate</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Change Password -->
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                    <h2 class="card-title">Change Password</h2>
+                </div>
+                <form id="password-form">
+                    <div class="form-group">
+                        <label for="current-password">Current Password</label>
+                        <input type="password" id="current-password" placeholder="Enter current password">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">New Password</label>
+                        <input type="password" id="new-password" placeholder="Enter new password" minlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm New Password</label>
+                        <input type="password" id="confirm-password" placeholder="Confirm new password">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                </form>
+            </div>
+
+            <!-- Usage Stats -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Usage Statistics</h2>
+                </div>
+                <div class="quick-stats" style="margin: 0;">
+                    <div class="stat-card" style="box-shadow: none; border: 1px solid var(--border-color);">
+                        <div class="stat-icon purple">💎</div>
+                        <div class="stat-info">
+                            <h3 id="total-credits-used">0</h3>
+                            <p>Credits Used</p>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="box-shadow: none; border: 1px solid var(--border-color);">
+                        <div class="stat-icon green">🎬</div>
+                        <div class="stat-info">
+                            <h3 id="total-generations">0</h3>
+                            <p>Total Generations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user) {
+                window.location.href = '/auth/login.html';
+                return;
+            }
+
+            // Update UI
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('profile-email').textContent = user.email;
+            document.getElementById('email').value = user.email;
+            document.getElementById('credits-balance').textContent = App.formatNumber(user.credits || 0);
+            document.getElementById('user-avatar').textContent = user.email.charAt(0).toUpperCase();
+            document.getElementById('api-key').value = user.api_key || 'Not generated';
+
+            // Load stats
+            loadStats();
+        });
+
+        async function loadStats() {
+            try {
+                const response = await App.apiGet('/user/stats.php');
+                if (response.success) {
+                    document.getElementById('total-credits-used').textContent = App.formatNumber(response.data.credits_used || 0);
+                    document.getElementById('total-generations').textContent = App.formatNumber(response.data.total_generations || 0);
+                }
+            } catch (e) {}
+        }
+
+        function copyApiKey() {
+            const key = document.getElementById('api-key').value;
+            App.copyToClipboard(key);
+        }
+
+        async function regenerateApiKey() {
+            if (!confirm('Are you sure? This will invalidate your current API key.')) return;
+
+            try {
+                const response = await App.apiPost('/user/regenerate-api-key.php');
+                if (response.success) {
+                    document.getElementById('api-key').value = response.data.api_key;
+                    App.toast('API key regenerated!', 'success');
+                } else {
+                    App.toast(response.error, 'error');
+                }
+            } catch (e) {
+                App.toast('Failed to regenerate API key', 'error');
+            }
+        }
+
+        document.getElementById('password-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const current = document.getElementById('current-password').value;
+            const newPass = document.getElementById('new-password').value;
+            const confirm = document.getElementById('confirm-password').value;
+
+            if (newPass !== confirm) {
+                App.toast('Passwords do not match', 'error');
+                return;
+            }
+
+            if (newPass.length < 8) {
+                App.toast('Password must be at least 8 characters', 'error');
+                return;
+            }
+
+            try {
+                const response = await App.apiPost('/user/change-password.php', {
+                    current_password: current,
+                    new_password: newPass
+                });
+
+                if (response.success) {
+                    App.toast('Password updated successfully!', 'success');
+                    e.target.reset();
+                } else {
+                    App.toast(response.error, 'error');
+                }
+            } catch (e) {
+                App.toast('Failed to update password', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

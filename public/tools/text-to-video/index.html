@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Video - AI Video Generator</title>
+    <link rel="icon" href="/assets/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/common.css">
+    <link rel="stylesheet" href="/assets/css/tools-hub.css">
+    <link rel="stylesheet" href="/assets/css/themes/text-to-video.css">
+</head>
+<body class="theme-text-to-video">
+    <!-- Global Header -->
+    <header class="global-header">
+        <div class="header-left">
+            <a href="/tools/" class="logo-link">
+                <img src="/assets/images/logo.png" alt="AI Video Generator">
+                <span>AI Video Gen</span>
+            </a>
+            <a href="/tools/" class="back-to-tools">← Back to Tools</a>
+        </div>
+        <div class="header-center">
+            <h1>✨ Text to Video</h1>
+        </div>
+        <div class="header-right">
+            <div class="credits-badge">
+                <span class="credits-icon">💎</span>
+                <span id="credits-balance">0</span>
+                <span class="credits-label">Credits</span>
+            </div>
+            <div class="user-menu">
+                <span id="user-email">user@example.com</span>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="page-wrapper">
+        <div class="tools-hub-content" style="max-width: 1000px;">
+            <!-- Tool Header -->
+            <div class="welcome-section" style="margin-bottom: 32px;">
+                <h1>Text to Video <span class="gradient-text">Generator</span></h1>
+                <p>Generate stunning videos from text prompts using state-of-the-art AI models</p>
+            </div>
+
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active" id="step-1">
+                    <div class="step-number">1</div>
+                    <span class="step-label">Prompt</span>
+                </div>
+                <div class="step-line" id="line-1"></div>
+                <div class="step" id="step-2">
+                    <div class="step-number">2</div>
+                    <span class="step-label">Settings</span>
+                </div>
+                <div class="step-line" id="line-2"></div>
+                <div class="step" id="step-3">
+                    <div class="step-number">3</div>
+                    <span class="step-label">Generate</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Prompt -->
+            <div class="card step-content" id="content-1">
+                <h2 style="margin-bottom: 24px;">Describe Your Video</h2>
+
+                <div class="prompt-input-container">
+                    <textarea class="prompt-input" id="video-prompt" placeholder="Describe the video you want to create... Be specific about the scene, action, lighting, camera movement, and style.
+
+Example: A majestic eagle soaring through misty mountains at sunrise, golden light rays piercing through clouds, cinematic slow motion, 4K quality"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+                    <button class="btn btn-secondary" onclick="enhancePrompt()">✨ Enhance Prompt</button>
+                    <button class="btn btn-secondary" onclick="clearPrompt()">Clear</button>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end;">
+                    <button class="btn btn-theme" onclick="goToStep(2)">Next: Choose Settings →</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Settings -->
+            <div class="card step-content hidden" id="content-2">
+                <h2 style="margin-bottom: 24px;">Choose AI Model & Settings</h2>
+
+                <div class="form-group">
+                    <label>Select AI Model</label>
+                    <div class="model-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 12px;">
+                        <div class="model-option selected" data-model="kling-standard" data-credits="30">
+                            <div style="font-weight: 700; margin-bottom: 4px;">Kling 1.6 Standard</div>
+                            <div style="font-size: 0.8125rem; color: var(--text-secondary);">Fast & efficient</div>
+                            <div style="font-size: 0.9375rem; color: var(--theme-primary); font-weight: 600; margin-top: 8px;">30 credits</div>
+                        </div>
+                        <div class="model-option" data-model="kling-pro" data-credits="60">
+                            <div style="font-weight: 700; margin-bottom: 4px;">Kling 1.6 Pro</div>
+                            <div style="font-size: 0.8125rem; color: var(--text-secondary);">Higher quality</div>
+                            <div style="font-size: 0.9375rem; color: var(--theme-primary); font-weight: 600; margin-top: 8px;">60 credits</div>
+                        </div>
+                        <div class="model-option" data-model="hailuo" data-credits="30">
+                            <div style="font-weight: 700; margin-bottom: 4px;">Hailuo</div>
+                            <div style="font-size: 0.8125rem; color: var(--text-secondary);">Great for characters</div>
+                            <div style="font-size: 0.9375rem; color: var(--theme-primary); font-weight: 600; margin-top: 8px;">30 credits</div>
+                        </div>
+                        <div class="model-option" data-model="luma" data-credits="30">
+                            <div style="font-weight: 700; margin-bottom: 4px;">Luma Dream Machine</div>
+                            <div style="font-size: 0.8125rem; color: var(--text-secondary);">Cinematic style</div>
+                            <div style="font-size: 0.9375rem; color: var(--theme-primary); font-weight: 600; margin-top: 8px;">30 credits</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 24px;">
+                    <label>Video Duration</label>
+                    <div class="duration-selector" style="display: flex; gap: 12px; margin-top: 12px;">
+                        <div class="duration-option selected" data-duration="5">
+                            <div class="duration-time">5s</div>
+                            <div class="duration-credits">Standard</div>
+                        </div>
+                        <div class="duration-option" data-duration="10">
+                            <div class="duration-time">10s</div>
+                            <div class="duration-credits">+50% credits</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 32px;">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
+                    <button class="btn btn-theme" onclick="goToStep(3)">Next: Review & Generate →</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Generate -->
+            <div class="card step-content hidden" id="content-3">
+                <h2 style="margin-bottom: 24px;">Review & Generate</h2>
+
+                <div style="background: var(--gray-100); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 12px;">Your Prompt:</h4>
+                    <p id="review-prompt" style="color: var(--text-secondary);"></p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                    <div style="background: var(--gray-100); border-radius: 12px; padding: 16px;">
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary);">Model</div>
+                        <div style="font-weight: 600;" id="review-model">Kling 1.6 Standard</div>
+                    </div>
+                    <div style="background: var(--gray-100); border-radius: 12px; padding: 16px;">
+                        <div style="font-size: 0.8125rem; color: var(--text-secondary);">Duration</div>
+                        <div style="font-weight: 600;" id="review-duration">5 seconds</div>
+                    </div>
+                </div>
+
+                <div style="background: var(--theme-gradient-soft); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 24px;">
+                    <div style="font-size: 0.9375rem; color: var(--text-secondary);">Cost</div>
+                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--theme-primary);" id="review-credits">30</div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary);">credits</div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between;">
+                    <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
+                    <button class="btn btn-theme btn-large" id="generate-btn" onclick="generateVideo()">
+                        🚀 Generate Video
+                    </button>
+                </div>
+
+                <!-- Generation Status -->
+                <div class="generation-status hidden" id="generation-status">
+                    <div class="generation-icon">✨</div>
+                    <h3>Generating Your Video...</h3>
+                    <p style="color: var(--text-secondary);">This may take 2-5 minutes. Please don't close this page.</p>
+                    <div class="progress-bar" style="width: 100%; max-width: 300px; margin-top: 20px;">
+                        <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+                    </div>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 12px;" id="status-text">Initializing...</p>
+                </div>
+
+                <!-- Result -->
+                <div class="hidden" id="result-container" style="margin-top: 24px;">
+                    <h3 style="margin-bottom: 16px;">Your Video is Ready!</h3>
+                    <div style="border-radius: 16px; overflow: hidden; background: #000;">
+                        <video controls style="width: 100%;" id="result-video">
+                            <source src="" type="video/mp4">
+                        </video>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-top: 16px;">
+                        <button class="btn btn-theme" onclick="downloadVideo()">⬇️ Download</button>
+                        <button class="btn btn-secondary" onclick="resetForm()">Create Another</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/common.js"></script>
+    <script>
+        let selectedModel = 'kling-standard';
+        let selectedCredits = 30;
+        let selectedDuration = 5;
+        let generationId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user) {
+                window.location.href = '/auth/login.html';
+                return;
+            }
+
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('credits-balance').textContent = App.formatNumber(user.credits || 0);
+
+            // Model selection
+            document.querySelectorAll('.model-option').forEach(opt => {
+                opt.addEventListener('click', () => {
+                    document.querySelectorAll('.model-option').forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    selectedModel = opt.dataset.model;
+                    selectedCredits = parseInt(opt.dataset.credits);
+                    updateCost();
+                });
+            });
+
+            // Duration selection
+            document.querySelectorAll('.duration-option').forEach(opt => {
+                opt.addEventListener('click', () => {
+                    document.querySelectorAll('.duration-option').forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    selectedDuration = parseInt(opt.dataset.duration);
+                    updateCost();
+                });
+            });
+        });
+
+        function updateCost() {
+            let cost = selectedCredits;
+            if (selectedDuration === 10) cost = Math.floor(cost * 1.5);
+            document.getElementById('review-credits').textContent = cost;
+        }
+
+        function goToStep(step) {
+            // Validate
+            if (step === 2) {
+                const prompt = document.getElementById('video-prompt').value.trim();
+                if (!prompt) {
+                    App.toast('Please enter a prompt', 'error');
+                    return;
+                }
+            }
+
+            // Update steps
+            for (let i = 1; i <= 3; i++) {
+                const stepEl = document.getElementById(`step-${i}`);
+                const lineEl = document.getElementById(`line-${i-1}`);
+                const content = document.getElementById(`content-${i}`);
+
+                if (i < step) {
+                    stepEl.classList.add('completed');
+                    stepEl.classList.remove('active');
+                    if (lineEl) lineEl.classList.add('active');
+                } else if (i === step) {
+                    stepEl.classList.add('active');
+                    stepEl.classList.remove('completed');
+                    content.classList.remove('hidden');
+                } else {
+                    stepEl.classList.remove('active', 'completed');
+                    content.classList.add('hidden');
+                }
+
+                if (i !== step) content.classList.add('hidden');
+            }
+
+            // Update review
+            if (step === 3) {
+                document.getElementById('review-prompt').textContent = document.getElementById('video-prompt').value;
+                document.getElementById('review-model').textContent = document.querySelector('.model-option.selected').querySelector('div').textContent;
+                document.getElementById('review-duration').textContent = selectedDuration + ' seconds';
+                updateCost();
+            }
+        }
+
+        async function enhancePrompt() {
+            const prompt = document.getElementById('video-prompt').value.trim();
+            if (!prompt) {
+                App.toast('Enter a prompt first', 'error');
+                return;
+            }
+
+            App.showLoading('Enhancing prompt...');
+            // In production, call AI to enhance prompt
+            setTimeout(() => {
+                App.hideLoading();
+                document.getElementById('video-prompt').value = prompt + ', cinematic lighting, smooth camera movement, high detail, professional quality, 4K resolution';
+                App.toast('Prompt enhanced!', 'success');
+            }, 1500);
+        }
+
+        function clearPrompt() {
+            document.getElementById('video-prompt').value = '';
+        }
+
+        async function generateVideo() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const cost = parseInt(document.getElementById('review-credits').textContent);
+
+            if (user.credits < cost) {
+                App.toast('Insufficient credits! Please buy more.', 'error');
+                return;
+            }
+
+            const prompt = document.getElementById('video-prompt').value;
+
+            // Show generation status
+            document.getElementById('generate-btn').classList.add('hidden');
+            document.getElementById('generation-status').classList.remove('hidden');
+
+            try {
+                const response = await App.apiPost('/tools/text-to-video.php', {
+                    prompt: prompt,
+                    model: selectedModel,
+                    duration: selectedDuration
+                });
+
+                if (response.success) {
+                    generationId = response.data.generation_id;
+                    pollStatus();
+                } else {
+                    App.toast(response.error || 'Generation failed', 'error');
+                    document.getElementById('generate-btn').classList.remove('hidden');
+                    document.getElementById('generation-status').classList.add('hidden');
+                }
+            } catch (e) {
+                App.toast('Failed to start generation', 'error');
+                document.getElementById('generate-btn').classList.remove('hidden');
+                document.getElementById('generation-status').classList.add('hidden');
+            }
+        }
+
+        async function pollStatus() {
+            let progress = 0;
+            const progressFill = document.getElementById('progress-fill');
+            const statusText = document.getElementById('status-text');
+
+            const statuses = ['Initializing...', 'Processing prompt...', 'Generating frames...', 'Rendering video...', 'Almost done...'];
+
+            const interval = setInterval(async () => {
+                try {
+                    const response = await App.apiGet(`/api/webhook/status.php?id=${generationId}`);
+
+                    if (response.success) {
+                        if (response.data.status === 'completed') {
+                            clearInterval(interval);
+                            progressFill.style.width = '100%';
+                            statusText.textContent = 'Complete!';
+
+                            // Show result
+                            document.getElementById('generation-status').classList.add('hidden');
+                            document.getElementById('result-container').classList.remove('hidden');
+                            document.getElementById('result-video').src = response.data.result_url;
+
+                            // Update credits
+                            App.updateCreditsDisplay();
+                            App.toast('Video generated successfully!', 'success');
+                        } else if (response.data.status === 'failed') {
+                            clearInterval(interval);
+                            App.toast('Generation failed: ' + (response.data.error || 'Unknown error'), 'error');
+                            document.getElementById('generate-btn').classList.remove('hidden');
+                            document.getElementById('generation-status').classList.add('hidden');
+                        } else {
+                            // Update progress
+                            progress = Math.min(progress + 10, 90);
+                            progressFill.style.width = progress + '%';
+                            statusText.textContent = statuses[Math.floor(progress / 20)] || 'Processing...';
+                        }
+                    }
+                } catch (e) {
+                    // Keep polling
+                }
+            }, 3000);
+        }
+
+        function downloadVideo() {
+            const video = document.getElementById('result-video');
+            App.downloadFile(video.src, 'ai-generated-video.mp4');
+        }
+
+        function resetForm() {
+            document.getElementById('video-prompt').value = '';
+            document.getElementById('result-container').classList.add('hidden');
+            document.getElementById('generate-btn').classList.remove('hidden');
+            goToStep(1);
+        }
+    </script>
+</body>
+</html>

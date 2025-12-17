@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text to Image - AI Video Generator</title>
+    <link rel="icon" href="/assets/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/common.css">
+    <link rel="stylesheet" href="/assets/css/tools-hub.css">
+    <link rel="stylesheet" href="/assets/css/themes/text-to-image.css">
+</head>
+<body class="theme-text-to-image">
+    <!-- Global Header -->
+    <header class="global-header">
+        <div class="header-left">
+            <a href="/tools/" class="logo-link">
+                <img src="/assets/images/logo.png" alt="AI Video Generator">
+                <span>AI Video Gen</span>
+            </a>
+            <a href="/tools/" class="back-to-tools">← Back to Tools</a>
+        </div>
+        <div class="header-center">
+            <h1>🖼️ Text to Image</h1>
+        </div>
+        <div class="header-right">
+            <div class="credits-badge">
+                <span class="credits-icon">💎</span>
+                <span id="credits-balance">0</span>
+                <span class="credits-label">Credits</span>
+            </div>
+            <div class="user-menu">
+                <span id="user-email">user@example.com</span>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="page-wrapper">
+        <div class="tools-hub-content" style="max-width: 1200px;">
+            <div style="display: grid; grid-template-columns: 1fr 400px; gap: 32px;">
+                <!-- Main Panel -->
+                <div>
+                    <!-- Prompt Input -->
+                    <div class="card" style="margin-bottom: 24px;">
+                        <h2 style="margin-bottom: 16px;">Describe Your Image</h2>
+                        <textarea class="image-prompt" id="image-prompt" placeholder="Describe the image you want to create...
+
+Example: A serene Japanese garden at sunset, with cherry blossoms falling gently, a wooden bridge over a koi pond, soft pink and orange lighting, highly detailed, digital art style"></textarea>
+
+                        <div style="display: flex; gap: 12px; margin-top: 16px;">
+                            <button class="btn btn-secondary" onclick="enhancePrompt()">✨ Enhance</button>
+                            <button class="btn btn-secondary" onclick="randomPrompt()">🎲 Random</button>
+                        </div>
+                    </div>
+
+                    <!-- Generated Images -->
+                    <div class="card">
+                        <h2 style="margin-bottom: 16px;">Generated Images</h2>
+                        <div class="image-gallery" id="image-gallery">
+                            <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-secondary);">
+                                <div style="font-size: 3rem; margin-bottom: 16px; opacity: 0.5;">🖼️</div>
+                                <p>Your generated images will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Panel -->
+                <div>
+                    <div class="card" style="position: sticky; top: 90px;">
+                        <h3 style="margin-bottom: 20px;">⚙️ Settings</h3>
+
+                        <!-- Model Selection -->
+                        <div class="form-group">
+                            <label>AI Model</label>
+                            <div style="display: grid; gap: 8px; margin-top: 8px;">
+                                <div class="model-option selected" data-model="flux" data-credits="1">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="font-weight: 600;">Flux</span>
+                                        <span style="color: var(--theme-primary); font-weight: 600;">1 credit</span>
+                                    </div>
+                                    <div style="font-size: 0.8125rem; color: var(--text-secondary);">Fast & versatile</div>
+                                </div>
+                                <div class="model-option" data-model="ideogram" data-credits="2">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="font-weight: 600;">Ideogram</span>
+                                        <span style="color: var(--theme-primary); font-weight: 600;">2 credits</span>
+                                    </div>
+                                    <div style="font-size: 0.8125rem; color: var(--text-secondary);">Best for text in images</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Aspect Ratio -->
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label>Aspect Ratio</label>
+                            <div class="aspect-ratios" style="margin-top: 8px;">
+                                <div class="aspect-ratio-btn selected" data-ratio="1:1">
+                                    <div class="aspect-ratio-preview aspect-1-1"></div>
+                                    <div class="aspect-ratio-label">1:1</div>
+                                </div>
+                                <div class="aspect-ratio-btn" data-ratio="16:9">
+                                    <div class="aspect-ratio-preview aspect-16-9"></div>
+                                    <div class="aspect-ratio-label">16:9</div>
+                                </div>
+                                <div class="aspect-ratio-btn" data-ratio="9:16">
+                                    <div class="aspect-ratio-preview aspect-9-16"></div>
+                                    <div class="aspect-ratio-label">9:16</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Number of Images -->
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label>Number of Images</label>
+                            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                <button class="setting-btn active" data-count="1">1</button>
+                                <button class="setting-btn" data-count="2">2</button>
+                                <button class="setting-btn" data-count="4">4</button>
+                            </div>
+                        </div>
+
+                        <!-- Cost Summary -->
+                        <div style="background: var(--theme-gradient-soft); border-radius: 12px; padding: 16px; margin-top: 24px; text-align: center;">
+                            <div style="font-size: 0.875rem; color: var(--text-secondary);">Total Cost</div>
+                            <div style="font-size: 2rem; font-weight: 800; color: var(--theme-primary);" id="total-cost">1</div>
+                            <div style="font-size: 0.8125rem; color: var(--text-secondary);">credits</div>
+                        </div>
+
+                        <!-- Generate Button -->
+                        <button class="btn btn-theme btn-full btn-large" style="margin-top: 20px;" id="generate-btn" onclick="generateImages()">
+                            🎨 Generate Images
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/common.js"></script>
+    <script>
+        let selectedModel = 'flux';
+        let selectedCredits = 1;
+        let selectedRatio = '1:1';
+        let imageCount = 1;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user) {
+                window.location.href = '/auth/login.html';
+                return;
+            }
+
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('credits-balance').textContent = App.formatNumber(user.credits || 0);
+
+            // Model selection
+            document.querySelectorAll('.model-option').forEach(opt => {
+                opt.addEventListener('click', () => {
+                    document.querySelectorAll('.model-option').forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    selectedModel = opt.dataset.model;
+                    selectedCredits = parseInt(opt.dataset.credits);
+                    updateCost();
+                });
+            });
+
+            // Aspect ratio selection
+            document.querySelectorAll('.aspect-ratio-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.aspect-ratio-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    selectedRatio = btn.dataset.ratio;
+                });
+            });
+
+            // Image count selection
+            document.querySelectorAll('.setting-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.setting-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    imageCount = parseInt(btn.dataset.count);
+                    updateCost();
+                });
+            });
+        });
+
+        function updateCost() {
+            const total = selectedCredits * imageCount;
+            document.getElementById('total-cost').textContent = total;
+        }
+
+        async function enhancePrompt() {
+            const prompt = document.getElementById('image-prompt').value.trim();
+            if (!prompt) {
+                App.toast('Enter a prompt first', 'error');
+                return;
+            }
+
+            App.showLoading('Enhancing prompt...');
+            setTimeout(() => {
+                App.hideLoading();
+                document.getElementById('image-prompt').value = prompt + ', highly detailed, sharp focus, vibrant colors, professional photography, 8K resolution, masterpiece';
+                App.toast('Prompt enhanced!', 'success');
+            }, 1000);
+        }
+
+        function randomPrompt() {
+            const prompts = [
+                'A mystical forest with glowing mushrooms and fireflies at night',
+                'An astronaut riding a horse on Mars with Earth in the background',
+                'A steampunk city with flying airships and clockwork towers',
+                'A cozy coffee shop on a rainy day with warm lighting',
+                'A majestic dragon perched on a mountain peak at sunset',
+                'An underwater palace with mermaids and colorful coral'
+            ];
+            document.getElementById('image-prompt').value = prompts[Math.floor(Math.random() * prompts.length)];
+        }
+
+        async function generateImages() {
+            const prompt = document.getElementById('image-prompt').value.trim();
+            if (!prompt) {
+                App.toast('Please enter a prompt', 'error');
+                return;
+            }
+
+            const user = JSON.parse(localStorage.getItem('user'));
+            const cost = selectedCredits * imageCount;
+
+            if (user.credits < cost) {
+                App.toast('Insufficient credits!', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('generate-btn');
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Generating...';
+
+            try {
+                const response = await App.apiPost('/tools/text-to-image.php', {
+                    prompt: prompt,
+                    model: selectedModel,
+                    aspect_ratio: selectedRatio,
+                    count: imageCount
+                });
+
+                if (response.success) {
+                    // Add images to gallery
+                    const gallery = document.getElementById('image-gallery');
+
+                    // Clear placeholder if exists
+                    if (gallery.children.length === 1 && gallery.children[0].style.gridColumn) {
+                        gallery.innerHTML = '';
+                    }
+
+                    response.data.images.forEach((img, index) => {
+                        const card = document.createElement('div');
+                        card.className = 'image-card';
+                        card.innerHTML = `
+                            <img src="${img.url}" alt="Generated image ${index + 1}">
+                            <div class="image-card-overlay">
+                                <div class="image-card-actions">
+                                    <button class="image-action-btn download" onclick="App.downloadFile('${img.url}', 'ai-image-${Date.now()}.png')">Download</button>
+                                </div>
+                            </div>
+                        `;
+                        gallery.insertBefore(card, gallery.firstChild);
+                    });
+
+                    // Update credits
+                    App.updateCreditsDisplay();
+                    App.toast('Images generated successfully!', 'success');
+                } else {
+                    App.toast(response.error || 'Generation failed', 'error');
+                }
+            } catch (e) {
+                App.toast('Failed to generate images', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '🎨 Generate Images';
+            }
+        }
+    </script>
+</body>
+</html>

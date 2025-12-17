@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Requests - Admin - AI Video Generator</title>
+    <link rel="icon" href="/assets/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/common.css">
+    <link rel="stylesheet" href="/assets/css/admin.css">
+</head>
+<body>
+    <div class="admin-page">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="admin-sidebar">
+            <div class="admin-sidebar-header">
+                <a href="/admin/" class="admin-logo">
+                    <img src="/assets/images/logo.png" alt="AI Video Generator">
+                    <div class="admin-logo-text">
+                        <span>AI Video Gen</span>
+                        <span>Admin Panel</span>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="admin-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="/admin/" class="nav-item">
+                        <span class="nav-icon">📊</span>
+                        Dashboard
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="/admin/users.html" class="nav-item">
+                        <span class="nav-icon">👥</span>
+                        Users
+                    </a>
+                    <a href="/admin/requests.html" class="nav-item active">
+                        <span class="nav-icon">📝</span>
+                        Credit Requests
+                    </a>
+                    <a href="/admin/generations.html" class="nav-item">
+                        <span class="nav-icon">🎬</span>
+                        Generations
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a href="/admin/logs.html" class="nav-item">
+                        <span class="nav-icon">📋</span>
+                        Activity Logs
+                    </a>
+                    <a href="/admin/settings.html" class="nav-item">
+                        <span class="nav-icon">⚙️</span>
+                        Settings
+                    </a>
+                </div>
+            </nav>
+
+            <div class="admin-sidebar-footer">
+                <div class="admin-user">
+                    <div class="admin-avatar" id="admin-avatar">A</div>
+                    <div class="admin-user-info">
+                        <span id="admin-email">admin@example.com</span>
+                        <span>Administrator</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="admin-header">
+                <div class="admin-header-left">
+                    <h1>Credit Requests</h1>
+                    <p>Manage user credit purchase requests</p>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="tool-filters" style="margin-bottom: 24px;">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="pending">Pending</button>
+                <button class="filter-btn" data-filter="approved">Approved</button>
+                <button class="filter-btn" data-filter="rejected">Rejected</button>
+            </div>
+
+            <!-- Requests Table -->
+            <div class="admin-table-card">
+                <div class="admin-table-header">
+                    <h2>All Requests</h2>
+                    <div class="table-actions">
+                        <input type="text" class="search-input" placeholder="Search by email..." id="search-input">
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Plan</th>
+                                <th>Credits</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requests-table">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 48px;">
+                                    Loading...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-pagination">
+                    <div class="pagination-info">
+                        Showing <span id="showing-start">0</span>-<span id="showing-end">0</span> of <span id="total-count">0</span>
+                    </div>
+                    <div class="pagination-btns" id="pagination-btns">
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Mobile Toggle -->
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    </div>
+
+    <script src="/assets/js/common.js"></script>
+    <script>
+        let currentPage = 1;
+        let currentFilter = 'all';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user || user.role !== 'admin') {
+                window.location.href = '/auth/login.html';
+                return;
+            }
+
+            document.getElementById('admin-email').textContent = user.email;
+            document.getElementById('admin-avatar').textContent = user.email.charAt(0).toUpperCase();
+
+            // Filters
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    currentPage = 1;
+                    loadRequests();
+                });
+            });
+
+            // Search
+            document.getElementById('search-input').addEventListener('input', App.debounce(() => {
+                currentPage = 1;
+                loadRequests();
+            }, 300));
+
+            loadRequests();
+        });
+
+        async function loadRequests() {
+            const search = document.getElementById('search-input').value;
+            const status = currentFilter !== 'all' ? currentFilter : '';
+
+            try {
+                const response = await App.apiGet(`/admin/credit-requests.php?page=${currentPage}&status=${status}&search=${encodeURIComponent(search)}`);
+
+                if (response.success) {
+                    renderRequests(response.data.items);
+                    renderPagination(response.data.pagination);
+                }
+            } catch (e) {
+                console.error('Failed to load requests:', e);
+            }
+        }
+
+        function renderRequests(requests) {
+            const tbody = document.getElementById('requests-table');
+
+            if (!requests || requests.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 48px;">
+                            No requests found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = requests.map(req => `
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">${req.email.charAt(0).toUpperCase()}</div>
+                            <div class="user-details">
+                                <strong>${req.email}</strong>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${req.plan_name}</td>
+                    <td><strong>${App.formatNumber(req.credits)}</strong> 💎</td>
+                    <td>$${req.amount}</td>
+                    <td>
+                        <span class="badge badge-${req.status === 'pending' ? 'pending' : req.status === 'approved' ? 'success' : 'danger'}">
+                            ${req.status}
+                        </span>
+                    </td>
+                    <td>${App.formatDate(req.created_at)}</td>
+                    <td>
+                        ${req.status === 'pending' ? `
+                            <div class="action-btns">
+                                <button class="action-btn success" onclick="approveRequest('${req.id}')" title="Approve">✓</button>
+                                <button class="action-btn danger" onclick="rejectRequest('${req.id}')" title="Reject">✕</button>
+                            </div>
+                        ` : `
+                            <span style="color: var(--text-secondary); font-size: 0.875rem;">
+                                ${req.status === 'approved' ? 'Approved' : 'Rejected'}
+                            </span>
+                        `}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderPagination(pagination) {
+            document.getElementById('showing-start').textContent = pagination.from || 0;
+            document.getElementById('showing-end').textContent = pagination.to || 0;
+            document.getElementById('total-count').textContent = pagination.total || 0;
+
+            const btns = document.getElementById('pagination-btns');
+            btns.innerHTML = '';
+
+            for (let i = 1; i <= pagination.pages; i++) {
+                const btn = document.createElement('button');
+                btn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                btn.textContent = i;
+                btn.onclick = () => {
+                    currentPage = i;
+                    loadRequests();
+                };
+                btns.appendChild(btn);
+            }
+        }
+
+        async function approveRequest(id) {
+            if (!confirm('Approve this credit request?')) return;
+
+            try {
+                const response = await App.apiPost('/admin/credit-requests.php', {
+                    action: 'approve',
+                    request_id: id
+                });
+
+                if (response.success) {
+                    App.toast('Request approved! Credits added to user.', 'success');
+                    loadRequests();
+                } else {
+                    App.toast(response.error, 'error');
+                }
+            } catch (e) {
+                App.toast('Failed to approve request', 'error');
+            }
+        }
+
+        async function rejectRequest(id) {
+            const reason = prompt('Rejection reason (optional):');
+
+            try {
+                const response = await App.apiPost('/admin/credit-requests.php', {
+                    action: 'reject',
+                    request_id: id,
+                    reason: reason
+                });
+
+                if (response.success) {
+                    App.toast('Request rejected', 'success');
+                    loadRequests();
+                } else {
+                    App.toast(response.error, 'error');
+                }
+            } catch (e) {
+                App.toast('Failed to reject request', 'error');
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('admin-sidebar').classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

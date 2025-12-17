@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - AI Video Generator</title>
+    <link rel="icon" href="/assets/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/common.css">
+    <link rel="stylesheet" href="/assets/css/admin.css">
+</head>
+<body>
+    <div class="admin-page">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="admin-sidebar">
+            <div class="admin-sidebar-header">
+                <a href="/admin/" class="admin-logo">
+                    <img src="/assets/images/logo.png" alt="AI Video Generator">
+                    <div class="admin-logo-text">
+                        <span>AI Video Gen</span>
+                        <span>Admin Panel</span>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="admin-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="/admin/" class="nav-item active">
+                        <span class="nav-icon">📊</span>
+                        Dashboard
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="/admin/users.html" class="nav-item">
+                        <span class="nav-icon">👥</span>
+                        Users
+                    </a>
+                    <a href="/admin/requests.html" class="nav-item">
+                        <span class="nav-icon">📝</span>
+                        Credit Requests
+                        <span class="nav-badge" id="pending-requests">0</span>
+                    </a>
+                    <a href="/admin/generations.html" class="nav-item">
+                        <span class="nav-icon">🎬</span>
+                        Generations
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a href="/admin/logs.html" class="nav-item">
+                        <span class="nav-icon">📋</span>
+                        Activity Logs
+                    </a>
+                    <a href="/admin/settings.html" class="nav-item">
+                        <span class="nav-icon">⚙️</span>
+                        Settings
+                    </a>
+                </div>
+            </nav>
+
+            <div class="admin-sidebar-footer">
+                <div class="admin-user">
+                    <div class="admin-avatar" id="admin-avatar">A</div>
+                    <div class="admin-user-info">
+                        <span id="admin-email">admin@example.com</span>
+                        <span>Administrator</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="admin-header">
+                <div class="admin-header-left">
+                    <h1>Dashboard</h1>
+                    <p>Overview of your platform performance</p>
+                </div>
+                <div class="admin-header-right">
+                    <a href="/tools/" class="btn btn-secondary">View Site</a>
+                    <button class="btn btn-primary" onclick="location.reload()">Refresh</button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="dashboard-stats">
+                <div class="dashboard-stat-card">
+                    <div class="stat-card-icon users">👥</div>
+                    <div class="stat-card-info">
+                        <h3 id="total-users">0</h3>
+                        <p>Total Users</p>
+                        <span class="stat-change positive" id="users-change">+0 this week</span>
+                    </div>
+                </div>
+                <div class="dashboard-stat-card">
+                    <div class="stat-card-icon credits">💎</div>
+                    <div class="stat-card-info">
+                        <h3 id="total-credits">0</h3>
+                        <p>Credits Distributed</p>
+                        <span class="stat-change positive" id="credits-change">+0 this week</span>
+                    </div>
+                </div>
+                <div class="dashboard-stat-card">
+                    <div class="stat-card-icon requests">📝</div>
+                    <div class="stat-card-info">
+                        <h3 id="pending-count">0</h3>
+                        <p>Pending Requests</p>
+                        <span class="stat-change" id="requests-status">Needs attention</span>
+                    </div>
+                </div>
+                <div class="dashboard-stat-card">
+                    <div class="stat-card-icon generations">🎬</div>
+                    <div class="stat-card-info">
+                        <h3 id="total-generations">0</h3>
+                        <p>Total Generations</p>
+                        <span class="stat-change positive" id="generations-change">+0 today</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cards Grid -->
+            <div class="admin-cards-grid">
+                <!-- Recent Users -->
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3>Recent Users</h3>
+                        <a href="/admin/users.html" class="view-all-link">View All →</a>
+                    </div>
+                    <div class="admin-card-body">
+                        <div id="recent-users">
+                            <p style="text-align: center; color: var(--text-secondary);">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3>Recent Activity</h3>
+                        <a href="/admin/logs.html" class="view-all-link">View All →</a>
+                    </div>
+                    <div class="admin-card-body">
+                        <div class="admin-activity-list" id="recent-activity">
+                            <p style="text-align: center; color: var(--text-secondary);">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Requests -->
+            <div class="admin-table-card">
+                <div class="admin-table-header">
+                    <h2>Pending Credit Requests</h2>
+                    <a href="/admin/requests.html" class="btn btn-secondary">View All</a>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Plan</th>
+                                <th>Credits</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pending-requests-table">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 32px;">
+                                    No pending requests
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Mobile Toggle -->
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    </div>
+
+    <script src="/assets/js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+            if (!user || user.role !== 'admin') {
+                window.location.href = '/auth/login.html';
+                return;
+            }
+
+            document.getElementById('admin-email').textContent = user.email;
+            document.getElementById('admin-avatar').textContent = user.email.charAt(0).toUpperCase();
+
+            loadDashboardStats();
+            loadRecentUsers();
+            loadRecentActivity();
+            loadPendingRequests();
+        });
+
+        async function loadDashboardStats() {
+            try {
+                const response = await App.apiGet('/admin/stats.php');
+                if (response.success) {
+                    const stats = response.data;
+                    document.getElementById('total-users').textContent = App.formatNumber(stats.total_users || 0);
+                    document.getElementById('total-credits').textContent = App.formatNumber(stats.total_credits || 0);
+                    document.getElementById('pending-count').textContent = stats.pending_requests || 0;
+                    document.getElementById('pending-requests').textContent = stats.pending_requests || 0;
+                    document.getElementById('total-generations').textContent = App.formatNumber(stats.total_generations || 0);
+                }
+            } catch (e) {
+                console.error('Failed to load stats:', e);
+            }
+        }
+
+        async function loadRecentUsers() {
+            try {
+                const response = await App.apiGet('/admin/users.php?limit=5');
+                if (response.success && response.data.items) {
+                    const container = document.getElementById('recent-users');
+                    container.innerHTML = response.data.items.map(user => `
+                        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border-color);">
+                            <div class="user-avatar" style="width: 36px; height: 36px; font-size: 0.875rem;">
+                                ${user.email.charAt(0).toUpperCase()}
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 500;">${user.email}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">${App.formatRelativeTime(user.created_at)}</div>
+                            </div>
+                            <div style="font-weight: 600;">${user.credits} 💎</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load users:', e);
+            }
+        }
+
+        async function loadRecentActivity() {
+            try {
+                const response = await App.apiGet('/admin/activity.php?limit=5');
+                if (response.success && response.data.length > 0) {
+                    const container = document.getElementById('recent-activity');
+                    container.innerHTML = response.data.map(item => `
+                        <div class="admin-activity-item">
+                            <div class="activity-dot ${item.type}"></div>
+                            <div class="admin-activity-content">
+                                <p>${item.message}</p>
+                                <span>${App.formatRelativeTime(item.created_at)}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    document.getElementById('recent-activity').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No recent activity</p>';
+                }
+            } catch (e) {
+                console.error('Failed to load activity:', e);
+            }
+        }
+
+        async function loadPendingRequests() {
+            try {
+                const response = await App.apiGet('/admin/credit-requests.php?status=pending&limit=5');
+                if (response.success && response.data.items && response.data.items.length > 0) {
+                    const tbody = document.getElementById('pending-requests-table');
+                    tbody.innerHTML = response.data.items.map(req => `
+                        <tr>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar">${req.email.charAt(0).toUpperCase()}</div>
+                                    <div class="user-details">
+                                        <strong>${req.email}</strong>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>${req.plan_name}</td>
+                            <td>${App.formatNumber(req.credits)}</td>
+                            <td>$${req.amount}</td>
+                            <td>${App.formatRelativeTime(req.created_at)}</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn success" onclick="approveRequest('${req.id}')" title="Approve">✓</button>
+                                    <button class="action-btn danger" onclick="rejectRequest('${req.id}')" title="Reject">✕</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load requests:', e);
+            }
+        }
+
+        async function approveRequest(id) {
+            if (!confirm('Approve this credit request?')) return;
+
+            try {
+                const response = await App.apiPost('/admin/credit-requests.php', {
+                    action: 'approve',
+                    request_id: id
+                });
+
+                if (response.success) {
+                    App.toast('Request approved!', 'success');
+                    loadPendingRequests();
+                    loadDashboardStats();
+                } else {
+                    App.toast(response.error, 'error');
+                }
+            } catch (e) {
+                App.toast('Failed to approve request', 'error');
+            }
+        }
+
+        async function rejectRequest(id) {
+            const reason = prompt('Rejection reason (optional):');
+
+            try {
+                const response = await App.apiPost('/admin/credit-requests.php', {
+                    action: 'reject',
+                    request_id: id,
+                    reason: reason
+                });
+
+                if (response.success) {
+                    App.toast('Request rejected', 'success');
+                    loadPendingRequests();
+                    loadDashboardStats();
+                } else {
+                    App.toast(response.error, 'error');
+                }
+            } catch (e) {
+                App.toast('Failed to reject request', 'error');
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('admin-sidebar').classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

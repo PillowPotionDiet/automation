@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activity Logs - Admin - AI Video Generator</title>
+    <link rel="icon" href="/assets/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/common.css">
+    <link rel="stylesheet" href="/assets/css/admin.css">
+</head>
+<body>
+    <div class="admin-page">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="admin-sidebar">
+            <div class="admin-sidebar-header">
+                <a href="/admin/" class="admin-logo">
+                    <img src="/assets/images/logo.png" alt="AI Video Generator">
+                    <div class="admin-logo-text">
+                        <span>AI Video Gen</span>
+                        <span>Admin Panel</span>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="admin-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <a href="/admin/" class="nav-item">
+                        <span class="nav-icon">📊</span>
+                        Dashboard
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Management</div>
+                    <a href="/admin/users.html" class="nav-item">
+                        <span class="nav-icon">👥</span>
+                        Users
+                    </a>
+                    <a href="/admin/requests.html" class="nav-item">
+                        <span class="nav-icon">📝</span>
+                        Credit Requests
+                    </a>
+                    <a href="/admin/generations.html" class="nav-item">
+                        <span class="nav-icon">🎬</span>
+                        Generations
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a href="/admin/logs.html" class="nav-item active">
+                        <span class="nav-icon">📋</span>
+                        Activity Logs
+                    </a>
+                    <a href="/admin/settings.html" class="nav-item">
+                        <span class="nav-icon">⚙️</span>
+                        Settings
+                    </a>
+                </div>
+            </nav>
+
+            <div class="admin-sidebar-footer">
+                <div class="admin-user">
+                    <div class="admin-avatar" id="admin-avatar">A</div>
+                    <div class="admin-user-info">
+                        <span id="admin-email">admin@example.com</span>
+                        <span>Administrator</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="admin-header">
+                <div class="admin-header-left">
+                    <h1>Activity Logs</h1>
+                    <p>System activity and admin actions</p>
+                </div>
+                <div class="admin-header-right">
+                    <button class="btn btn-secondary" onclick="exportLogs()">Export Logs</button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="tool-filters" style="margin-bottom: 24px;">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="user_signup">Signups</button>
+                <button class="filter-btn" data-filter="credit_added">Credits Added</button>
+                <button class="filter-btn" data-filter="generation">Generations</button>
+                <button class="filter-btn" data-filter="admin_action">Admin Actions</button>
+            </div>
+
+            <!-- Logs Table -->
+            <div class="admin-table-card">
+                <div class="admin-table-header">
+                    <h2>All Logs</h2>
+                    <div class="table-actions">
+                        <input type="text" class="search-input" placeholder="Search logs..." id="search-input">
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                                <th>IP Address</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-table">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 48px;">
+                                    Loading...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-pagination">
+                    <div class="pagination-info">
+                        Showing <span id="showing-start">0</span>-<span id="showing-end">0</span> of <span id="total-count">0</span>
+                    </div>
+                    <div class="pagination-btns" id="pagination-btns">
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Mobile Toggle -->
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    </div>
+
+    <script src="/assets/js/common.js"></script>
+    <script>
+        let currentPage = 1;
+        let currentFilter = 'all';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user || user.role !== 'admin') {
+                window.location.href = '/auth/login.html';
+                return;
+            }
+
+            document.getElementById('admin-email').textContent = user.email;
+            document.getElementById('admin-avatar').textContent = user.email.charAt(0).toUpperCase();
+
+            // Filters
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    currentPage = 1;
+                    loadLogs();
+                });
+            });
+
+            // Search
+            document.getElementById('search-input').addEventListener('input', App.debounce(() => {
+                currentPage = 1;
+                loadLogs();
+            }, 300));
+
+            loadLogs();
+        });
+
+        async function loadLogs() {
+            const search = document.getElementById('search-input').value;
+            const type = currentFilter !== 'all' ? currentFilter : '';
+
+            try {
+                const response = await App.apiGet(`/admin/logs.php?page=${currentPage}&type=${type}&search=${encodeURIComponent(search)}`);
+
+                if (response.success) {
+                    renderLogs(response.data.items);
+                    renderPagination(response.data.pagination);
+                }
+            } catch (e) {
+                console.error('Failed to load logs:', e);
+            }
+        }
+
+        function renderLogs(logs) {
+            const tbody = document.getElementById('logs-table');
+
+            if (!logs || logs.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 48px;">
+                            No logs found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const typeIcons = {
+                user_signup: '👤',
+                credit_added: '💎',
+                credit_used: '📉',
+                generation: '🎬',
+                admin_action: '🔧',
+                login: '🔑',
+                logout: '🚪'
+            };
+
+            const typeColors = {
+                user_signup: 'success',
+                credit_added: 'success',
+                credit_used: 'warning',
+                generation: 'processing',
+                admin_action: 'danger',
+                login: 'success',
+                logout: 'pending'
+            };
+
+            tbody.innerHTML = logs.map(log => `
+                <tr>
+                    <td>
+                        <span class="badge badge-${typeColors[log.type] || 'pending'}">
+                            ${typeIcons[log.type] || '📋'} ${log.type.replace(/_/g, ' ')}
+                        </span>
+                    </td>
+                    <td>${log.user_email || 'System'}</td>
+                    <td>${log.action}</td>
+                    <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis;" title="${log.details || ''}">
+                        ${log.details || '-'}
+                    </td>
+                    <td><code style="font-size: 0.8125rem;">${log.ip_address || '-'}</code></td>
+                    <td>${App.formatRelativeTime(log.created_at)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderPagination(pagination) {
+            document.getElementById('showing-start').textContent = pagination.from || 0;
+            document.getElementById('showing-end').textContent = pagination.to || 0;
+            document.getElementById('total-count').textContent = pagination.total || 0;
+
+            const btns = document.getElementById('pagination-btns');
+            btns.innerHTML = '';
+
+            for (let i = 1; i <= Math.min(pagination.pages, 10); i++) {
+                const btn = document.createElement('button');
+                btn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                btn.textContent = i;
+                btn.onclick = () => {
+                    currentPage = i;
+                    loadLogs();
+                };
+                btns.appendChild(btn);
+            }
+        }
+
+        async function exportLogs() {
+            App.toast('Exporting logs...', 'success');
+            // In production, call API to generate CSV/JSON export
+        }
+
+        function toggleSidebar() {
+            document.getElementById('admin-sidebar').classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Generator - Transform Text to Videos with AI</title>
+    <meta name="description" content="Create stunning AI-generated videos from text. 4 powerful tools: YouTube Story Generator, Script to Video, Text to Video, and Text to Image.">
+    <link rel="icon" href="/assets/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/common.css">
+    <link rel="stylesheet" href="/assets/css/landing.css">
+</head>
+<body>
+    <!-- Landing Header -->
+    <header class="landing-header">
+        <a href="/" class="landing-logo">
+            <img src="/assets/images/logo.png" alt="AI Video Generator">
+            <span>AI Video Gen</span>
+        </a>
+        <nav class="landing-nav">
+            <a href="#features">Features</a>
+            <a href="#tools">Tools</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#how-it-works">How It Works</a>
+        </nav>
+        <div class="landing-auth">
+            <a href="/auth/login.html" class="btn-login">Login</a>
+            <a href="/auth/signup.html" class="btn-signup">Get Started Free</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-background">
+            <canvas id="particles-canvas"></canvas>
+            <div class="floating-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+                <div class="shape shape-4"></div>
+            </div>
+        </div>
+
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span>✨ New</span> AI-Powered Video Generation
+            </div>
+            <h1 class="hero-title">
+                Transform Your Ideas Into
+                <span class="highlight">Stunning Videos</span>
+            </h1>
+            <p class="hero-subtitle">
+                Create professional AI-generated videos in minutes. From YouTube stories to cinematic
+                text-to-video content, our 4 powerful tools bring your imagination to life.
+            </p>
+            <div class="hero-buttons">
+                <a href="/auth/signup.html" class="btn btn-primary">
+                    Start Creating Free
+                    <span>→</span>
+                </a>
+                <a href="#tools" class="btn btn-secondary">
+                    Explore Tools
+                </a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-users" data-counter="10000">0</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-videos" data-counter="50000">0</div>
+                    <div class="stat-label">Videos Generated</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="stat-images" data-counter="200000">0</div>
+                    <div class="stat-label">Images Created</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Features</span>
+                <h2 class="section-title">Powerful AI Generation Tools</h2>
+                <p class="section-description">
+                    Leverage cutting-edge AI models to create stunning visual content
+                    faster than ever before.
+                </p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon purple">🎬</div>
+                    <h3>Multiple AI Models</h3>
+                    <p>Access top AI models including Kling, Hailuo, Luma, and more. Choose the best model for your specific creative needs.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon orange">⚡</div>
+                    <h3>Lightning Fast</h3>
+                    <p>Generate videos and images in minutes, not hours. Our optimized pipeline delivers results quickly without compromising quality.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon blue">🎨</div>
+                    <h3>High Quality Output</h3>
+                    <p>Professional-grade 1080p videos and HD images. Perfect for YouTube, social media, marketing, and creative projects.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon green">💰</div>
+                    <h3>Pay-As-You-Go</h3>
+                    <p>No subscriptions required. Use credits only when you generate. Start free with 20 bonus credits on signup.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon purple">🔄</div>
+                    <h3>Flexible Workflow</h3>
+                    <p>From script to storyboard to final video - control every step or let AI handle it all. Your choice.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon orange">🌐</div>
+                    <h3>Cloud-Based</h3>
+                    <p>No downloads or installations. Access your projects from any device, anytime. All processing happens in the cloud.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools Section -->
+    <section class="tools-section" id="tools">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Our Tools</span>
+                <h2 class="section-title">4 Powerful Creation Tools</h2>
+                <p class="section-description">
+                    Each tool is designed for specific use cases. Choose the right one for your project.
+                </p>
+            </div>
+
+            <div class="tools-grid">
+                <div class="tool-card purple">
+                    <div class="tool-icon">🎥</div>
+                    <h3>AI YouTube Story Generator</h3>
+                    <p>Create complete YouTube stories from a single prompt. AI generates script, scenes, images, and final video.</p>
+                    <div class="tool-credits">
+                        <span>📊</span> Starting from 10 credits
+                    </div>
+                </div>
+                <div class="tool-card orange">
+                    <div class="tool-icon">📝</div>
+                    <h3>Script to Video</h3>
+                    <p>Transform your written scripts into engaging videos. Perfect for content creators with existing storylines.</p>
+                    <div class="tool-credits">
+                        <span>📊</span> Starting from 30 credits
+                    </div>
+                </div>
+                <div class="tool-card blue">
+                    <div class="tool-icon">✨</div>
+                    <h3>Text to Video</h3>
+                    <p>Generate videos directly from text prompts. Simple, fast, and perfect for quick creative projects.</p>
+                    <div class="tool-credits">
+                        <span>📊</span> Starting from 30 credits
+                    </div>
+                </div>
+                <div class="tool-card green">
+                    <div class="tool-icon">🖼️</div>
+                    <h3>Text to Image</h3>
+                    <p>Create stunning AI images from descriptions. Multiple styles and formats available.</p>
+                    <div class="tool-credits">
+                        <span>📊</span> Starting from 1 credit
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing-section" id="pricing">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label">Pricing</span>
+                <h2 class="section-title">Simple, Transparent Pricing</h2>
+                <p class="section-description">
+                    No subscriptions. Buy credits and use them whenever you want.
+                </p>
+            </div>
+
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="plan-name">Free</div>
+                    <div class="plan-price">
+                        <span class="currency">$</span>
+                        <span class="amount">0</span>
+                    </div>
+                    <div class="plan-credits">20 Credits</div>
+                    <ul class="plan-features">
+                        <li>Signup bonus credits</li>
+                        <li>Access all 4 tools</li>
+                        <li>Standard processing</li>
+                        <li>Basic support</li>
+                    </ul>
+                    <a href="/auth/signup.html" class="btn btn-secondary">Get Started</a>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="plan-name">Basic Creator</div>
+                    <div class="plan-price">
+                        <span class="currency">$</span>
+                        <span class="amount">20</span>
+                    </div>
+                    <div class="plan-credits">1,000 Credits</div>
+                    <ul class="plan-features">
+                        <li>All free features</li>
+                        <li>Priority processing</li>
+                        <li>HD video export</li>
+                        <li>Email support</li>
+                    </ul>
+                    <a href="/auth/signup.html" class="btn btn-secondary">Get Started</a>
+                </div>
+
+                <div class="pricing-card featured">
+                    <div class="plan-name">Pro Creator</div>
+                    <div class="plan-price">
+                        <span class="currency">$</span>
+                        <span class="amount">50</span>
+                    </div>
+                    <div class="plan-credits">3,000 Credits</div>
+                    <ul class="plan-features">
+                        <li>All Basic features</li>
+                        <li>Best value per credit</li>
+                        <li>1080p video export</li>
+                        <li>Priority support</li>
+                    </ul>
+                    <a href="/auth/signup.html" class="btn btn-primary">Most Popular</a>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="plan-name">Max Plan</div>
+                    <div class="plan-price">
+                        <span class="currency">$</span>
+                        <span class="amount">100</span>
+                    </div>
+                    <div class="plan-credits">6,500 Credits</div>
+                    <ul class="plan-features">
+                        <li>All Pro features</li>
+                        <li>Bulk discounts</li>
+                        <li>Dedicated support</li>
+                        <li>Early access to features</li>
+                    </ul>
+                    <a href="/auth/signup.html" class="btn btn-secondary">Get Started</a>
+                </div>
+
+                <div class="pricing-card">
+                    <div class="plan-name">Agency</div>
+                    <div class="plan-price">
+                        <span class="currency">$</span>
+                        <span class="amount">300</span>
+                    </div>
+                    <div class="plan-credits">20,000 Credits</div>
+                    <ul class="plan-features">
+                        <li>All Max features</li>
+                        <li>Team access</li>
+                        <li>White-label options</li>
+                        <li>24/7 support</li>
+                    </ul>
+                    <a href="/auth/signup.html" class="btn btn-secondary">Contact Us</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works-section" id="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-label" style="background: rgba(255,255,255,0.1); color: #fff;">Process</span>
+                <h2 class="section-title">How It Works</h2>
+                <p class="section-description">
+                    Three simple steps to create amazing AI-generated content.
+                </p>
+            </div>
+
+            <div class="steps-container">
+                <div class="how-step">
+                    <div class="how-step-number">1</div>
+                    <h3>Choose Your Tool</h3>
+                    <p>Select from our 4 powerful tools based on your project needs.</p>
+                </div>
+                <div class="how-step">
+                    <div class="how-step-number">2</div>
+                    <h3>Enter Your Content</h3>
+                    <p>Provide your script, prompt, or description. Add any preferences.</p>
+                </div>
+                <div class="how-step">
+                    <div class="how-step-number">3</div>
+                    <h3>Generate & Download</h3>
+                    <p>AI creates your content. Preview, refine, and download.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2 class="cta-title">Ready to Start Creating?</h2>
+            <p class="cta-description">
+                Join thousands of creators using AI to bring their ideas to life.
+                Start free with 20 bonus credits.
+            </p>
+            <a href="/auth/signup.html" class="btn">
+                Create Your Free Account
+                <span>→</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <img src="/assets/images/logo.png" alt="AI Video Generator">
+                <p>Transform your ideas into stunning AI-generated videos and images with our powerful tools.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Product</h4>
+                <a href="#tools">Tools</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#features">Features</a>
+                <a href="#how-it-works">How It Works</a>
+            </div>
+            <div class="footer-links">
+                <h4>Company</h4>
+                <a href="#">About Us</a>
+                <a href="#">Contact</a>
+                <a href="#">Blog</a>
+                <a href="#">Careers</a>
+            </div>
+            <div class="footer-links">
+                <h4>Legal</h4>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Cookie Policy</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 AI Video Generator. All rights reserved.</p>
+            <p class="made-by">Made with ❤️ by <a href="https://www.yourportfolio.dev" target="_blank">Your Name</a></p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/particles.js"></script>
+    <script>
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.landing-header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Counter animation
+        const counters = document.querySelectorAll('[data-counter]');
+        const observerOptions = { threshold: 0.5 };
+
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = parseInt(entry.target.dataset.counter);
+                    animateCounter(entry.target, target);
+                    counterObserver.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        counters.forEach(counter => counterObserver.observe(counter));
+
+        function animateCounter(element, target) {
+            const duration = 2000;
+            const start = 0;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 4);
+                const current = Math.floor(start + (target - start) * easeOut);
+                element.textContent = current.toLocaleString() + '+';
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+    </script>
+</body>
+</html>

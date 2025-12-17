@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy Credits - AI Video Generator</title>
+    <link rel="icon" href="/assets/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/common.css">
+    <link rel="stylesheet" href="/assets/css/tools-hub.css">
+    <link rel="stylesheet" href="/assets/css/landing.css">
+</head>
+<body>
+    <!-- Global Header -->
+    <header class="global-header">
+        <div class="header-left">
+            <a href="/tools/" class="logo-link">
+                <img src="/assets/images/logo.png" alt="AI Video Generator">
+                <span>AI Video Gen</span>
+            </a>
+            <a href="/tools/" class="back-to-tools">← Back to Tools</a>
+        </div>
+        <div class="header-center">
+            <h1>Buy Credits</h1>
+        </div>
+        <div class="header-right">
+            <div class="credits-badge">
+                <span class="credits-icon">💎</span>
+                <span id="credits-balance">0</span>
+                <span class="credits-label">Credits</span>
+            </div>
+            <div class="user-menu">
+                <span id="user-email">user@example.com</span>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="page-wrapper">
+        <div class="tools-hub-content">
+            <!-- Current Balance -->
+            <div class="credits-widget" style="max-width: 400px; margin: 0 auto 48px;">
+                <div class="credits-widget-header">
+                    <h3>💎 Current Balance</h3>
+                </div>
+                <div class="credits-widget-balance">
+                    <span class="amount" id="current-credits">0</span>
+                    <span class="label">credits available</span>
+                </div>
+            </div>
+
+            <!-- Pricing Plans -->
+            <div class="section-header" style="margin-bottom: 32px;">
+                <h2 class="section-title">Choose Your Plan</h2>
+                <p class="section-description">
+                    Buy credits to use with all our AI tools. No subscriptions, no expiry.
+                </p>
+            </div>
+
+            <div class="pricing-grid" style="max-width: 1200px; margin: 0 auto 48px;">
+                <div class="pricing-card" data-plan="basic">
+                    <div class="plan-name">Basic Creator</div>
+                    <div class="plan-price">
+                        <span class="currency">$</span>
+                        <span class="amount">20</span>
+                    </div>
+                    <div class="plan-credits">1,000 Credits</div>
+                    <ul class="plan-features">
+                        <li>$0.02 per credit</li>
+                        <li>All AI tools access</li>
+                        <li>HD quality exports</li>
+                        <li>Email support</li>
+                    </ul>
+                    <button class="btn btn-secondary" onclick="selectPlan('basic', 20, 1000)">Select Plan</button>
+                </div>
+
+                <div class="pricing-card featured" data-plan="pro">
+                    <div class="plan-name">Pro Creator</div>
+                    <div class="plan-price">
+                        <span class="currency">$</span>
+                        <span class="amount">50</span>
+                    </div>
+                    <div class="plan-credits">3,000 Credits</div>
+                    <ul class="plan-features">
+                        <li>$0.017 per credit</li>
+                        <li>15% bonus credits</li>
+                        <li>1080p quality exports</li>
+                        <li>Priority support</li>
+                    </ul>
+                    <button class="btn btn-primary" onclick="selectPlan('pro', 50, 3000)">Select Plan</button>
+                </div>
+
+                <div class="pricing-card" data-plan="max">
+                    <div class="plan-name">Max Plan</div>
+                    <div class="plan-price">
+                        <span class="currency">$</span>
+                        <span class="amount">100</span>
+                    </div>
+                    <div class="plan-credits">6,500 Credits</div>
+                    <ul class="plan-features">
+                        <li>$0.015 per credit</li>
+                        <li>25% bonus credits</li>
+                        <li>4K quality exports</li>
+                        <li>Dedicated support</li>
+                    </ul>
+                    <button class="btn btn-secondary" onclick="selectPlan('max', 100, 6500)">Select Plan</button>
+                </div>
+
+                <div class="pricing-card" data-plan="agency">
+                    <div class="plan-name">Agency</div>
+                    <div class="plan-price">
+                        <span class="currency">$</span>
+                        <span class="amount">300</span>
+                    </div>
+                    <div class="plan-credits">20,000 Credits</div>
+                    <ul class="plan-features">
+                        <li>$0.015 per credit</li>
+                        <li>30% bonus credits</li>
+                        <li>All premium features</li>
+                        <li>24/7 priority support</li>
+                    </ul>
+                    <button class="btn btn-secondary" onclick="selectPlan('agency', 300, 20000)">Select Plan</button>
+                </div>
+            </div>
+
+            <!-- Credit Costs Reference -->
+            <div class="card" style="max-width: 800px; margin: 0 auto;">
+                <div class="card-header">
+                    <h2 class="card-title">Credit Costs per Tool</h2>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Tool</th>
+                            <th>Model</th>
+                            <th>Credits</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>AI YouTube Story</td>
+                            <td>Various</td>
+                            <td>10-100</td>
+                        </tr>
+                        <tr>
+                            <td>Script to Video</td>
+                            <td>Kling 1.6 Pro</td>
+                            <td>60</td>
+                        </tr>
+                        <tr>
+                            <td>Text to Video</td>
+                            <td>Kling 1.6 Standard</td>
+                            <td>30</td>
+                        </tr>
+                        <tr>
+                            <td>Text to Video</td>
+                            <td>Hailuo</td>
+                            <td>30</td>
+                        </tr>
+                        <tr>
+                            <td>Text to Video</td>
+                            <td>Luma</td>
+                            <td>30</td>
+                        </tr>
+                        <tr>
+                            <td>Text to Image</td>
+                            <td>Flux</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Text to Image</td>
+                            <td>Ideogram</td>
+                            <td>2</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchase Modal -->
+    <div class="modal-overlay hidden" id="purchase-modal">
+        <div class="modal-content">
+            <h2>Confirm Purchase</h2>
+            <div style="text-align: center; padding: 24px 0;">
+                <p style="font-size: 1.25rem; margin-bottom: 8px;">
+                    You're purchasing <strong id="modal-credits">0</strong> credits
+                </p>
+                <p style="font-size: 2rem; font-weight: 800; color: var(--primary);">
+                    $<span id="modal-price">0</span>
+                </p>
+            </div>
+            <p style="font-size: 0.875rem; color: var(--text-secondary); text-align: center; margin-bottom: 24px;">
+                Credits will be added to your account immediately after payment.
+            </p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="App.closeModal('purchase-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="processPurchase()">Pay Now</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/common.js"></script>
+    <script>
+        let selectedPlan = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user) {
+                window.location.href = '/auth/login.html';
+                return;
+            }
+
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('credits-balance').textContent = App.formatNumber(user.credits || 0);
+            document.getElementById('current-credits').textContent = App.formatNumber(user.credits || 0);
+        });
+
+        function selectPlan(plan, price, credits) {
+            selectedPlan = { plan, price, credits };
+            document.getElementById('modal-credits').textContent = App.formatNumber(credits);
+            document.getElementById('modal-price').textContent = price;
+            App.openModal('purchase-modal');
+        }
+
+        async function processPurchase() {
+            if (!selectedPlan) return;
+
+            App.showLoading('Processing payment...');
+
+            // In production, integrate with Stripe/PayPal
+            // For demo, simulate purchase
+            try {
+                const response = await App.apiPost('/user/purchase-credits.php', {
+                    plan: selectedPlan.plan,
+                    amount: selectedPlan.price,
+                    credits: selectedPlan.credits
+                });
+
+                if (response.success) {
+                    // Update local user data
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    user.credits = response.data.new_balance;
+                    localStorage.setItem('user', JSON.stringify(user));
+
+                    App.hideLoading();
+                    App.closeModal('purchase-modal');
+                    App.toast('Purchase successful! Credits added to your account.', 'success');
+
+                    // Update display
+                    document.getElementById('credits-balance').textContent = App.formatNumber(user.credits);
+                    document.getElementById('current-credits').textContent = App.formatNumber(user.credits);
+                } else {
+                    App.hideLoading();
+                    App.toast(response.error || 'Purchase failed', 'error');
+                }
+            } catch (e) {
+                App.hideLoading();
+                App.toast('Payment processing failed', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

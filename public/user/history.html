@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generation History - AI Video Generator</title>
+    <link rel="icon" href="/assets/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/common.css">
+    <link rel="stylesheet" href="/assets/css/tools-hub.css">
+    <link rel="stylesheet" href="/assets/css/admin.css">
+</head>
+<body>
+    <!-- Global Header -->
+    <header class="global-header">
+        <div class="header-left">
+            <a href="/tools/" class="logo-link">
+                <img src="/assets/images/logo.png" alt="AI Video Generator">
+                <span>AI Video Gen</span>
+            </a>
+            <a href="/tools/" class="back-to-tools">← Back to Tools</a>
+        </div>
+        <div class="header-center">
+            <h1>Generation History</h1>
+        </div>
+        <div class="header-right">
+            <div class="credits-badge">
+                <span class="credits-icon">💎</span>
+                <span id="credits-balance">0</span>
+                <span class="credits-label">Credits</span>
+            </div>
+            <div class="user-menu">
+                <span id="user-email">user@example.com</span>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="page-wrapper">
+        <div class="tools-hub-content">
+            <!-- Filters -->
+            <div class="tool-filters" style="margin-bottom: 24px;">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="youtube_story">YouTube Story</button>
+                <button class="filter-btn" data-filter="script_to_video">Script to Video</button>
+                <button class="filter-btn" data-filter="text_to_video">Text to Video</button>
+                <button class="filter-btn" data-filter="text_to_image">Text to Image</button>
+            </div>
+
+            <!-- History Table -->
+            <div class="admin-table-card">
+                <div class="admin-table-header">
+                    <h2>Your Generations</h2>
+                    <div class="table-actions">
+                        <input type="text" class="search-input" placeholder="Search by prompt..." id="search-input">
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Tool</th>
+                                <th>Prompt</th>
+                                <th>Model</th>
+                                <th>Credits</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 48px;">
+                                    <div class="activity-empty-icon" style="font-size: 2rem; margin-bottom: 12px;">📭</div>
+                                    <p>No generations yet</p>
+                                    <p style="font-size: 0.875rem; color: var(--text-secondary);">Start creating to see your history</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-pagination" id="pagination">
+                    <div class="pagination-info">
+                        Showing <span id="showing-start">0</span>-<span id="showing-end">0</span> of <span id="total-count">0</span>
+                    </div>
+                    <div class="pagination-btns" id="pagination-btns">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Credits History -->
+            <div class="admin-table-card" style="margin-top: 32px;">
+                <div class="admin-table-header">
+                    <h2>Credits Transactions</h2>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Description</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="credits-table">
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 32px;">
+                                    No transactions yet
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/common.js"></script>
+    <script>
+        let currentPage = 1;
+        let currentFilter = 'all';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (!user) {
+                window.location.href = '/auth/login.html';
+                return;
+            }
+
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('credits-balance').textContent = App.formatNumber(user.credits || 0);
+
+            // Setup filters
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    currentPage = 1;
+                    loadHistory();
+                });
+            });
+
+            // Search
+            document.getElementById('search-input').addEventListener('input', App.debounce(() => {
+                currentPage = 1;
+                loadHistory();
+            }, 300));
+
+            loadHistory();
+            loadCreditsHistory();
+        });
+
+        async function loadHistory() {
+            const search = document.getElementById('search-input').value;
+            const filter = currentFilter !== 'all' ? currentFilter : '';
+
+            try {
+                const response = await App.apiGet(`/user/generations.php?page=${currentPage}&filter=${filter}&search=${encodeURIComponent(search)}`);
+
+                if (response.success) {
+                    const data = response.data;
+                    renderHistory(data.items);
+                    renderPagination(data.pagination);
+                }
+            } catch (e) {
+                console.error('Failed to load history:', e);
+            }
+        }
+
+        function renderHistory(items) {
+            const tbody = document.getElementById('history-table');
+
+            if (!items || items.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 48px;">
+                            <div style="font-size: 2rem; margin-bottom: 12px;">📭</div>
+                            <p>No generations found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = items.map(item => {
+                const toolIcons = {
+                    youtube_story: '🎥',
+                    script_to_video: '📝',
+                    text_to_video: '✨',
+                    text_to_image: '🖼️'
+                };
+
+                return `
+                    <tr>
+                        <td>
+                            <span style="font-size: 1.25rem; margin-right: 8px;">${toolIcons[item.tool_type] || '🎬'}</span>
+                            ${item.tool_type.replace(/_/g, ' ')}
+                        </td>
+                        <td style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.prompt}">
+                            ${item.prompt}
+                        </td>
+                        <td>${item.model_used || '-'}</td>
+                        <td>${item.credits_used}</td>
+                        <td><span class="badge badge-${item.status}">${item.status}</span></td>
+                        <td>${App.formatRelativeTime(item.created_at)}</td>
+                        <td>
+                            <div class="action-btns">
+                                ${item.result_url ? `<a href="${item.result_url}" target="_blank" class="action-btn" title="View">👁️</a>` : ''}
+                                ${item.result_url ? `<button class="action-btn" onclick="App.downloadFile('${item.result_url}', 'generation')" title="Download">⬇️</button>` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderPagination(pagination) {
+            document.getElementById('showing-start').textContent = pagination.from || 0;
+            document.getElementById('showing-end').textContent = pagination.to || 0;
+            document.getElementById('total-count').textContent = pagination.total || 0;
+
+            const btns = document.getElementById('pagination-btns');
+            btns.innerHTML = '';
+
+            for (let i = 1; i <= pagination.pages; i++) {
+                const btn = document.createElement('button');
+                btn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                btn.textContent = i;
+                btn.onclick = () => {
+                    currentPage = i;
+                    loadHistory();
+                };
+                btns.appendChild(btn);
+            }
+        }
+
+        async function loadCreditsHistory() {
+            try {
+                const response = await App.apiGet('/user/credits-history.php?limit=10');
+
+                if (response.success && response.data.length > 0) {
+                    const tbody = document.getElementById('credits-table');
+                    tbody.innerHTML = response.data.map(item => `
+                        <tr>
+                            <td>
+                                <span class="badge badge-${item.type === 'credit' ? 'success' : 'danger'}">
+                                    ${item.type === 'credit' ? '+ Added' : '- Used'}
+                                </span>
+                            </td>
+                            <td style="font-weight: 600; color: ${item.type === 'credit' ? '#28a745' : 'var(--danger)'}">
+                                ${item.type === 'credit' ? '+' : '-'}${item.amount}
+                            </td>
+                            <td>${item.description}</td>
+                            <td>${App.formatDate(item.created_at)}</td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (e) {
+                console.error('Failed to load credits history:', e);
+            }
+        }
+    </script>
+</body>
+</html>

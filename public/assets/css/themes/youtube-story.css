@@ -1,0 +1,245 @@
+/* =====================================================
+   AI Video Generator - YouTube Story Theme
+   Purple/Violet gradient theme for AI YouTube Story Generator
+   ===================================================== */
+
+/* =====================================================
+   Theme Variables
+   ===================================================== */
+.theme-youtube-story {
+    --theme-primary: #667eea;
+    --theme-secondary: #764ba2;
+    --theme-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --theme-gradient-soft: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    --theme-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    --theme-glow: 0 0 40px rgba(102, 126, 234, 0.4);
+}
+
+/* =====================================================
+   Tool Page Header
+   ===================================================== */
+.theme-youtube-story .tool-page-header {
+    background: var(--theme-gradient);
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-youtube-story .tool-page-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: rotate 30s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* =====================================================
+   Buttons
+   ===================================================== */
+.theme-youtube-story .btn-theme {
+    background: var(--theme-gradient);
+    color: var(--white);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-youtube-story .btn-theme:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+}
+
+.theme-youtube-story .btn-theme-outline {
+    background: transparent;
+    border: 2px solid var(--theme-primary);
+    color: var(--theme-primary);
+}
+
+.theme-youtube-story .btn-theme-outline:hover {
+    background: var(--theme-gradient);
+    border-color: transparent;
+    color: var(--white);
+}
+
+/* =====================================================
+   Step Indicator
+   ===================================================== */
+.theme-youtube-story .step.active .step-number,
+.theme-youtube-story .step.completed .step-number {
+    background: var(--theme-gradient);
+}
+
+.theme-youtube-story .step-line.active {
+    background: var(--theme-gradient);
+}
+
+.theme-youtube-story .step.active .step-label {
+    color: var(--theme-primary);
+}
+
+/* =====================================================
+   Cards
+   ===================================================== */
+.theme-youtube-story .tool-card {
+    border-color: transparent;
+    transition: all 0.3s ease;
+}
+
+.theme-youtube-story .tool-card:hover {
+    border-color: var(--theme-primary);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-youtube-story .tool-card.selected {
+    border-color: var(--theme-primary);
+    background: var(--theme-gradient-soft);
+}
+
+/* =====================================================
+   Progress Bar
+   ===================================================== */
+.theme-youtube-story .progress-bar {
+    background: var(--gray-200);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.theme-youtube-story .progress-fill {
+    background: var(--theme-gradient);
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+/* =====================================================
+   Input Focus
+   ===================================================== */
+.theme-youtube-story input:focus,
+.theme-youtube-story select:focus,
+.theme-youtube-story textarea:focus {
+    border-color: var(--theme-primary);
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+/* =====================================================
+   Accent Elements
+   ===================================================== */
+.theme-youtube-story .accent-text {
+    color: var(--theme-primary);
+}
+
+.theme-youtube-story .accent-bg {
+    background: var(--theme-gradient-soft);
+}
+
+.theme-youtube-story .accent-border {
+    border-color: var(--theme-primary);
+}
+
+/* =====================================================
+   Loading Animation
+   ===================================================== */
+.theme-youtube-story .spinner {
+    border-top-color: var(--theme-primary);
+}
+
+.theme-youtube-story .loading-dots span {
+    background: var(--theme-gradient);
+}
+
+/* =====================================================
+   Credits Badge
+   ===================================================== */
+.theme-youtube-story .credits-badge {
+    background: var(--theme-gradient);
+}
+
+/* =====================================================
+   Selection Highlight
+   ===================================================== */
+.theme-youtube-story .selection-card.selected {
+    border-color: var(--theme-primary);
+    box-shadow: var(--theme-glow);
+}
+
+.theme-youtube-story .selection-card.selected::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--theme-gradient);
+}
+
+/* =====================================================
+   Floating Shapes Animation
+   ===================================================== */
+.theme-youtube-story .floating-shapes .shape-1 {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.theme-youtube-story .floating-shapes .shape-2 {
+    background: linear-gradient(135deg, #9b59b6, #667eea);
+}
+
+.theme-youtube-story .floating-shapes .shape-3 {
+    background: linear-gradient(135deg, #764ba2, #9b59b6);
+}
+
+/* =====================================================
+   Tool Specific - Scene Cards
+   ===================================================== */
+.theme-youtube-story .scene-card {
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.theme-youtube-story .scene-card:hover {
+    border-color: var(--theme-primary);
+    box-shadow: var(--theme-shadow);
+}
+
+.theme-youtube-story .scene-card.generating {
+    border-color: var(--theme-primary);
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 20px 10px rgba(102, 126, 234, 0.2);
+    }
+}
+
+/* Frame indicator */
+.theme-youtube-story .frame-indicator {
+    background: var(--theme-gradient);
+    color: var(--white);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* =====================================================
+   Tooltip
+   ===================================================== */
+.theme-youtube-story .tooltip {
+    background: var(--theme-gradient);
+    color: var(--white);
+}
+
+.theme-youtube-story .tooltip::after {
+    border-top-color: var(--theme-primary);
+}

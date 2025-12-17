@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tools Hub - AI Video Generator</title>
+    <link rel="icon" href="/assets/images/favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/common.css">
+    <link rel="stylesheet" href="/assets/css/tools-hub.css">
+</head>
+<body>
+    <!-- Global Header -->
+    <header class="global-header">
+        <div class="header-left">
+            <a href="/tools/" class="logo-link">
+                <img src="/assets/images/logo.png" alt="AI Video Generator">
+                <span>AI Video Gen</span>
+            </a>
+        </div>
+        <div class="header-center">
+            <h1>Tools Hub</h1>
+        </div>
+        <div class="header-right">
+            <div class="credits-badge">
+                <span class="credits-icon">💎</span>
+                <span id="credits-balance">0</span>
+                <span class="credits-label">Credits</span>
+            </div>
+            <div class="user-menu">
+                <span id="user-email">user@example.com</span>
+                <button id="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="page-wrapper tools-hub-page">
+        <div class="tools-hub-content">
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <h1>Welcome back, <span class="gradient-text" id="user-name">Creator</span>!</h1>
+                <p>Choose a tool below to start creating amazing AI-generated content</p>
+            </div>
+
+            <!-- Layout with Sidebar -->
+            <div class="hub-layout">
+                <div class="hub-main">
+                    <!-- Quick Stats -->
+                    <div class="quick-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon purple">💎</div>
+                            <div class="stat-info">
+                                <h3 id="stat-credits">0</h3>
+                                <p>Available Credits</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">🎬</div>
+                            <div class="stat-info">
+                                <h3 id="stat-videos">0</h3>
+                                <p>Videos Generated</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon blue">🖼️</div>
+                            <div class="stat-info">
+                                <h3 id="stat-images">0</h3>
+                                <p>Images Created</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon orange">⏱️</div>
+                            <div class="stat-info">
+                                <h3 id="stat-saved">0h</h3>
+                                <p>Time Saved</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tools Section -->
+                    <div class="tools-section-header">
+                        <h2>AI Generation Tools</h2>
+                    </div>
+
+                    <div class="tools-grid">
+                        <!-- YouTube Story Generator -->
+                        <div class="tool-card-enhanced purple" onclick="window.location.href='/v2/'">
+                            <div class="tool-card-header">
+                                <div class="tool-icon-large">🎥</div>
+                                <div class="tool-meta">
+                                    <h3>AI YouTube Story Generator</h3>
+                                    <span class="tool-tag">Popular</span>
+                                </div>
+                            </div>
+                            <p class="tool-description">
+                                Create complete YouTube stories from a single prompt. AI generates script, scenes, storyboards, images, and final video automatically.
+                            </p>
+                            <div class="tool-footer">
+                                <div class="tool-credits-info">
+                                    <span>💎</span>
+                                    <span>From <strong>10 credits</strong></span>
+                                </div>
+                                <span class="tool-btn">Launch Tool →</span>
+                            </div>
+                        </div>
+
+                        <!-- Script to Video -->
+                        <div class="tool-card-enhanced orange" onclick="window.location.href='/tools/script-to-video/'">
+                            <div class="tool-card-header">
+                                <div class="tool-icon-large">📝</div>
+                                <div class="tool-meta">
+                                    <h3>Script to Video</h3>
+                                    <span class="tool-tag new">New</span>
+                                </div>
+                            </div>
+                            <p class="tool-description">
+                                Transform your written scripts into engaging videos. Upload your script and let AI create stunning visuals that match your story.
+                            </p>
+                            <div class="tool-footer">
+                                <div class="tool-credits-info">
+                                    <span>💎</span>
+                                    <span>From <strong>30 credits</strong></span>
+                                </div>
+                                <span class="tool-btn">Launch Tool →</span>
+                            </div>
+                        </div>
+
+                        <!-- Text to Video -->
+                        <div class="tool-card-enhanced blue" onclick="window.location.href='/tools/text-to-video/'">
+                            <div class="tool-card-header">
+                                <div class="tool-icon-large">✨</div>
+                                <div class="tool-meta">
+                                    <h3>Text to Video</h3>
+                                    <span class="tool-tag new">New</span>
+                                </div>
+                            </div>
+                            <p class="tool-description">
+                                Generate videos directly from text prompts. Choose from multiple AI models including Kling, Hailuo, and Luma for the best results.
+                            </p>
+                            <div class="tool-footer">
+                                <div class="tool-credits-info">
+                                    <span>💎</span>
+                                    <span>From <strong>30 credits</strong></span>
+                                </div>
+                                <span class="tool-btn">Launch Tool →</span>
+                            </div>
+                        </div>
+
+                        <!-- Text to Image -->
+                        <div class="tool-card-enhanced green" onclick="window.location.href='/tools/text-to-image/'">
+                            <div class="tool-card-header">
+                                <div class="tool-icon-large">🖼️</div>
+                                <div class="tool-meta">
+                                    <h3>Text to Image</h3>
+                                    <span class="tool-tag new">New</span>
+                                </div>
+                            </div>
+                            <p class="tool-description">
+                                Create stunning AI images from text descriptions. Multiple styles, aspect ratios, and high-quality outputs for any creative project.
+                            </p>
+                            <div class="tool-footer">
+                                <div class="tool-credits-info">
+                                    <span>💎</span>
+                                    <span>From <strong>1 credit</strong></span>
+                                </div>
+                                <span class="tool-btn">Launch Tool →</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="activity-section">
+                        <div class="activity-header">
+                            <h2>Recent Activity</h2>
+                            <a href="/user/history.html" class="view-all-link">View All →</a>
+                        </div>
+                        <div class="activity-list" id="activity-list">
+                            <div class="activity-empty">
+                                <div class="activity-empty-icon">📭</div>
+                                <p>No recent activity</p>
+                                <p style="font-size: 0.875rem;">Start creating to see your history here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="hub-sidebar">
+                    <!-- Credits Widget -->
+                    <div class="credits-widget">
+                        <div class="credits-widget-header">
+                            <h3>💎 Your Credits</h3>
+                        </div>
+                        <div class="credits-widget-balance">
+                            <span class="amount" id="sidebar-credits">0</span>
+                            <span class="label">credits available</span>
+                        </div>
+                        <div class="credits-widget-actions">
+                            <a href="/user/credits.html" class="btn btn-buy">Buy Credits</a>
+                            <a href="/user/history.html" class="btn btn-history">History</a>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <a href="/user/profile.html" class="quick-action-btn">
+                            <span>👤</span>
+                            <span>Profile</span>
+                        </a>
+                        <a href="/user/credits.html" class="quick-action-btn">
+                            <span>💳</span>
+                            <span>Buy Credits</span>
+                        </a>
+                        <a href="/user/history.html" class="quick-action-btn">
+                            <span>📋</span>
+                            <span>History</span>
+                        </a>
+                        <a href="#" class="quick-action-btn" onclick="App.logout(); return false;">
+                            <span>🚪</span>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/common.js"></script>
+    <script>
+        // Check auth
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+
+            if (!user) {
+                window.location.href = '/auth/login.html';
+                return;
+            }
+
+            // Update UI with user data
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('user-name').textContent = user.email.split('@')[0];
+            document.getElementById('credits-balance').textContent = App.formatNumber(user.credits || 0);
+            document.getElementById('stat-credits').textContent = App.formatNumber(user.credits || 0);
+            document.getElementById('sidebar-credits').textContent = App.formatNumber(user.credits || 0);
+
+            // Load activity
+            loadRecentActivity();
+        });
+
+        async function loadRecentActivity() {
+            try {
+                const response = await App.apiGet('/user/activity.php?limit=5');
+                if (response.success && response.data.length > 0) {
+                    const list = document.getElementById('activity-list');
+                    list.innerHTML = response.data.map(item => `
+                        <div class="activity-item">
+                            <div class="activity-icon ${item.type}">
+                                ${item.type === 'video' ? '🎬' : '🖼️'}
+                            </div>
+                            <div class="activity-info">
+                                <h4>${item.tool_name}</h4>
+                                <p>${item.prompt.substring(0, 50)}...</p>
+                            </div>
+                            <div class="activity-status">
+                                <span class="badge badge-${item.status}">${item.status}</span>
+                                <span class="activity-time">${App.formatRelativeTime(item.created_at)}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) {
+                // Keep empty state
+            }
+        }
+    </script>
+</body>
+</html>
