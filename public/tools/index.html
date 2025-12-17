@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tools Hub - AI Video Generator</title>
-    <link rel="icon" href="/assets/images/favicon.ico">
+    <link rel="icon" href="../assets/images/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/common.css">
-    <link rel="stylesheet" href="/assets/css/tools-hub.css">
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/tools-hub.css">
 </head>
 <body>
     <!-- Global Header -->
     <header class="global-header">
         <div class="header-left">
-            <a href="/tools/" class="logo-link">
-                <img src="/assets/images/logo.png" alt="AI Video Generator">
+            <a href="" class="logo-link">
+                <img src="../assets/images/logo.png" alt="AI Video Generator">
                 <span>AI Video Gen</span>
             </a>
         </div>
@@ -173,7 +173,7 @@
                     <div class="activity-section">
                         <div class="activity-header">
                             <h2>Recent Activity</h2>
-                            <a href="/user/history.html" class="view-all-link">View All →</a>
+                            <a href="../user/history.html" class="view-all-link">View All →</a>
                         </div>
                         <div class="activity-list" id="activity-list">
                             <div class="activity-empty">
@@ -197,22 +197,22 @@
                             <span class="label">credits available</span>
                         </div>
                         <div class="credits-widget-actions">
-                            <a href="/user/credits.html" class="btn btn-buy">Buy Credits</a>
-                            <a href="/user/history.html" class="btn btn-history">History</a>
+                            <a href="../user/credits.html" class="btn btn-buy">Buy Credits</a>
+                            <a href="../user/history.html" class="btn btn-history">History</a>
                         </div>
                     </div>
 
                     <!-- Quick Actions -->
                     <div class="quick-actions">
-                        <a href="/user/profile.html" class="quick-action-btn">
+                        <a href="../user/profile.html" class="quick-action-btn">
                             <span>👤</span>
                             <span>Profile</span>
                         </a>
-                        <a href="/user/credits.html" class="quick-action-btn">
+                        <a href="../user/credits.html" class="quick-action-btn">
                             <span>💳</span>
                             <span>Buy Credits</span>
                         </a>
-                        <a href="/user/history.html" class="quick-action-btn">
+                        <a href="../user/history.html" class="quick-action-btn">
                             <span>📋</span>
                             <span>History</span>
                         </a>
@@ -226,14 +226,14 @@
         </div>
     </div>
 
-    <script src="/assets/js/common.js"></script>
+    <script src="../assets/js/common.js"></script>
     <script>
         // Check auth
         document.addEventListener('DOMContentLoaded', () => {
             const user = JSON.parse(localStorage.getItem('user') || 'null');
 
             if (!user) {
-                window.location.href = '/auth/login.html';
+                window.location.href = '../auth/login.html';
                 return;
             }
 

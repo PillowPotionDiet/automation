@@ -182,20 +182,20 @@
                 <div id="creditsBreakdown"></div>
             </div>
 
-            <!-- Extracted Characters (GeminiGen Brain only) -->
+            <!-- Extracted Characters -->
             <div id="extractedCharactersCard" style="display: none;" class="card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1)); border: 2px solid var(--primary-color); margin-bottom: 30px;">
                 <div class="card-header">
                     <h3>👥 Extracted Characters (AI-Identified)</h3>
-                    <p>Characters automatically identified by GeminiGen Brain</p>
+                    <p id="charactersDescription">Characters automatically identified from your script</p>
                 </div>
                 <div id="extractedCharactersList"></div>
             </div>
 
-            <!-- Extracted Environments (GeminiGen Brain only) -->
+            <!-- Extracted Environments -->
             <div id="extractedEnvironmentsCard" style="display: none;" class="card" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1)); border: 2px solid var(--success-color); margin-bottom: 30px;">
                 <div class="card-header">
                     <h3>🌍 Extracted Environments (AI-Identified)</h3>
-                    <p>Environments automatically identified by GeminiGen Brain</p>
+                    <p id="environmentsDescription">Environments automatically identified from your script</p>
                 </div>
                 <div id="extractedEnvironmentsList"></div>
             </div>
@@ -242,9 +242,10 @@
             setTimeout(() => Utils.navigateTo('index.html'), 2000);
         }
 
-        // Check if GeminiGen Brain was used
+        // Check brain type and display relevant data
         const brainType = StateManager.getBrainType();
 
+        // Display credits for GeminiGen Brain only
         if (brainType === 'geminigen') {
             // Display credits used
             const credits = StateManager.getCreditsUsed();
@@ -260,54 +261,63 @@
                 <p><strong>Frame Generation:</strong> ${credits.frameGeneration || 0} credits</p>
                 <p style="margin-top: 12px; padding-top: 12px; border-top: 2px solid var(--border-color); font-size: 16px;"><strong>Total:</strong> ${credits.total || 0} credits</p>
             `;
+        }
 
-            // Display extracted characters
-            const extractedChars = StateManager.getExtractedCharacters();
-            if (extractedChars.length > 0) {
-                const extractedCharsCard = document.getElementById('extractedCharactersCard');
-                const extractedCharsList = document.getElementById('extractedCharactersList');
+        // Update descriptions based on brain type
+        if (brainType === 'geminigen') {
+            document.getElementById('charactersDescription').textContent = 'Characters automatically identified by GeminiGen Brain';
+            document.getElementById('environmentsDescription').textContent = 'Environments automatically identified by GeminiGen Brain';
+        } else {
+            document.getElementById('charactersDescription').textContent = 'Characters automatically identified by Storyboard Brain';
+            document.getElementById('environmentsDescription').textContent = 'Environments automatically identified by Storyboard Brain';
+        }
 
-                extractedCharsCard.style.display = 'block';
-                extractedCharsList.innerHTML = '';
+        // Display extracted characters (for both brains)
+        const extractedChars = StateManager.getExtractedCharacters();
+        if (extractedChars.length > 0) {
+            const extractedCharsCard = document.getElementById('extractedCharactersCard');
+            const extractedCharsList = document.getElementById('extractedCharactersList');
 
-                extractedChars.forEach((char, index) => {
-                    const charDiv = document.createElement('div');
-                    charDiv.className = 'character-card';
-                    charDiv.innerHTML = `
-                        <div class="character-header">
-                            <div class="character-number">${char.name}</div>
-                        </div>
-                        <div style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
-                            ${char.content}
-                        </div>
-                    `;
-                    extractedCharsList.appendChild(charDiv);
-                });
-            }
+            extractedCharsCard.style.display = 'block';
+            extractedCharsList.innerHTML = '';
 
-            // Display extracted environments
-            const extractedEnvs = StateManager.getExtractedEnvironments();
-            if (extractedEnvs.length > 0) {
-                const extractedEnvsCard = document.getElementById('extractedEnvironmentsCard');
-                const extractedEnvsList = document.getElementById('extractedEnvironmentsList');
+            extractedChars.forEach((char, index) => {
+                const charDiv = document.createElement('div');
+                charDiv.className = 'character-card';
+                charDiv.innerHTML = `
+                    <div class="character-header">
+                        <div class="character-number">${char.name}</div>
+                    </div>
+                    <div style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
+                        ${char.content}
+                    </div>
+                `;
+                extractedCharsList.appendChild(charDiv);
+            });
+        }
 
-                extractedEnvsCard.style.display = 'block';
-                extractedEnvsList.innerHTML = '';
+        // Display extracted environments (for both brains)
+        const extractedEnvs = StateManager.getExtractedEnvironments();
+        if (extractedEnvs.length > 0) {
+            const extractedEnvsCard = document.getElementById('extractedEnvironmentsCard');
+            const extractedEnvsList = document.getElementById('extractedEnvironmentsList');
 
-                extractedEnvs.forEach((env, index) => {
-                    const envDiv = document.createElement('div');
-                    envDiv.className = 'character-card';
-                    envDiv.innerHTML = `
-                        <div class="character-header">
-                            <div class="character-number">${env.name}</div>
-                        </div>
-                        <div style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
-                            ${env.content}
-                        </div>
-                    `;
-                    extractedEnvsList.appendChild(envDiv);
-                });
-            }
+            extractedEnvsCard.style.display = 'block';
+            extractedEnvsList.innerHTML = '';
+
+            extractedEnvs.forEach((env, index) => {
+                const envDiv = document.createElement('div');
+                envDiv.className = 'character-card';
+                envDiv.innerHTML = `
+                    <div class="character-header">
+                        <div class="character-number">${env.name}</div>
+                    </div>
+                    <div style="font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
+                        ${env.content}
+                    </div>
+                `;
+                extractedEnvsList.appendChild(envDiv);
+            });
         }
 
         // Load scenes

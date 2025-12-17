@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management - Admin - AI Video Generator</title>
-    <link rel="icon" href="/assets/images/favicon.ico">
+    <link rel="icon" href="../assets/images/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/common.css">
-    <link rel="stylesheet" href="/assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 <body>
     <div class="admin-page">
         <!-- Sidebar -->
         <aside class="admin-sidebar" id="admin-sidebar">
             <div class="admin-sidebar-header">
-                <a href="/admin/" class="admin-logo">
-                    <img src="/assets/images/logo.png" alt="AI Video Generator">
+                <a href="index.html" class="admin-logo">
+                    <img src="../assets/images/logo.png" alt="AI Video Generator">
                     <div class="admin-logo-text">
                         <span>AI Video Gen</span>
                         <span>Admin Panel</span>
@@ -26,7 +26,7 @@
             <nav class="admin-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Overview</div>
-                    <a href="/admin/" class="nav-item">
+                    <a href="index.html" class="nav-item">
                         <span class="nav-icon">📊</span>
                         Dashboard
                     </a>
@@ -34,15 +34,15 @@
 
                 <div class="nav-section">
                     <div class="nav-section-title">Management</div>
-                    <a href="/admin/users.html" class="nav-item active">
+                    <a href="users.html" class="nav-item active">
                         <span class="nav-icon">👥</span>
                         Users
                     </a>
-                    <a href="/admin/requests.html" class="nav-item">
+                    <a href="requests.html" class="nav-item">
                         <span class="nav-icon">📝</span>
                         Credit Requests
                     </a>
-                    <a href="/admin/generations.html" class="nav-item">
+                    <a href="generations.html" class="nav-item">
                         <span class="nav-icon">🎬</span>
                         Generations
                     </a>
@@ -50,11 +50,11 @@
 
                 <div class="nav-section">
                     <div class="nav-section-title">System</div>
-                    <a href="/admin/logs.html" class="nav-item">
+                    <a href="logs.html" class="nav-item">
                         <span class="nav-icon">📋</span>
                         Activity Logs
                     </a>
-                    <a href="/admin/settings.html" class="nav-item">
+                    <a href="settings.html" class="nav-item">
                         <span class="nav-icon">⚙️</span>
                         Settings
                     </a>
@@ -195,14 +195,14 @@
         </div>
     </div>
 
-    <script src="/assets/js/common.js"></script>
+    <script src="../assets/js/common.js"></script>
     <script>
         let currentPage = 1;
 
         document.addEventListener('DOMContentLoaded', () => {
             const user = JSON.parse(localStorage.getItem('user') || 'null');
             if (!user || user.role !== 'admin') {
-                window.location.href = '/auth/login.html';
+                window.location.href = '../auth/login.html';
                 return;
             }
 

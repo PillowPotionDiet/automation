@@ -62,6 +62,31 @@ body {
     color: var(--primary-color);
 }
 
+.header-nav {
+    display: flex;
+    gap: 16px;
+}
+
+.nav-link {
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.nav-link:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary-color);
+}
+
+.nav-link.active {
+    background: var(--primary-color);
+    color: white;
+}
+
 /* STEP INDICATOR */
 .step-indicator {
     display: flex;

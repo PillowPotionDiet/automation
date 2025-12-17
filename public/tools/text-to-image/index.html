@@ -4,21 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text to Image - AI Video Generator</title>
-    <link rel="icon" href="/assets/images/favicon.ico">
+    <link rel="icon" href="../../assets/images/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/common.css">
-    <link rel="stylesheet" href="/assets/css/tools-hub.css">
-    <link rel="stylesheet" href="/assets/css/themes/text-to-image.css">
+    <link rel="stylesheet" href="../../assets/css/common.css">
+    <link rel="stylesheet" href="../../assets/css/tools-hub.css">
+    <link rel="stylesheet" href="../../assets/css/themes/text-to-image.css">
 </head>
 <body class="theme-text-to-image">
     <!-- Global Header -->
     <header class="global-header">
         <div class="header-left">
-            <a href="/tools/" class="logo-link">
-                <img src="/assets/images/logo.png" alt="AI Video Generator">
+            <a href="../../tools/" class="logo-link">
+                <img src="../../assets/images/logo.png" alt="AI Video Generator">
                 <span>AI Video Gen</span>
             </a>
-            <a href="/tools/" class="back-to-tools">← Back to Tools</a>
+            <a href="../../tools/" class="back-to-tools">← Back to Tools</a>
         </div>
         <div class="header-center">
             <h1>🖼️ Text to Image</h1>
@@ -139,7 +139,7 @@ Example: A serene Japanese garden at sunset, with cherry blossoms falling gently
         </div>
     </div>
 
-    <script src="/assets/js/common.js"></script>
+    <script src="../../assets/js/common.js"></script>
     <script>
         let selectedModel = 'flux';
         let selectedCredits = 1;
@@ -149,7 +149,7 @@ Example: A serene Japanese garden at sunset, with cherry blossoms falling gently
         document.addEventListener('DOMContentLoaded', () => {
             const user = JSON.parse(localStorage.getItem('user') || 'null');
             if (!user) {
-                window.location.href = '/auth/login.html';
+                window.location.href = '../../auth/login.html';
                 return;
             }
 

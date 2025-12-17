@@ -168,22 +168,27 @@ const Utils = {
             <div class="step-indicator">
                 <div class="step ${currentStep === 1 ? 'active' : ''} ${currentStep > 1 ? 'completed' : ''}">
                     <div class="step-number">1</div>
-                    <div class="step-label">Script Input</div>
+                    <div class="step-label">Script Setup</div>
                 </div>
                 <div class="step-line ${currentStep > 1 ? 'completed' : ''}"></div>
                 <div class="step ${currentStep === 2 ? 'active' : ''} ${currentStep > 2 ? 'completed' : ''}">
                     <div class="step-number">2</div>
-                    <div class="step-label">Scene Prompts</div>
+                    <div class="step-label">Paragraphs & Scenes</div>
                 </div>
                 <div class="step-line ${currentStep > 2 ? 'completed' : ''}"></div>
                 <div class="step ${currentStep === 3 ? 'active' : ''} ${currentStep > 3 ? 'completed' : ''}">
                     <div class="step-number">3</div>
-                    <div class="step-label">Generate Images</div>
+                    <div class="step-label">Images (Frames)</div>
                 </div>
                 <div class="step-line ${currentStep > 3 ? 'completed' : ''}"></div>
                 <div class="step ${currentStep === 4 ? 'active' : ''} ${currentStep > 4 ? 'completed' : ''}">
                     <div class="step-number">4</div>
-                    <div class="step-label">Generate Videos</div>
+                    <div class="step-label">Scene Videos</div>
+                </div>
+                <div class="step-line ${currentStep > 4 ? 'completed' : ''}"></div>
+                <div class="step ${currentStep === 5 ? 'active' : ''} ${currentStep > 5 ? 'completed' : ''}">
+                    <div class="step-number">5</div>
+                    <div class="step-label">Final Video</div>
                 </div>
             </div>
         `;

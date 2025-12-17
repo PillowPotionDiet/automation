@@ -54,6 +54,10 @@
     <header class="header">
         <div class="header-content">
             <div class="logo">🎬 GeminiGen Automation</div>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link active">🏠 New Project</a>
+                <a href="history.html" class="nav-link">📜 History</a>
+            </nav>
         </div>
     </header>
 
@@ -155,10 +159,19 @@
                     <label class="brain-option" for="brainStoryboard">
                         <input type="radio" name="brainType" id="brainStoryboard" value="storyboard" checked>
                         <div class="brain-option-content">
-                            <div class="brain-option-title">✅ Storyboard Brain (Internal Logic)</div>
+                            <div class="brain-option-title">✅ Storyboard Brain (Local AI)</div>
                             <div class="brain-option-desc">
-                                Fast and simple. Uses basic splitting logic to generate scene prompts.
-                                Best for quick prototypes.
+                                Built-in AI intelligence with:
+                                <ul style="margin: 6px 0 0 20px; font-size: 12px;">
+                                    <li>Auto-detect characters with 20+ attributes</li>
+                                    <li>Auto-detect environments and settings</li>
+                                    <li>Intelligent paragraph splitting</li>
+                                    <li>AI-driven scene generation</li>
+                                    <li>Smart frame prompt creation</li>
+                                </ul>
+                                <div style="margin-top: 6px; color: var(--success-color); font-size: 11px;">
+                                    ✨ Fast, local processing. No API credits used.
+                                </div>
                             </div>
                         </div>
                     </label>
@@ -258,6 +271,7 @@
     <script src="api-handler.js?v=19.0"></script>
     <script src="common.js?v=5.0"></script>
     <script src="geminigen-brain.js?v=1.0"></script>
+    <script src="storyboard-brain.js?v=1.0"></script>
     <script>
         // Initialize step indicator
         document.getElementById('stepIndicator').innerHTML = Utils.createStepIndicator(1);
@@ -425,29 +439,29 @@
                 }
 
             } else {
-                // Use Storyboard Brain (existing logic)
-                const paragraphs = Utils.splitScriptIntoParagraphs(scriptData.script, scriptData.numParagraphs);
-                const scenes = [];
-                let sceneIndex = 1;
+                // Use Enhanced Storyboard Brain with local AI intelligence
+                Utils.showLoading('Processing with Storyboard Brain...');
 
-                paragraphs.forEach((paragraphText, paraIndex) => {
-                    for (let i = 0; i < scriptData.scenesPerParagraph; i++) {
-                        const prompts = Utils.generateScenePrompts(paragraphText, sceneIndex, scriptData.scenesPerParagraph);
-                        scenes.push({
-                            sceneNumber: sceneIndex,
-                            paragraphIndex: paraIndex + 1,
-                            paragraphText: paragraphText,
-                            startingFrame: prompts.startingFrame,
-                            endingFrame: prompts.endingFrame
-                        });
-                        sceneIndex++;
+                const result = await StoryboardBrain.runEnhancedPipeline(
+                    {
+                        script: scriptData.script,
+                        paragraphCount: scriptData.numParagraphs,
+                        scenesPerParagraph: scriptData.scenesPerParagraph
+                    },
+                    (message) => {
+                        // Progress callback
+                        Utils.showLoading(message);
                     }
-                });
+                );
 
-                StateManager.saveScenes(scenes);
+                Utils.hideLoading();
 
-                // Navigate to page 2
-                Utils.navigateTo('page2.html');
+                if (result.success) {
+                    Utils.showSuccess('Storyboard processing complete!');
+                    setTimeout(() => Utils.navigateTo('page2.html'), 1000);
+                } else {
+                    Utils.showError('Processing failed: ' + result.message);
+                }
             }
         });
     </script>

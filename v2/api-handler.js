@@ -103,12 +103,33 @@ const APIHandler = {
         try {
             let finalPrompt = prompt;
 
-            // Add consistency locks if enabled
-            if (settings.environmentLock) {
-                finalPrompt += ' Maintain identical environment, lighting, and atmosphere.';
+            // CONSISTENCY LOCK INJECTION SYSTEM
+            // Prepend master identity descriptions to enforce consistency
+            let identityPrefix = '';
+
+            // Inject character master identities if lock enabled
+            if (settings.characterLock && typeof StateManager !== 'undefined') {
+                const extractedChars = StateManager.getExtractedCharacters();
+                if (extractedChars && extractedChars.length > 0) {
+                    extractedChars.forEach(char => {
+                        identityPrefix += `[IDENTITY: ${char.name}] ${char.content}\n`;
+                    });
+                }
             }
-            if (settings.characterLock) {
-                finalPrompt += ' Keep same character appearance, face, body, clothing, and colors.';
+
+            // Inject environment master identities if lock enabled
+            if (settings.environmentLock && typeof StateManager !== 'undefined') {
+                const extractedEnvs = StateManager.getExtractedEnvironments();
+                if (extractedEnvs && extractedEnvs.length > 0) {
+                    extractedEnvs.forEach(env => {
+                        identityPrefix += `[ENVIRONMENT: ${env.name}] ${env.content}\n`;
+                    });
+                }
+            }
+
+            // Prepend identity prefix to original prompt
+            if (identityPrefix) {
+                finalPrompt = identityPrefix + '\n' + prompt;
             }
 
             const requestBody = {
@@ -160,14 +181,59 @@ const APIHandler = {
      */
     async generateVideo(apiKey, startImageUrl, endImageUrl, settings) {
         try {
-            let finalPrompt = `Create smooth cinematic 8-second transition from the starting frame to the ending frame. Maintain character identity, environment, lighting, colors, mood, and composition.`;
+            // UNIVERSAL VIDEO PROMPT (as specified in requirements)
+            let basePrompt = `Please generate a high-quality, cinematic, photorealistic video that smoothly transitions from the provided STARTING FRAME image to the provided ENDING FRAME image.
 
-            // Add consistency locks
-            if (settings.environmentConsistency) {
-                finalPrompt += ' Maintain identical environment and lighting throughout.';
+Ensure:
+- Natural motion continuity
+- Stable camera movement
+- Temporal realism
+- Cinematic flow
+- No character or environment drift
+
+Characters must retain:
+- Exact face structure
+- Hair, beard, clothing, body proportions
+- Identity details as defined in Master Identities
+
+Environment must retain:
+- Exact layout, lighting, atmosphere
+- Structural and spatial consistency
+
+The video must feel like a single continuous shot connecting the two frames naturally.`;
+
+            // CONSISTENCY LOCK INJECTION SYSTEM
+            // Prepend master identity descriptions to enforce consistency
+            let identityPrefix = '';
+
+            // Inject character master identities if consistency enabled
+            if (settings.characterConsistency && typeof StateManager !== 'undefined') {
+                const extractedChars = StateManager.getExtractedCharacters();
+                if (extractedChars && extractedChars.length > 0) {
+                    identityPrefix += '[CHARACTERS]\n';
+                    extractedChars.forEach(char => {
+                        identityPrefix += `[IDENTITY: ${char.name}] ${char.content}\n`;
+                    });
+                    identityPrefix += '\n';
+                }
             }
-            if (settings.characterConsistency) {
-                finalPrompt += ' Keep character appearance exactly the same.';
+
+            // Inject environment master identities if consistency enabled
+            if (settings.environmentConsistency && typeof StateManager !== 'undefined') {
+                const extractedEnvs = StateManager.getExtractedEnvironments();
+                if (extractedEnvs && extractedEnvs.length > 0) {
+                    identityPrefix += '[ENVIRONMENT]\n';
+                    extractedEnvs.forEach(env => {
+                        identityPrefix += `[ENVIRONMENT: ${env.name}] ${env.content}\n`;
+                    });
+                    identityPrefix += '\n';
+                }
+            }
+
+            // Prepend identity prefix to base prompt
+            let finalPrompt = basePrompt;
+            if (identityPrefix) {
+                finalPrompt = identityPrefix + basePrompt;
             }
 
             const requestBody = {
@@ -339,6 +405,46 @@ const APIHandler = {
 
         } catch (error) {
             console.error('Status check error:', error);
+            return {
+                success: false,
+                message: error.message
+            };
+        }
+    },
+
+    /**
+     * Get generation history - DIRECT API CALL
+     * Retrieves all past generations (images + videos) with pagination
+     */
+    async getHistory(apiKey, options = {}) {
+        try {
+            const params = new URLSearchParams({
+                filter_by: options.filter_by || 'all',
+                items_per_page: options.items_per_page || 10,
+                page: options.page || 1
+            });
+
+            const response = await fetch(`${this.baseURL}/uapi/v1/histories?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'x-api-key': apiKey
+                }
+            });
+
+            const rawText = await response.text();
+            const data = this.safeJSONParse(rawText);
+
+            if (!response.ok) {
+                throw new Error(data?.error || data?.message || 'Failed to fetch history');
+            }
+
+            return {
+                success: true,
+                data: data
+            };
+
+        } catch (error) {
+            console.error('History fetch error:', error);
             return {
                 success: false,
                 message: error.message

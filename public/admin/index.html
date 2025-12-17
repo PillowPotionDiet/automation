@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - AI Video Generator</title>
-    <link rel="icon" href="/assets/images/favicon.ico">
+    <link rel="icon" href="../assets/images/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/common.css">
-    <link rel="stylesheet" href="/assets/css/admin.css">
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 <body>
     <div class="admin-page">
         <!-- Sidebar -->
         <aside class="admin-sidebar" id="admin-sidebar">
             <div class="admin-sidebar-header">
-                <a href="/admin/" class="admin-logo">
-                    <img src="/assets/images/logo.png" alt="AI Video Generator">
+                <a href="index.html" class="admin-logo">
+                    <img src="../assets/images/logo.png" alt="AI Video Generator">
                     <div class="admin-logo-text">
                         <span>AI Video Gen</span>
                         <span>Admin Panel</span>
@@ -26,7 +26,7 @@
             <nav class="admin-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Overview</div>
-                    <a href="/admin/" class="nav-item active">
+                    <a href="index.html" class="nav-item active">
                         <span class="nav-icon">📊</span>
                         Dashboard
                     </a>
@@ -34,16 +34,16 @@
 
                 <div class="nav-section">
                     <div class="nav-section-title">Management</div>
-                    <a href="/admin/users.html" class="nav-item">
+                    <a href="users.html" class="nav-item">
                         <span class="nav-icon">👥</span>
                         Users
                     </a>
-                    <a href="/admin/requests.html" class="nav-item">
+                    <a href="requests.html" class="nav-item">
                         <span class="nav-icon">📝</span>
                         Credit Requests
                         <span class="nav-badge" id="pending-requests">0</span>
                     </a>
-                    <a href="/admin/generations.html" class="nav-item">
+                    <a href="generations.html" class="nav-item">
                         <span class="nav-icon">🎬</span>
                         Generations
                     </a>
@@ -51,11 +51,11 @@
 
                 <div class="nav-section">
                     <div class="nav-section-title">System</div>
-                    <a href="/admin/logs.html" class="nav-item">
+                    <a href="logs.html" class="nav-item">
                         <span class="nav-icon">📋</span>
                         Activity Logs
                     </a>
-                    <a href="/admin/settings.html" class="nav-item">
+                    <a href="settings.html" class="nav-item">
                         <span class="nav-icon">⚙️</span>
                         Settings
                     </a>
@@ -81,7 +81,7 @@
                     <p>Overview of your platform performance</p>
                 </div>
                 <div class="admin-header-right">
-                    <a href="/tools/" class="btn btn-secondary">View Site</a>
+                    <a href="../tools/" class="btn btn-secondary">View Site</a>
                     <button class="btn btn-primary" onclick="location.reload()">Refresh</button>
                 </div>
             </div>
@@ -128,7 +128,7 @@
                 <div class="admin-card">
                     <div class="admin-card-header">
                         <h3>Recent Users</h3>
-                        <a href="/admin/users.html" class="view-all-link">View All →</a>
+                        <a href="users.html" class="view-all-link">View All →</a>
                     </div>
                     <div class="admin-card-body">
                         <div id="recent-users">
@@ -141,7 +141,7 @@
                 <div class="admin-card">
                     <div class="admin-card-header">
                         <h3>Recent Activity</h3>
-                        <a href="/admin/logs.html" class="view-all-link">View All →</a>
+                        <a href="logs.html" class="view-all-link">View All →</a>
                     </div>
                     <div class="admin-card-body">
                         <div class="admin-activity-list" id="recent-activity">
@@ -155,7 +155,7 @@
             <div class="admin-table-card">
                 <div class="admin-table-header">
                     <h2>Pending Credit Requests</h2>
-                    <a href="/admin/requests.html" class="btn btn-secondary">View All</a>
+                    <a href="requests.html" class="btn btn-secondary">View All</a>
                 </div>
                 <div class="table-container">
                     <table class="admin-table">
@@ -185,13 +185,13 @@
         <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
     </div>
 
-    <script src="/assets/js/common.js"></script>
+    <script src="../assets/js/common.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const user = JSON.parse(localStorage.getItem('user') || 'null');
 
             if (!user || user.role !== 'admin') {
-                window.location.href = '/auth/login.html';
+                window.location.href = '../auth/login.html';
                 return;
             }
 
