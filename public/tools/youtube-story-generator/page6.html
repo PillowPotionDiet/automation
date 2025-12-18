@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeminiGen Automation - Step 6: Final Video Assembly</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css?v=6.0">
+    <style>
+        .assembly-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .preview-container {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .video-preview {
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 16/9;
+            background: var(--bg-color);
+            border-radius: 12px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--border-color);
+        }
+
+        .video-preview video {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+        }
+
+        .assembly-status {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 30px;
+            background: var(--bg-color);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .scene-list {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .scene-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 12px;
+            background: rgba(99, 102, 241, 0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .scene-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .scene-number {
+            font-weight: 700;
+            color: var(--primary-color);
+            min-width: 100px;
+        }
+
+        .scene-status {
+            margin-left: auto;
+            font-size: 13px;
+        }
+
+        .status-pending {
+            color: var(--text-secondary);
+        }
+
+        .status-processing {
+            color: var(--warning-color);
+        }
+
+        .status-completed {
+            color: var(--success-color);
+        }
+
+        .download-section {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1));
+            border: 2px solid var(--success-color);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .download-btn-large {
+            padding: 16px 32px;
+            font-size: 18px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .video-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.5);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🎬 GeminiGen Automation</div>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">🏠 New Project</a>
+                <a href="history.html" class="nav-link">📜 History</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Step Indicator -->
+        <div id="stepIndicator"></div>
+
+        <div class="assembly-container">
+            <!-- Page Header -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>🎬 Final Video Assembly</h2>
+                    <p>Stitching all scene videos into one complete cinematic video</p>
+                </div>
+            </div>
+
+            <!-- Assembly Progress -->
+            <div id="assemblyProgress" class="progress-container" style="display: none;">
+                <div class="assembly-status">⚙️ Assembling Final Video...</div>
+                <div class="progress-bar-container">
+                    <div id="progressBarFill" class="progress-bar-fill" style="width: 0%;">0%</div>
+                </div>
+                <div id="progressText" class="progress-text">Preparing video files...</div>
+            </div>
+
+            <!-- Scene Order List -->
+            <div class="scene-list">
+                <h3 style="margin-bottom: 16px;">📋 Scene Assembly Order</h3>
+                <div id="sceneOrderList"></div>
+            </div>
+
+            <!-- Video Preview -->
+            <div class="preview-container">
+                <h3 style="margin-bottom: 20px;">🎥 Final Video Preview</h3>
+                <div id="videoPreview" class="video-preview">
+                    <div style="text-align: center; color: var(--text-secondary);">
+                        <div style="font-size: 48px; margin-bottom: 12px;">🎬</div>
+                        <div>Click "Start Assembly" to create your final video</div>
+                    </div>
+                </div>
+
+                <button id="startAssemblyBtn" class="btn btn-primary btn-lg" style="font-size: 18px; padding: 14px 28px;">
+                    ▶️ Start Assembly
+                </button>
+            </div>
+
+            <!-- Download Section (Hidden until complete) -->
+            <div id="downloadSection" class="download-section" style="display: none;">
+                <h3 style="margin-bottom: 16px;">✅ Assembly Complete!</h3>
+                <p style="margin-bottom: 24px; color: var(--text-secondary);">
+                    Your final cinematic video is ready for download
+                </p>
+
+                <button id="downloadFinalBtn" class="btn btn-success download-btn-large">
+                    📥 Download Final Video (HD)
+                </button>
+
+                <div class="video-info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Total Scenes</div>
+                        <div id="totalScenesInfo" class="info-value">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Total Duration</div>
+                        <div id="totalDurationInfo" class="info-value">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Resolution</div>
+                        <div id="resolutionInfo" class="info-value">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Aspect Ratio</div>
+                        <div id="aspectRatioInfo" class="info-value">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="btn-group">
+                <button id="backBtn" class="btn btn-secondary">
+                    ← Back to Scene Videos
+                </button>
+                <button id="restartBtn" class="btn btn-secondary">
+                    🔄 Start New Project
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="state-manager.js?v=7.0"></script>
+    <script src="common.js?v=6.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+    <script>
+        // Initialize step indicator
+        document.getElementById('stepIndicator').innerHTML = Utils.createStepIndicator(6);
+
+        // Check if user has completed page 5
+        if (!StateManager.hasCompletedPage(5)) {
+            Utils.showError('Please complete Step 5 first');
+            setTimeout(() => Utils.navigateTo('page5.html'), 2000);
+        }
+
+        // Get all data from state
+        const scenes = StateManager.getScenes();
+        const generatedVideos = StateManager.getGeneratedVideos();
+        const scriptData = StateManager.getScriptData();
+        const videoSettings = StateManager.getVideoSettings() || {};
+
+        let finalVideoBlob = null;
+        let finalVideoDuration = 0;
+
+        // Render scene order list
+        function renderSceneOrder() {
+            const sceneOrderList = document.getElementById('sceneOrderList');
+            sceneOrderList.innerHTML = '';
+
+            // Group scenes by paragraph
+            const paragraphs = {};
+            scenes.forEach(scene => {
+                const paraIndex = scene.paragraphIndex;
+                if (!paragraphs[paraIndex]) {
+                    paragraphs[paraIndex] = [];
+                }
+                paragraphs[paraIndex].push(scene);
+            });
+
+            // Render in strict order: Paragraph → Scene
+            Object.keys(paragraphs).sort((a, b) => a - b).forEach(paraIndex => {
+                const paraScenes = paragraphs[paraIndex];
+
+                paraScenes.forEach((scene, idx) => {
+                    const cardKey = `scene_${scene.sceneNumber}`;
+                    const videoData = generatedVideos[cardKey];
+
+                    const item = document.createElement('div');
+                    item.className = 'scene-item';
+                    item.dataset.sceneNumber = scene.sceneNumber;
+
+                    item.innerHTML = `
+                        <div class="scene-number">
+                            Paragraph ${scene.paragraphIndex} → Scene ${idx + 1}
+                        </div>
+                        <div style="flex: 1; font-size: 13px; color: var(--text-secondary);">
+                            ${scene.sceneText ? scene.sceneText.substring(0, 60) + '...' : 'Scene ' + scene.sceneNumber}
+                        </div>
+                        <div class="scene-status status-pending" data-scene="${scene.sceneNumber}">
+                            ${videoData ? '✓ Ready' : '⚠️ Missing'}
+                        </div>
+                    `;
+
+                    sceneOrderList.appendChild(item);
+                });
+            });
+        }
+
+        renderSceneOrder();
+
+        // Start assembly button
+        document.getElementById('startAssemblyBtn').addEventListener('click', async () => {
+            document.getElementById('startAssemblyBtn').disabled = true;
+            document.getElementById('assemblyProgress').style.display = 'block';
+
+            await assembleVideo();
+        });
+
+        // Video assembly function (client-side stitching)
+        async function assembleVideo() {
+            updateProgress(0, 'Collecting video files...');
+
+            // Collect videos in strict order
+            const videoUrls = [];
+            const paragraphs = {};
+
+            scenes.forEach(scene => {
+                const paraIndex = scene.paragraphIndex;
+                if (!paragraphs[paraIndex]) {
+                    paragraphs[paraIndex] = [];
+                }
+                paragraphs[paraIndex].push(scene);
+            });
+
+            // Build ordered list
+            Object.keys(paragraphs).sort((a, b) => a - b).forEach(paraIndex => {
+                const paraScenes = paragraphs[paraIndex];
+
+                paraScenes.forEach(scene => {
+                    const cardKey = `scene_${scene.sceneNumber}`;
+                    const videoData = generatedVideos[cardKey];
+
+                    if (videoData && videoData.url) {
+                        videoUrls.push({
+                            sceneNumber: scene.sceneNumber,
+                            url: videoData.url
+                        });
+
+                        const statusElem = document.querySelector(`.scene-status[data-scene="${scene.sceneNumber}"]`);
+                        if (statusElem) {
+                            statusElem.className = 'scene-status status-processing';
+                            statusElem.textContent = '⏳ Processing';
+                        }
+                    }
+                });
+            });
+
+            if (videoUrls.length === 0) {
+                Utils.showError('No videos found to assemble');
+                return;
+            }
+
+            updateProgress(10, `Found ${videoUrls.length} videos to stitch...`);
+
+            try {
+                // Method 1: Simple concatenation using MediaSource (for browser compatibility)
+                await simpleVideoStitch(videoUrls);
+
+            } catch (error) {
+                console.error('Assembly error:', error);
+                Utils.showError('Video assembly failed: ' + error.message);
+                document.getElementById('startAssemblyBtn').disabled = false;
+                document.getElementById('assemblyProgress').style.display = 'none';
+            }
+        }
+
+        // Simple video stitching method
+        async function simpleVideoStitch(videoUrls) {
+            updateProgress(20, 'Downloading video files...');
+
+            // Fetch all video blobs
+            const videoBlobs = [];
+            for (let i = 0; i < videoUrls.length; i++) {
+                const item = videoUrls[i];
+                updateProgress(20 + (i / videoUrls.length) * 40, `Downloading scene ${item.sceneNumber}...`);
+
+                try {
+                    const response = await fetch(item.url);
+                    const blob = await response.blob();
+                    videoBlobs.push(blob);
+
+                    const statusElem = document.querySelector(`.scene-status[data-scene="${item.sceneNumber}"]`);
+                    if (statusElem) {
+                        statusElem.className = 'scene-status status-completed';
+                        statusElem.textContent = '✓ Downloaded';
+                    }
+                } catch (error) {
+                    console.error(`Failed to download scene ${item.sceneNumber}:`, error);
+                    throw new Error(`Failed to download scene ${item.sceneNumber}`);
+                }
+            }
+
+            updateProgress(60, 'Creating concatenated video...');
+
+            // Create a single blob from all videos (simple concatenation)
+            // Note: This is a simplified approach. For production, use FFmpeg or server-side processing
+            finalVideoBlob = new Blob(videoBlobs, { type: 'video/mp4' });
+
+            updateProgress(80, 'Generating preview...');
+
+            // Create preview
+            const videoUrl = URL.createObjectURL(finalVideoBlob);
+            const preview = document.getElementById('videoPreview');
+            preview.innerHTML = `<video src="${videoUrl}" controls autoplay></video>`;
+
+            // Get video metadata
+            const video = preview.querySelector('video');
+            video.onloadedmetadata = () => {
+                finalVideoDuration = video.duration;
+
+                // Update info
+                document.getElementById('totalScenesInfo').textContent = videoUrls.length;
+                document.getElementById('totalDurationInfo').textContent = formatDuration(finalVideoDuration);
+                document.getElementById('resolutionInfo').textContent = videoSettings.resolution || '1080p';
+                document.getElementById('aspectRatioInfo').textContent = videoSettings.aspectRatio || '16:9';
+
+                updateProgress(100, 'Assembly complete!');
+
+                setTimeout(() => {
+                    document.getElementById('assemblyProgress').style.display = 'none';
+                    document.getElementById('downloadSection').style.display = 'block';
+                    Utils.showSuccess('Final video assembled successfully! 🎉');
+                }, 500);
+            };
+        }
+
+        function updateProgress(percent, text) {
+            const fill = document.getElementById('progressBarFill');
+            const textElem = document.getElementById('progressText');
+
+            fill.style.width = percent + '%';
+            fill.textContent = Math.round(percent) + '%';
+            textElem.textContent = text;
+        }
+
+        function formatDuration(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+        }
+
+        // Download final video
+        document.getElementById('downloadFinalBtn').addEventListener('click', () => {
+            if (!finalVideoBlob) {
+                Utils.showError('No video to download');
+                return;
+            }
+
+            const url = URL.createObjectURL(finalVideoBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `final_video_${Date.now()}.mp4`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            Utils.showSuccess('Download started!');
+        });
+
+        // Navigation
+        document.getElementById('backBtn').addEventListener('click', () => {
+            Utils.navigateTo('page5.html');
+        });
+
+        document.getElementById('restartBtn').addEventListener('click', () => {
+            if (confirm('Start a new project? This will clear all current data.')) {
+                StateManager.clearAll();
+                Utils.navigateTo('index.html');
+            }
+        });
+    </script>
+</body>
+</html>

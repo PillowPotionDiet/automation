@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeminiGen Automation - Step 5: Generate Videos</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css?v=6.0">
+    <style>
+        .videos-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .video-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .video-card.generating {
+            border-color: var(--primary-color);
+        }
+
+        .video-card.completed {
+            border-color: var(--success-color);
+        }
+
+        .video-card.error {
+            border-color: var(--error-color);
+        }
+
+        .video-header {
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .video-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        /* Row layout: Start Image → End Image → Video */
+        .video-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr auto 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .frame-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .frame-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .frame-image {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: var(--bg-color);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .frame-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .arrow-icon {
+            font-size: 32px;
+            color: var(--primary-color);
+        }
+
+        .video-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .video-placeholder {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: var(--bg-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            border: 2px dashed var(--border-color);
+        }
+
+        .video-placeholder video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .video-actions button {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 1024px) {
+            .video-row {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .arrow-icon {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🎬 GeminiGen Automation</div>
+        </div>
+    </header>
+
+    <!-- Step Indicator -->
+    <div class="container">
+        <div id="stepIndicator"></div>
+
+        <!-- Controls Bar -->
+        <div class="controls-bar">
+            <div class="controls-left">
+                <button id="pauseBtn" class="btn btn-secondary" disabled>
+                    ⏸️ Pause All
+                </button>
+                <button id="resumeBtn" class="btn btn-primary" disabled>
+                    ▶️ Resume
+                </button>
+                <button id="stopBtn" class="btn btn-danger" disabled>
+                    ⏹️ Force Stop
+                </button>
+                <button id="restartBtn" class="btn btn-secondary" disabled>
+                    🔄 Restart
+                </button>
+            </div>
+            <div class="controls-right">
+                <button id="downloadAllBtn" class="btn btn-success">
+                    📦 Download All Videos (ZIP)
+                </button>
+            </div>
+        </div>
+
+        <!-- Status Info -->
+        <div class="info-box">
+            <h3>📊 Generation Status</h3>
+            <p><strong>Status:</strong> <span id="generationStatus">Ready</span></p>
+            <p><strong>Progress:</strong> <span id="progressText">0 / 0 completed</span></p>
+        </div>
+
+        <!-- Videos Grid -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Generated Video Clips</h2>
+                <p>Smooth cinematic transitions from starting to ending frames</p>
+            </div>
+
+            <div id="videosGrid" class="videos-grid"></div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="btn-group">
+            <button id="backBtn" class="btn btn-secondary">
+                ← Back to Images
+            </button>
+            <button id="nextBtn" class="btn btn-primary" disabled>
+                Next: Assemble Final Video →
+            </button>
+        </div>
+    </div>
+
+    <!-- Video Settings Modal (NON-CLOSEABLE) -->
+    <div id="settingsModal" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>⚙️ Video Generation Settings</h2>
+            </div>
+            <div class="modal-body">
+                <!-- AI Model -->
+                <div class="form-group">
+                    <label class="form-label">AI Model</label>
+                    <select id="aiModel" class="form-select">
+                        <option value="veo-3.1-fast">Veo 3.1 Fast HD (2 credits/video)</option>
+                        <option value="veo-3.1-fast">Veo 3.1 Fast Full HD (2 credits/video)</option>
+                        <option value="veo-2">Veo 2 (20 credits/video)</option>
+                        <option value="veo-3.1">Veo 3.1 HD (100 credits/video)</option>
+                        <option value="veo-3.1">Veo 3.1 FHD (100 credits/video)</option>
+                    </select>
+                </div>
+
+                <!-- Resolution -->
+                <div class="form-group">
+                    <label class="form-label">Resolution</label>
+                    <select id="resolution" class="form-select">
+                        <option value="720p">720p (HD)</option>
+                        <option value="1080p" selected>1080p (Full HD)</option>
+                    </select>
+                </div>
+
+                <!-- Aspect Ratio -->
+                <div class="form-group">
+                    <label class="form-label">Aspect Ratio</label>
+                    <select id="aspectRatio" class="form-select">
+                        <option value="16:9" selected>16:9 (Widescreen)</option>
+                        <option value="9:16">9:16 (Vertical)</option>
+                    </select>
+                </div>
+
+                <!-- Consistency Locks -->
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="environmentConsistency" checked />
+                        <label for="environmentConsistency">
+                            🌍 Environment Consistency - Maintain environment and lighting
+                        </label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="characterConsistency" checked />
+                        <label for="characterConsistency">
+                            👤 Character Consistency - Keep character appearance the same
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="startGenerationBtn" class="btn btn-primary">
+                    Start Video Generation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="state-manager.js?v=7.0"></script>
+    <script src="api-handler.js?v=19.0"></script>
+    <script src="common.js?v=6.0"></script>
+    <script src="identity-manager.js?v=1.0"></script>
+    <script src="generation-controller.js?v=6.0"></script>
+    <script src="download-manager.js?v=6.0"></script>
+    <script>
+        // Initialize step indicator
+        document.getElementById('stepIndicator').innerHTML = Utils.createStepIndicator(5);
+
+        // Check if user has completed page 4
+        if (!StateManager.hasCompletedPage(4)) {
+            Utils.showError('Please complete Step 4 first');
+            setTimeout(() => Utils.navigateTo('page4.html'), 2000);
+        }
+
+        const scenes = StateManager.getScenes();
+        const generatedImages = StateManager.getGeneratedImages();
+        const apiKey = StateManager.getApiKey();
+
+        // Total video tasks = 1 per scene
+        const totalTasks = scenes.length;
+
+        // Initialize generation controller
+        GenerationController.init(totalTasks);
+
+        // Video cards storage
+        const videoCards = {};
+
+        // Create video grid
+        const videosGrid = document.getElementById('videosGrid');
+
+        scenes.forEach(scene => {
+            const card = createVideoCard(scene.sceneNumber, `Clip ${scene.sceneNumber}`);
+            videosGrid.appendChild(card);
+            videoCards[`scene_${scene.sceneNumber}`] = card;
+        });
+
+        function createVideoCard(sceneNumber, title) {
+            const card = document.createElement('div');
+            card.className = 'video-card';
+            card.dataset.scene = sceneNumber;
+
+            // Get start and end image URLs using CARD IDENTITY
+            const startImageKey = `scene_${sceneNumber}_start`;
+            const endImageKey = `scene_${sceneNumber}_end`;
+            const startImageUrl = generatedImages[startImageKey]?.url || '';
+            const endImageUrl = generatedImages[endImageKey]?.url || '';
+
+            card.innerHTML = `
+                <div class="video-header">
+                    <div class="video-title">${title}</div>
+                    <div class="image-info">
+                        <span class="badge badge-warning">Pending</span>
+                    </div>
+                    <div class="progress-bar" style="display: none;">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="video-row">
+                    <!-- Starting Frame -->
+                    <div class="frame-container">
+                        <div class="frame-label">🎬 Starting Frame</div>
+                        <div class="frame-image">
+                            ${startImageUrl ? `<img src="${startImageUrl}" alt="Starting Frame">` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--error-color);">Missing</div>'}
+                        </div>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="arrow-icon">→</div>
+
+                    <!-- Ending Frame -->
+                    <div class="frame-container">
+                        <div class="frame-label">🎬 Ending Frame</div>
+                        <div class="frame-image">
+                            ${endImageUrl ? `<img src="${endImageUrl}" alt="Ending Frame">` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--error-color);">Missing</div>'}
+                        </div>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="arrow-icon">→</div>
+
+                    <!-- Generated Video -->
+                    <div class="video-container">
+                        <div class="frame-label">🎥 Generated Video</div>
+                        <div class="video-placeholder">
+                            🎬
+                        </div>
+                    </div>
+                </div>
+
+                <div class="image-info" style="display: none; margin-top: 12px;">
+                    Credit Used: <strong class="credit-used">0</strong>
+                </div>
+                <div class="video-actions" style="display: none;">
+                    <button class="btn btn-secondary download-video-btn">📥 Download Video</button>
+                    <button class="btn btn-secondary download-thumb-btn">📷 Download Thumbnail</button>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Show settings modal
+        const savedSettings = StateManager.getVideoSettings();
+        if (!savedSettings) {
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+
+        // Start generation button
+        document.getElementById('startGenerationBtn').addEventListener('click', () => {
+            const settings = {
+                model: document.getElementById('aiModel').value,
+                resolution: document.getElementById('resolution').value,
+                aspectRatio: document.getElementById('aspectRatio').value,
+                environmentConsistency: document.getElementById('environmentConsistency').checked,
+                characterConsistency: document.getElementById('characterConsistency').checked
+            };
+
+            StateManager.saveVideoSettings(settings);
+            document.getElementById('settingsModal').style.display = 'none';
+
+            // Start generation
+            startVideoGeneration(settings);
+        });
+
+        // Start video generation
+        async function startVideoGeneration(settings) {
+            Utils.showSuccess('Starting video generation...');
+
+            for (const scene of scenes) {
+                await generateVideo(scene, settings);
+            }
+        }
+
+        async function generateVideo(scene, settings) {
+            // Check if can send request
+            if (!GenerationController.canSendRequest()) {
+                GenerationController.addPendingTask({ scene, settings });
+                return;
+            }
+
+            const cardKey = `scene_${scene.sceneNumber}`;
+            const card = videoCards[cardKey];
+
+            // Get start and end image URLs
+            const startImageKey = `scene_${scene.sceneNumber}_start`;
+            const endImageKey = `scene_${scene.sceneNumber}_end`;
+            const startImageUrl = generatedImages[startImageKey]?.url;
+            const endImageUrl = generatedImages[endImageKey]?.url;
+
+            if (!startImageUrl || !endImageUrl) {
+                updateCardStatus(card, 'error', 'Missing images', 0);
+                return;
+            }
+
+            // Update card UI
+            updateCardStatus(card, 'generating', 'Generating...', 0);
+
+            // Call API
+            const result = await APIHandler.generateVideo(apiKey, startImageUrl, endImageUrl, settings);
+
+            if (result.success) {
+                // Track request
+                GenerationController.addActiveRequest({
+                    uuid: result.uuid,
+                    sceneNumber: scene.sceneNumber,
+                    cardKey: cardKey
+                });
+
+                // Start polling for webhook updates
+                pollWebhookUpdates(result.uuid, cardKey);
+            } else {
+                updateCardStatus(card, 'error', result.message, 0);
+            }
+        }
+
+        function updateCardStatus(card, status, message, progress) {
+            const badge = card.querySelector('.badge');
+            const progressBar = card.querySelector('.progress-bar');
+            const progressFill = card.querySelector('.progress-fill');
+
+            card.className = `video-card ${status}`;
+
+            if (status === 'generating') {
+                badge.className = 'badge badge-warning';
+                badge.textContent = message;
+                progressBar.style.display = 'block';
+                progressFill.style.width = `${progress}%`;
+            } else if (status === 'completed') {
+                badge.className = 'badge badge-success';
+                badge.textContent = '✓ Completed';
+                progressBar.style.display = 'none';
+            } else if (status === 'error') {
+                badge.className = 'badge badge-error';
+                badge.textContent = message;
+                progressBar.style.display = 'none';
+            }
+        }
+
+        // Poll webhook updates
+        async function pollWebhookUpdates(uuid, cardKey) {
+            const maxAttempts = 240; // Videos take longer
+            let attempt = 0;
+
+            const pollInterval = setInterval(async () => {
+                if (!GenerationController.isActiveUUID(uuid)) {
+                    clearInterval(pollInterval);
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/v2/webhook-status/${uuid}`);
+                    const data = await response.json();
+
+                    if (data.status === 2) {
+                        // Completed
+                        clearInterval(pollInterval);
+                        const card = videoCards[cardKey];
+                        const placeholder = card.querySelector('.video-placeholder');
+                        placeholder.innerHTML = `<video src="${data.media_url}" controls></video>`;
+
+                        updateCardStatus(card, 'completed', 'Completed', 100);
+
+                        // Show credit used
+                        const creditElem = card.querySelector('.credit-used');
+                        creditElem.textContent = data.used_credit || 0;
+                        creditElem.closest('.image-info').style.display = 'block';
+
+                        // Show actions
+                        card.querySelector('.video-actions').style.display = 'flex';
+
+                        // Add download listeners
+                        card.querySelector('.download-video-btn').addEventListener('click', () => {
+                            DownloadManager.downloadFile(data.media_url, `clip_${cardKey}.mp4`);
+                        });
+
+                        card.querySelector('.download-thumb-btn').addEventListener('click', () => {
+                            if (data.thumbnail_url) {
+                                DownloadManager.downloadFile(data.thumbnail_url, `clip_${cardKey}_thumb.jpg`);
+                            }
+                        });
+
+                        // Mark as completed
+                        GenerationController.completeRequest(uuid);
+
+                        // Save generated video
+                        saveGeneratedVideo(cardKey, data.media_url, data.thumbnail_url);
+
+                        // Check if all done
+                        checkAllVideosCompleted();
+
+                    } else if (data.status === 3) {
+                        clearInterval(pollInterval);
+                        const card = videoCards[cardKey];
+                        updateCardStatus(card, 'error', data.error_message || 'Generation failed', 0);
+                        GenerationController.completeRequest(uuid);
+
+                    } else if (data.status === 1) {
+                        const card = videoCards[cardKey];
+                        updateCardStatus(card, 'generating', `Generating... ${data.status_percentage || 0}%`, data.status_percentage || 0);
+                    }
+                } catch (error) {
+                    console.error('Polling error:', error);
+                }
+
+                attempt++;
+                if (attempt >= maxAttempts) {
+                    clearInterval(pollInterval);
+                    const card = videoCards[cardKey];
+                    updateCardStatus(card, 'error', 'Timeout', 0);
+                    GenerationController.completeRequest(uuid);
+                }
+            }, 5000); // Poll every 5 seconds (videos take longer)
+        }
+
+        function saveGeneratedVideo(cardKey, url, thumbnail) {
+            const videos = StateManager.getGeneratedVideos();
+            videos[cardKey] = { url, thumbnail };
+            StateManager.saveGeneratedVideos(videos);
+        }
+
+        function checkAllVideosCompleted() {
+            const stats = GenerationController.getStats();
+            if (stats.completed === stats.total) {
+                Utils.showSuccess('All videos generated! 🎉');
+                document.getElementById('nextBtn').disabled = false;
+            }
+        }
+
+        // Control buttons
+        document.getElementById('pauseBtn').addEventListener('click', () => GenerationController.pause());
+        document.getElementById('resumeBtn').addEventListener('click', () => GenerationController.resume());
+        document.getElementById('stopBtn').addEventListener('click', () => GenerationController.forceStop());
+        document.getElementById('restartBtn').addEventListener('click', () => GenerationController.restart());
+
+        // Download all button
+        document.getElementById('downloadAllBtn').addEventListener('click', () => {
+            const videos = StateManager.getGeneratedVideos();
+            DownloadManager.downloadAllVideosAsZIP(videos);
+        });
+
+        // Navigation
+        document.getElementById('backBtn').addEventListener('click', () => Utils.navigateTo('page4.html'));
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            // Mark page 5 as completed
+            StateManager.markPageCompleted(5);
+            // Navigate to final video assembly page
+            Utils.navigateTo('page6.html');
+        });
+
+        // Resume handler
+        window.onGenerationResume = async () => {
+            while (GenerationController.hasPendingTasks() && GenerationController.canSendRequest()) {
+                const task = GenerationController.getNextPendingTask();
+                await generateVideo(task.scene, task.settings);
+            }
+        };
+
+        // Restart handler
+        window.onGenerationRestart = () => {
+            const settings = StateManager.getVideoSettings();
+            startVideoGeneration(settings);
+        };
+    </script>
+</body>
+</html>

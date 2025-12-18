@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeminiGen Automation - Step 1: Script Input</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css?v=5.0">
+    <style>
+        .brain-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .brain-option:hover {
+            border-color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .brain-option input[type="radio"] {
+            margin-top: 4px;
+            cursor: pointer;
+        }
+
+        .brain-option input[type="radio"]:checked + .brain-option-content {
+            color: var(--primary-color);
+        }
+
+        .brain-option-content {
+            flex: 1;
+        }
+
+        .brain-option-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .brain-option-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🎬 GeminiGen Automation</div>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link active">🏠 New Project</a>
+                <a href="history.html" class="nav-link">📜 History</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Step Indicator -->
+    <div class="container">
+        <div id="stepIndicator"></div>
+
+        <!-- Main Content -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Step 1: Script Input</h2>
+                <p>Enter your script and configuration to begin the automated video generation process</p>
+            </div>
+
+            <form id="scriptForm">
+                <!-- Script Input -->
+                <div class="form-group">
+                    <label class="form-label" for="scriptInput">
+                        Script / Story
+                        <span style="color: var(--error-color);">*</span>
+                    </label>
+                    <textarea
+                        id="scriptInput"
+                        class="form-textarea"
+                        rows="10"
+                        placeholder="Enter your script here..."
+                        required
+                    ></textarea>
+                </div>
+
+                <!-- Configuration Row -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="numParagraphs">
+                            Number of Paragraphs
+                            <span style="color: var(--error-color);">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            id="numParagraphs"
+                            class="form-input"
+                            min="1"
+                            max="20"
+                            value="3"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="scenesPerParagraph">
+                            Scenes per Paragraph
+                            <span style="color: var(--error-color);">*</span>
+                        </label>
+                        <input
+                            type="number"
+                            id="scenesPerParagraph"
+                            class="form-input"
+                            min="1"
+                            max="10"
+                            value="2"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <!-- Info Box -->
+                <div id="estimationBox" class="info-box">
+                    <h3>📊 Estimation</h3>
+                    <p><strong>Total Scenes:</strong> <span id="totalScenes">6</span></p>
+                    <p><strong>Estimated API Requests:</strong> <span id="estimatedRequests">18</span></p>
+                    <p style="font-size: 12px; margin-top: 8px;">
+                        Each scene = 1 starting frame image + 1 ending frame image + 1 video clip = 3 requests
+                    </p>
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">
+                        Next: Lock Identities →
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Brain Selection Modal (BLOCKING) -->
+    <div id="brainSelectionModal" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>🧠 Select Processing Brain</h2>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 20px;">
+                    Choose how you want to process your script into scenes:
+                </p>
+
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <!-- Storyboard Brain Option -->
+                    <label class="brain-option" for="brainStoryboard">
+                        <input type="radio" name="brainType" id="brainStoryboard" value="storyboard" checked>
+                        <div class="brain-option-content">
+                            <div class="brain-option-title">✅ Storyboard Brain (Local AI)</div>
+                            <div class="brain-option-desc">
+                                Built-in AI intelligence with:
+                                <ul style="margin: 6px 0 0 20px; font-size: 12px;">
+                                    <li>Auto-detect characters with 20+ attributes</li>
+                                    <li>Auto-detect environments and settings</li>
+                                    <li>Intelligent paragraph splitting</li>
+                                    <li>AI-driven scene generation</li>
+                                    <li>Smart frame prompt creation</li>
+                                </ul>
+                                <div style="margin-top: 6px; color: var(--success-color); font-size: 11px;">
+                                    ✨ Fast, local processing. No API credits used.
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- GeminiGen Brain Option -->
+                    <label class="brain-option" for="brainGeminigen">
+                        <input type="radio" name="brainType" id="brainGeminigen" value="geminigen">
+                        <div class="brain-option-content">
+                            <div class="brain-option-title">✅ GeminiGen Brain (AI-Powered)</div>
+                            <div class="brain-option-desc">
+                                Advanced 5-step AI pipeline:
+                                <ol style="margin: 8px 0 0 20px; font-size: 12px;">
+                                    <li>Character Identification</li>
+                                    <li>Environment Identification</li>
+                                    <li>Script → Paragraph Splitting</li>
+                                    <li>Paragraph → Scene Generation</li>
+                                    <li>Scene → Frame Prompts</li>
+                                </ol>
+                                <div style="margin-top: 8px; color: var(--warning-color); font-size: 11px;">
+                                    ⚠️ Uses GeminiGen API credits. Takes longer but produces better results.
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmBrainBtn" class="btn btn-primary">
+                    Continue with Selected Brain →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- API & Webhook Validation Modal (NON-CLOSEABLE) -->
+    <div id="validationModal" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>🔑 API & Webhook Setup Required</h2>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 20px;">
+                    Before you can use this tool, you must configure your GeminiGen API key and webhook.
+                </p>
+
+                <!-- API Key Input -->
+                <div class="form-group">
+                    <label class="form-label" for="apiKeyInput">
+                        GeminiGen API Key
+                        <span style="color: var(--error-color);">*</span>
+                    </label>
+                    <input
+                        type="password"
+                        id="apiKeyInput"
+                        class="form-input"
+                        placeholder="Enter your API key"
+                        autocomplete="off"
+                    >
+                </div>
+
+                <!-- Webhook Instructions -->
+                <div class="info-box" style="background: rgba(245, 158, 11, 0.1); border-left-color: var(--warning-color);">
+                    <h3>⚠️ Webhook Setup Required</h3>
+                    <p>You <strong>MUST</strong> add this webhook URL to your GeminiGen account:</p>
+                    <div style="background: white; padding: 12px; border-radius: 6px; margin: 12px 0; font-family: monospace; font-size: 13px; word-break: break-all;">
+                        https://automation.pillowpotion.com/v2/webhook
+                    </div>
+                    <p><strong>Steps:</strong></p>
+                    <ol style="margin-left: 20px; margin-top: 8px; font-size: 13px;">
+                        <li>Login to <a href="https://geminigen.ai" target="_blank" style="color: var(--primary-color);">GeminiGen.ai</a></li>
+                        <li>Go to <strong>API Settings</strong> → <strong>Webhooks</strong></li>
+                        <li>Add the webhook URL shown above</li>
+                        <li>Click <strong>Save</strong> to activate the webhook</li>
+                    </ol>
+                </div>
+
+                <!-- Confirmation Checkbox -->
+                <div class="checkbox-group">
+                    <input type="checkbox" id="webhookConfirm" />
+                    <label for="webhookConfirm">
+                        ☑ I have added the webhook to GeminiGen
+                    </label>
+                </div>
+
+                <div id="validationError" style="color: var(--error-color); margin-top: 12px; display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="validateBtn" class="btn btn-primary">
+                    Validate & Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="state-manager.js?v=7.0"></script>
+    <script src="api-handler.js?v=19.0"></script>
+    <script src="common.js?v=5.0"></script>
+    <script src="geminigen-brain.js?v=1.0"></script>
+    <script src="storyboard-brain.js?v=1.0"></script>
+    <script>
+        // Initialize step indicator
+        document.getElementById('stepIndicator').innerHTML = Utils.createStepIndicator(1);
+
+        // Calculate estimation on input change
+        const numParagraphsInput = document.getElementById('numParagraphs');
+        const scenesPerParagraphInput = document.getElementById('scenesPerParagraph');
+
+        function updateEstimation() {
+            const paragraphs = parseInt(numParagraphsInput.value) || 0;
+            const scenesPerPara = parseInt(scenesPerParagraphInput.value) || 0;
+            const totalScenes = Utils.calculateTotalScenes(paragraphs, scenesPerPara);
+            const estimatedRequests = Utils.calculateEstimatedRequests(totalScenes);
+
+            document.getElementById('totalScenes').textContent = totalScenes;
+            document.getElementById('estimatedRequests').textContent = estimatedRequests;
+        }
+
+        numParagraphsInput.addEventListener('input', updateEstimation);
+        scenesPerParagraphInput.addEventListener('input', updateEstimation);
+
+        // Check if API key exists
+        window.addEventListener('DOMContentLoaded', () => {
+            const apiKey = StateManager.getApiKey();
+            const webhookConfigured = StateManager.isWebhookConfigured();
+
+            if (!apiKey || !webhookConfigured) {
+                // Show validation modal
+                document.getElementById('validationModal').style.display = 'flex';
+            }
+
+            // Load saved script data if exists
+            const savedData = StateManager.getScriptData();
+            if (savedData) {
+                document.getElementById('scriptInput').value = savedData.script || '';
+                document.getElementById('numParagraphs').value = savedData.numParagraphs || 3;
+                document.getElementById('scenesPerParagraph').value = savedData.scenesPerParagraph || 2;
+                updateEstimation();
+            }
+        });
+
+        // Validation button handler
+        document.getElementById('validateBtn').addEventListener('click', async () => {
+            const apiKey = document.getElementById('apiKeyInput').value.trim();
+            const webhookConfirmed = document.getElementById('webhookConfirm').checked;
+            const errorDiv = document.getElementById('validationError');
+
+            // Clear previous errors
+            errorDiv.style.display = 'none';
+
+            // Validate inputs
+            if (!apiKey) {
+                errorDiv.textContent = 'Please enter your GeminiGen API key';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (!webhookConfirmed) {
+                errorDiv.textContent = 'Please confirm you have added the webhook';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // Show loading
+            Utils.showLoading('Validating API key...');
+
+            // Test API connection
+            const result = await APIHandler.testConnection(apiKey);
+
+            Utils.hideLoading();
+
+            if (result.success) {
+                // Save API key and webhook status
+                StateManager.saveApiKey(apiKey);
+                StateManager.setWebhookConfigured(true);
+
+                // Hide modal
+                document.getElementById('validationModal').style.display = 'none';
+
+                Utils.showSuccess('API key validated successfully!');
+            } else {
+                // Extract detailed error message from API response
+                let errorMessage = result.message || 'API validation failed';
+
+                // Check for detailed error in geminigen_raw
+                if (result.geminigen_raw && result.geminigen_raw.detail) {
+                    if (result.geminigen_raw.detail.error_message) {
+                        errorMessage = result.geminigen_raw.detail.error_message;
+                    } else if (result.geminigen_raw.detail.error_code) {
+                        errorMessage = APIHandler.getErrorMessage(result.geminigen_raw.detail.error_code);
+                    }
+                }
+
+                errorDiv.textContent = errorMessage;
+                errorDiv.style.display = 'block';
+            }
+        });
+
+        // Form submission - Show brain selection modal
+        document.getElementById('scriptForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const script = document.getElementById('scriptInput').value.trim();
+            const numParagraphs = parseInt(document.getElementById('numParagraphs').value);
+            const scenesPerParagraph = parseInt(document.getElementById('scenesPerParagraph').value);
+
+            if (!script) {
+                Utils.showError('Please enter a script');
+                return;
+            }
+
+            // Save script data
+            const scriptData = {
+                script,
+                numParagraphs,
+                scenesPerParagraph,
+                totalScenes: Utils.calculateTotalScenes(numParagraphs, scenesPerParagraph)
+            };
+
+            StateManager.saveScriptData(scriptData);
+
+            // Show brain selection modal
+            document.getElementById('brainSelectionModal').style.display = 'flex';
+        });
+
+        // Brain selection confirmation
+        document.getElementById('confirmBrainBtn').addEventListener('click', async () => {
+            const selectedBrain = document.querySelector('input[name="brainType"]:checked').value;
+
+            // Save brain type
+            StateManager.saveBrainType(selectedBrain);
+
+            // Hide modal
+            document.getElementById('brainSelectionModal').style.display = 'none';
+
+            // Get script data
+            const scriptData = StateManager.getScriptData();
+
+            if (selectedBrain === 'geminigen') {
+                // Run GeminiGen Brain Pipeline
+                Utils.showLoading('Initializing GeminiGen Brain Pipeline...');
+
+                const apiKey = StateManager.getApiKey();
+
+                const result = await GeminiGenBrain.runCompletePipeline(
+                    {
+                        apiKey: apiKey,
+                        script: scriptData.script,
+                        paragraphCount: scriptData.numParagraphs,
+                        scenesPerParagraph: scriptData.scenesPerParagraph
+                    },
+                    (message) => {
+                        // Progress callback
+                        Utils.showLoading(message);
+                    }
+                );
+
+                Utils.hideLoading();
+
+                if (result.success) {
+                    Utils.showSuccess(`Pipeline completed! Used ${result.creditsUsed.total} credits.`);
+                    setTimeout(() => Utils.navigateTo('page2.html'), 1500);
+                } else {
+                    Utils.showError('Pipeline failed: ' + result.message);
+                }
+
+            } else {
+                // Use Enhanced Storyboard Brain with local AI intelligence
+                Utils.showLoading('Processing with Storyboard Brain...');
+
+                const result = await StoryboardBrain.runEnhancedPipeline(
+                    {
+                        script: scriptData.script,
+                        paragraphCount: scriptData.numParagraphs,
+                        scenesPerParagraph: scriptData.scenesPerParagraph
+                    },
+                    (message) => {
+                        // Progress callback
+                        Utils.showLoading(message);
+                    }
+                );
+
+                Utils.hideLoading();
+
+                if (result.success) {
+                    Utils.showSuccess('Storyboard processing complete!');
+                    setTimeout(() => Utils.navigateTo('page2.html'), 1000);
+                } else {
+                    Utils.showError('Processing failed: ' + result.message);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

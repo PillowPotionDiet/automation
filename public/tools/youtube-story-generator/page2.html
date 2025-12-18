@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeminiGen Automation - Step 2: Lock Identities</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css?v=6.0">
+    <style>
+        .identity-section {
+            margin-bottom: 30px;
+        }
+
+        .identity-section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .identity-section-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .identity-count {
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .identity-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .identity-card.locked {
+            border-color: var(--success-color);
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(16, 185, 129, 0.05));
+        }
+
+        .identity-card.generating {
+            border-color: var(--primary-color);
+            animation: pulse 2s infinite;
+        }
+
+        .identity-card.error {
+            border-color: var(--error-color);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .identity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .identity-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .seed-pill {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: white;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: monospace;
+        }
+
+        .identity-attributes {
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            max-height: 120px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .identity-image-container {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .identity-image-preview {
+            width: 120px;
+            height: 120px;
+            background: var(--bg-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            border: 2px dashed var(--border-color);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .identity-image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .identity-image-preview.has-image {
+            border-style: solid;
+            border-color: var(--success-color);
+        }
+
+        .identity-image-info {
+            flex: 1;
+        }
+
+        .identity-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-light);
+        }
+
+        .status-indicator.pending {
+            background: var(--warning-color);
+        }
+
+        .status-indicator.generating {
+            background: var(--primary-color);
+            animation: blink 1s infinite;
+        }
+
+        .status-indicator.locked {
+            background: var(--success-color);
+        }
+
+        .status-indicator.error {
+            background: var(--error-color);
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .credits-estimate-box {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .credits-estimate-box h4 {
+            margin: 0 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .credits-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .credits-row:last-child {
+            border-bottom: none;
+            padding-top: 12px;
+            margin-top: 4px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .generation-progress {
+            background: var(--card-bg);
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .generation-progress.active {
+            display: block;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .progress-title {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .locked-banner {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1));
+            border: 2px solid var(--success-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .locked-banner.visible {
+            display: block;
+        }
+
+        .locked-banner h3 {
+            color: var(--success-color);
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .locked-banner p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* Model Selection in Settings */
+        .settings-inline {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .settings-inline .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">GeminiGen Automation</div>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">New Project</a>
+                <a href="history.html" class="nav-link">History</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Step Indicator -->
+    <div class="container">
+        <div id="stepIndicator"></div>
+
+        <!-- Main Content -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Step 2: Lock Character & Environment Identities</h2>
+                <p>Generate master reference images to ensure consistency across all scenes</p>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <h3>Why Identity Locking?</h3>
+                <p>Identity locking creates <strong>cryptographic fingerprints</strong> for each character and environment. These fingerprints bind:</p>
+                <ul style="margin: 12px 0 0 20px; font-size: 14px;">
+                    <li>Text attributes (appearance, clothing, features)</li>
+                    <li>Master reference image</li>
+                    <li>All future generations in this project</li>
+                </ul>
+                <p style="margin-top: 12px; color: var(--warning-color); font-size: 13px;">
+                    <strong>Important:</strong> Once locked, identities cannot be changed. Review carefully before generating.
+                </p>
+            </div>
+
+            <!-- Locked Banner (shown after successful generation) -->
+            <div id="lockedBanner" class="locked-banner">
+                <h3>Identities Locked Successfully</h3>
+                <p>All master reference images have been generated. Your characters and environments are now locked for consistent generation.</p>
+            </div>
+
+            <!-- Generation Progress -->
+            <div id="generationProgress" class="generation-progress">
+                <div class="progress-header">
+                    <div class="progress-title">
+                        <span>Generating Master Images...</span>
+                    </div>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div id="progressBarFill" class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+                <div id="progressText" class="progress-text">Initializing...</div>
+            </div>
+
+            <!-- Image Settings -->
+            <div id="settingsSection" class="settings-inline">
+                <div class="form-group">
+                    <label class="form-label">AI Model for Master Images</label>
+                    <select id="aiModel" class="form-select">
+                        <option value="imagen-pro">Nano Banana Pro (Free)</option>
+                        <option value="imagen-4-fast">Imagen 4 Fast (1 credit/image)</option>
+                        <option value="imagen-4">Imagen 4 (3 credits/image)</option>
+                        <option value="imagen-4-ultra">Imagen 4 Ultra (4 credits/image)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Aspect Ratio</label>
+                    <select id="aspectRatio" class="form-select">
+                        <option value="1:1" selected>1:1 (Square - Recommended for References)</option>
+                        <option value="16:9">16:9 (Widescreen)</option>
+                        <option value="9:16">9:16 (Portrait)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Credits Estimate -->
+            <div id="creditsEstimate" class="credits-estimate-box">
+                <h4>Credits Estimate</h4>
+                <div class="credits-row">
+                    <span>Character Images</span>
+                    <span id="charCredits">0 x 0 = 0 credits</span>
+                </div>
+                <div class="credits-row">
+                    <span>Environment Images</span>
+                    <span id="envCredits">0 x 0 = 0 credits</span>
+                </div>
+                <div class="credits-row">
+                    <span>Total Estimated</span>
+                    <span id="totalCredits">0 credits</span>
+                </div>
+            </div>
+
+            <!-- Characters Section -->
+            <div id="charactersSection" class="identity-section">
+                <div class="identity-section-header">
+                    <h3>Detected Characters</h3>
+                    <span id="charCount" class="identity-count">0</span>
+                </div>
+                <div id="charactersList"></div>
+            </div>
+
+            <!-- Environments Section -->
+            <div id="environmentsSection" class="identity-section">
+                <div class="identity-section-header">
+                    <h3>Detected Environments</h3>
+                    <span id="envCount" class="identity-count">0</span>
+                </div>
+                <div id="environmentsList"></div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="btn-group">
+                <button id="backBtn" class="btn btn-secondary">
+                    Back to Script Input
+                </button>
+                <button id="generateBtn" class="btn btn-primary">
+                    Generate Identities
+                </button>
+                <button id="nextBtn" class="btn btn-primary" disabled>
+                    Next: Configure Scenes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="state-manager.js?v=8.0"></script>
+    <script src="api-handler.js?v=19.0"></script>
+    <script src="common.js?v=6.0"></script>
+    <script src="identity-manager.js?v=1.0"></script>
+    <script>
+        // Initialize step indicator (6 steps now)
+        document.getElementById('stepIndicator').innerHTML = Utils.createStepIndicator(2);
+
+        // Check if user has completed page 1
+        if (!StateManager.hasCompletedPage(1)) {
+            Utils.showError('Please complete Step 1 first');
+            setTimeout(() => Utils.navigateTo('index.html'), 2000);
+        }
+
+        // Get extracted data from previous step
+        const extractedChars = StateManager.getExtractedCharacters() || [];
+        const extractedEnvs = StateManager.getExtractedEnvironments() || [];
+
+        // Check if identities already locked
+        let globalState = StateManager.getGlobalState() || {
+            characters: {},
+            environments: {},
+            locked: false
+        };
+
+        // If not already parsed, parse from extracted data
+        if (Object.keys(globalState.characters).length === 0 && extractedChars.length > 0) {
+            globalState.characters = IdentityManager.parseExtractedCharacters(extractedChars);
+        }
+        if (Object.keys(globalState.environments).length === 0 && extractedEnvs.length > 0) {
+            globalState.environments = IdentityManager.parseExtractedEnvironments(extractedEnvs);
+        }
+
+        // Update counts
+        const charCount = Object.keys(globalState.characters).length;
+        const envCount = Object.keys(globalState.environments).length;
+        document.getElementById('charCount').textContent = charCount;
+        document.getElementById('envCount').textContent = envCount;
+
+        // Credit cost per model
+        const modelCredits = {
+            'imagen-pro': 0,
+            'imagen-4-fast': 1,
+            'imagen-4': 3,
+            'imagen-4-ultra': 4
+        };
+
+        // Update credits estimate
+        function updateCreditsEstimate() {
+            const model = document.getElementById('aiModel').value;
+            const creditPerImage = modelCredits[model] || 0;
+
+            const charTotal = charCount * creditPerImage;
+            const envTotal = envCount * creditPerImage;
+            const total = charTotal + envTotal;
+
+            document.getElementById('charCredits').textContent =
+                `${charCount} x ${creditPerImage} = ${charTotal} credits`;
+            document.getElementById('envCredits').textContent =
+                `${envCount} x ${creditPerImage} = ${envTotal} credits`;
+            document.getElementById('totalCredits').textContent = `${total} credits`;
+        }
+
+        document.getElementById('aiModel').addEventListener('change', updateCreditsEstimate);
+        updateCreditsEstimate();
+
+        // Render character cards
+        function renderCharacters() {
+            const container = document.getElementById('charactersList');
+            container.innerHTML = '';
+
+            Object.entries(globalState.characters).forEach(([key, char]) => {
+                const card = document.createElement('div');
+                card.className = `identity-card ${char.locked ? 'locked' : ''}`;
+                card.dataset.key = key;
+
+                card.innerHTML = `
+                    <div class="identity-header">
+                        <div class="identity-name">${char.name}</div>
+                        <div class="seed-pill">Seed: ${char.seed}</div>
+                    </div>
+                    <div class="identity-attributes">${char.attributes}</div>
+                    <div class="identity-image-container">
+                        <div class="identity-image-preview ${char.master_image_url ? 'has-image' : ''}" data-key="${key}">
+                            ${char.master_image_url
+                                ? `<img src="${char.master_image_url}" alt="${char.name}">`
+                                : '<span>?</span>'}
+                        </div>
+                        <div class="identity-image-info">
+                            <div class="identity-status">
+                                <div class="status-indicator ${char.locked ? 'locked' : 'pending'}"></div>
+                                <span>${char.locked ? 'Locked' : 'Pending Generation'}</span>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">
+                                Master reference image for consistent character appearance
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Render environment cards
+        function renderEnvironments() {
+            const container = document.getElementById('environmentsList');
+            container.innerHTML = '';
+
+            Object.entries(globalState.environments).forEach(([key, env]) => {
+                const card = document.createElement('div');
+                card.className = `identity-card ${env.locked ? 'locked' : ''}`;
+                card.dataset.key = key;
+
+                card.innerHTML = `
+                    <div class="identity-header">
+                        <div class="identity-name">${env.name}</div>
+                        <div class="seed-pill">Seed: ${env.seed}</div>
+                    </div>
+                    <div class="identity-attributes">${env.attributes}</div>
+                    <div class="identity-image-container">
+                        <div class="identity-image-preview ${env.master_image_url ? 'has-image' : ''}" data-key="${key}">
+                            ${env.master_image_url
+                                ? `<img src="${env.master_image_url}" alt="${env.name}">`
+                                : '<span>?</span>'}
+                        </div>
+                        <div class="identity-image-info">
+                            <div class="identity-status">
+                                <div class="status-indicator ${env.locked ? 'locked' : 'pending'}"></div>
+                                <span>${env.locked ? 'Locked' : 'Pending Generation'}</span>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">
+                                Master reference image for consistent environment appearance
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Initial render
+        renderCharacters();
+        renderEnvironments();
+
+        // Check if already locked
+        if (globalState.locked) {
+            document.getElementById('lockedBanner').classList.add('visible');
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('generateBtn').textContent = 'Already Locked';
+            document.getElementById('nextBtn').disabled = false;
+            document.getElementById('settingsSection').style.display = 'none';
+            document.getElementById('creditsEstimate').style.display = 'none';
+        }
+
+        // Generate identities button
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            const generateBtn = document.getElementById('generateBtn');
+            const progressDiv = document.getElementById('generationProgress');
+
+            // Disable button and show progress
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+            progressDiv.classList.add('active');
+
+            const settings = {
+                model: document.getElementById('aiModel').value,
+                aspectRatio: document.getElementById('aspectRatio').value,
+                style: 'Photorealistic'
+            };
+
+            const apiKey = StateManager.getApiKey();
+            const total = charCount + envCount;
+            let completed = 0;
+
+            // Update progress UI
+            function updateProgress(message) {
+                completed++;
+                const percent = Math.round((completed / total) * 100);
+                document.getElementById('progressPercent').textContent = `${percent}%`;
+                document.getElementById('progressBarFill').style.width = `${percent}%`;
+                document.getElementById('progressText').textContent = message;
+            }
+
+            // Generate master images
+            const result = await IdentityManager.generateMasterImages(
+                globalState,
+                apiKey,
+                settings,
+                (message) => {
+                    document.getElementById('progressText').textContent = message;
+                    // Update individual card status
+                    const match = message.match(/Generating master image for (.+?)\.\.\./);
+                    if (match) {
+                        const name = match[1].toLowerCase().replace(/\s+/g, '_');
+                        const card = document.querySelector(`[data-key="${name}"]`);
+                        if (card) {
+                            card.classList.add('generating');
+                            card.querySelector('.status-indicator').className = 'status-indicator generating';
+                        }
+                    }
+                }
+            );
+
+            progressDiv.classList.remove('active');
+
+            if (result.success) {
+                // Update global state
+                globalState = result.globalState;
+                StateManager.saveGlobalState(globalState);
+
+                // Update UI
+                renderCharacters();
+                renderEnvironments();
+
+                // Show success
+                document.getElementById('lockedBanner').classList.add('visible');
+                generateBtn.textContent = 'Locked';
+                document.getElementById('nextBtn').disabled = false;
+                document.getElementById('settingsSection').style.display = 'none';
+                document.getElementById('creditsEstimate').style.display = 'none';
+
+                Utils.showSuccess(`Identities locked! Used ${result.creditsUsed} credits.`);
+            } else {
+                // Show errors
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Retry Generation';
+
+                const errorMessages = result.errors.join('\n');
+                Utils.showError('Some generations failed:\n' + errorMessages);
+
+                // Mark failed cards
+                result.errors.forEach(err => {
+                    const match = err.match(/Failed to generate (.+?):/);
+                    if (match) {
+                        const name = match[1].toLowerCase().replace(/\s+/g, '_');
+                        const card = document.querySelector(`[data-key="${name}"]`);
+                        if (card) {
+                            card.classList.add('error');
+                            card.querySelector('.status-indicator').className = 'status-indicator error';
+                        }
+                    }
+                });
+            }
+        });
+
+        // Navigation
+        document.getElementById('backBtn').addEventListener('click', () => {
+            if (globalState.locked) {
+                if (!confirm('Going back will clear all locked identities. Continue?')) {
+                    return;
+                }
+                StateManager.clearGlobalState();
+            }
+            Utils.navigateTo('index.html');
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (!globalState.locked) {
+                Utils.showError('Please generate and lock identities first');
+                return;
+            }
+
+            // Mark page 2 as completed
+            StateManager.markPageCompleted(2);
+
+            Utils.navigateTo('page3.html');
+        });
+    </script>
+</body>
+</html>
