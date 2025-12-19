@@ -1,0 +1,48 @@
+# ==================================================
+# AI Video Generator - Git Ignore
+# ==================================================
+
+# Environment variables (NEVER commit!)
+.env
+.env.local
+.env.production
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+error_log
+
+# Temporary files
+tmp/
+temp/
+cache/
+nul
+
+# Dependencies (if using npm/composer)
+node_modules/
+vendor/
+
+# Build files
+dist/
+build/
+
+# Uploaded files (user content)
+uploads/
+public/uploads/
+
+# Webhook polling files
+public/api/webhook/polls/
+
+# Local settings
+.claude/settings.local.json
