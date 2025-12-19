@@ -5,7 +5,16 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nAdd GeminiGen Brain - AI-powered 5-step storyboard pipeline\n\nAdded brain selection system with two processing modes:\n- Storyboard Brain (existing fast logic)\n- GeminiGen Brain (new AI-powered pipeline)\n\nPipeline steps:\n1. Character Identification - Extract all characters with 20+ attributes\n2. Environment Identification - Extract all environments with detailed descriptions\n3. Script to Paragraph Splitting - AI-driven paragraph generation\n4. Paragraph to Scene Generation - Create cinematic scenes per paragraph\n5. Scene to Frame Prompts - Generate start/end frame prompts\n\nFeatures:\n- Brain selection modal on Page 1\n- Tag-based parsing for structured GeminiGen responses\n- Webhook polling for async AI processing\n- Credits tracking and breakdown display\n- Page 2 displays extracted characters/environments\n- State management for all pipeline data\n- Progress callbacks for real-time updates\n\nFiles:\n- Created: v2/geminigen-brain.js (complete pipeline implementation)\n- Modified: v2/state-manager.js (new storage methods)\n- Modified: v2/index.html (brain selection UI & integration)\n- Modified: v2/page2.html (display extracted data & credits)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git push:*)",
       "Bash(git commit:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(dir:*)",
+      "Bash(cat:*)",
+      "Bash(.htaccess)",
+      "Bash(.env \")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd Phase 3: Authentication Backend Implementation\n\nComplete authentication system with JWT tokens and HttpOnly cookies:\n\nBackend Services:\n- app/services/AuthService.php: JWT generation, validation, cookie management\n- app/services/EmailService.php: SMTP email with verification & reset templates\n- app/models/User.php: User CRUD, credit management, token operations\n- app/middlewares/AuthMiddleware.php: JWT verification for protected routes\n- app/middlewares/AdminMiddleware.php: Admin role verification\n\nAPI Endpoints \\(/api/auth/\\):\n- signup.php: User registration with email validation\n- login.php: JWT authentication with remember-me option\n- logout.php: Session invalidation and cookie clearing\n- verify-email.php: Email verification with 20 credit signup bonus\n- forgot-password.php: Password reset request \\(1-hour expiry\\)\n- reset-password.php: Password reset with token validation\n- resend-verification.php: Resend verification email\n- check.php: Auth status check for frontend\n- me.php: Get current user data\n\nSecurity Features:\n- bcrypt password hashing \\(cost 12\\)\n- HMAC-SHA256 JWT signing\n- HttpOnly + SameSite=Strict cookies\n- Token expiry \\(24h access, 7d refresh\\)\n- Email enumeration prevention\n- Session invalidation on password reset\n\nDatabase Schema:\n- init.sql already contains users, sessions, credits tables\n\nDocumentation:\n- docs/USER-EXPERIENCE-BLUEPRINT.md: Tool flow documentation\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(php -r:*)",
+      "Bash(node -e:*)",
+      "Bash(ls -la \"e:\\\\Tool\\\\script-to-video-generator\\\\public\\\\logo\"\" 2>/dev/null || ls -la \"e:Toolscript-to-video-generatorlogo\"\")",
+      "Bash(ls -la \"e:\\\\Tool\\\\script-to-video-generator\\\\public\\\\assets\\\\images\"\" 2>/dev/null || echo \"Folder not found \")"
     ]
   }
 }
