@@ -3,10 +3,13 @@
  * Email Configuration Test
  * DELETE THIS FILE AFTER TESTING!
  *
- * Visit: https://automation.pillowpotion.com/api/test-email.php?to=your@email.com
+ * Visit: https://automation.pillowpotion.com/public/api/test-email.php?to=your@email.com
  */
 
 header('Content-Type: text/html; charset=UTF-8');
+
+// Load environment variables first
+require_once __DIR__ . '/../../app/bootstrap.php';
 
 // Load configuration
 require_once __DIR__ . '/../../app/services/EmailService.php';
