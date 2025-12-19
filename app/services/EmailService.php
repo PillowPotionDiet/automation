@@ -163,34 +163,197 @@ class EmailService
         }
 
         try {
-            // Build headers
-            $headers = [
-                'MIME-Version: 1.0',
-                'Content-Type: text/html; charset=UTF-8',
-                'From: ' . self::$config['from_name'] . ' <' . self::$config['from_email'] . '>',
-                'Reply-To: ' . self::$config['reply_to'],
-                'X-Mailer: PHP/' . phpversion()
-            ];
-
-            // Use PHP mail() function with configured SMTP
-            // For production, consider using PHPMailer library
-            $result = mail(
-                $to,
-                $subject,
-                $body,
-                implode("\r\n", $headers)
-            );
-
-            if (!$result) {
-                error_log("Failed to send email to: {$to}");
-            }
-
-            return $result;
-
+            return self::sendViaSMTP($to, $subject, $body);
         } catch (Exception $e) {
             error_log("Email send error: " . $e->getMessage());
             return false;
         }
+    }
+
+    /**
+     * Send email via SMTP socket connection
+     *
+     * @param string $to
+     * @param string $subject
+     * @param string $body
+     * @return bool
+     */
+    private static function sendViaSMTP(string $to, string $subject, string $body): bool
+    {
+        $host = self::$config['smtp']['host'];
+        $port = self::$config['smtp']['port'];
+        $user = self::$config['smtp']['username'];
+        $pass = self::$config['smtp']['password'];
+        $encryption = self::$config['smtp']['encryption'];
+
+        $fromEmail = self::$config['from_email'];
+        $fromName = self::$config['from_name'];
+
+        // Build email content
+        $headers = "MIME-Version: 1.0\r\n";
+        $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+        $headers .= "From: {$fromName} <{$fromEmail}>\r\n";
+        $headers .= "Reply-To: " . self::$config['reply_to'] . "\r\n";
+        $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
+
+        // Connect to SMTP server
+        $context = stream_context_create([
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            ]
+        ]);
+
+        // For SSL (port 465), use ssl:// prefix
+        // For TLS (port 587), connect without prefix then use STARTTLS
+        if ($encryption === 'ssl') {
+            $socket = stream_socket_client(
+                "ssl://{$host}:{$port}",
+                $errno,
+                $errstr,
+                30,
+                STREAM_CLIENT_CONNECT,
+                $context
+            );
+        } else {
+            $socket = stream_socket_client(
+                "tcp://{$host}:{$port}",
+                $errno,
+                $errstr,
+                30,
+                STREAM_CLIENT_CONNECT,
+                $context
+            );
+        }
+
+        if (!$socket) {
+            error_log("SMTP Connection failed: {$errstr} ({$errno})");
+            return false;
+        }
+
+        // Read greeting
+        $response = fgets($socket, 515);
+        if (substr($response, 0, 3) !== '220') {
+            error_log("SMTP Error: {$response}");
+            fclose($socket);
+            return false;
+        }
+
+        // EHLO
+        fwrite($socket, "EHLO " . gethostname() . "\r\n");
+        $response = self::getSmtpResponse($socket);
+
+        // STARTTLS for TLS encryption
+        if ($encryption === 'tls') {
+            fwrite($socket, "STARTTLS\r\n");
+            $response = fgets($socket, 515);
+            if (substr($response, 0, 3) !== '220') {
+                error_log("SMTP STARTTLS failed: {$response}");
+                fclose($socket);
+                return false;
+            }
+
+            stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+
+            fwrite($socket, "EHLO " . gethostname() . "\r\n");
+            $response = self::getSmtpResponse($socket);
+        }
+
+        // AUTH LOGIN
+        fwrite($socket, "AUTH LOGIN\r\n");
+        $response = fgets($socket, 515);
+        if (substr($response, 0, 3) !== '334') {
+            error_log("SMTP AUTH failed: {$response}");
+            fclose($socket);
+            return false;
+        }
+
+        // Send username
+        fwrite($socket, base64_encode($user) . "\r\n");
+        $response = fgets($socket, 515);
+        if (substr($response, 0, 3) !== '334') {
+            error_log("SMTP username rejected: {$response}");
+            fclose($socket);
+            return false;
+        }
+
+        // Send password
+        fwrite($socket, base64_encode($pass) . "\r\n");
+        $response = fgets($socket, 515);
+        if (substr($response, 0, 3) !== '235') {
+            error_log("SMTP authentication failed: {$response}");
+            fclose($socket);
+            return false;
+        }
+
+        // MAIL FROM
+        fwrite($socket, "MAIL FROM:<{$fromEmail}>\r\n");
+        $response = fgets($socket, 515);
+        if (substr($response, 0, 3) !== '250') {
+            error_log("SMTP MAIL FROM failed: {$response}");
+            fclose($socket);
+            return false;
+        }
+
+        // RCPT TO
+        fwrite($socket, "RCPT TO:<{$to}>\r\n");
+        $response = fgets($socket, 515);
+        if (substr($response, 0, 3) !== '250') {
+            error_log("SMTP RCPT TO failed: {$response}");
+            fclose($socket);
+            return false;
+        }
+
+        // DATA
+        fwrite($socket, "DATA\r\n");
+        $response = fgets($socket, 515);
+        if (substr($response, 0, 3) !== '354') {
+            error_log("SMTP DATA failed: {$response}");
+            fclose($socket);
+            return false;
+        }
+
+        // Send email content
+        $message = "Subject: {$subject}\r\n";
+        $message .= "To: {$to}\r\n";
+        $message .= $headers;
+        $message .= "\r\n";
+        $message .= $body;
+        $message .= "\r\n.\r\n";
+
+        fwrite($socket, $message);
+        $response = fgets($socket, 515);
+        if (substr($response, 0, 3) !== '250') {
+            error_log("SMTP message sending failed: {$response}");
+            fclose($socket);
+            return false;
+        }
+
+        // QUIT
+        fwrite($socket, "QUIT\r\n");
+        fclose($socket);
+
+        error_log("Email sent successfully to: {$to}");
+        return true;
+    }
+
+    /**
+     * Get full SMTP response (may be multiline)
+     *
+     * @param resource $socket
+     * @return string
+     */
+    private static function getSmtpResponse($socket): string
+    {
+        $response = '';
+        while ($line = fgets($socket, 515)) {
+            $response .= $line;
+            if (substr($line, 3, 1) === ' ') {
+                break;
+            }
+        }
+        return $response;
     }
 
     /**

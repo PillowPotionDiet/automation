@@ -7,29 +7,32 @@
  */
 
 return [
-    // SMTP Host (e.g., smtp.gmail.com, smtp.mailgun.org)
-    'host' => getenv('SMTP_HOST') ?: 'smtp.gmail.com',
+    // SMTP Configuration
+    'smtp' => [
+        // SMTP Host (e.g., smtp.gmail.com, smtp.hostinger.com)
+        'host' => getenv('SMTP_HOST') ?: 'smtp.hostinger.com',
 
-    // SMTP Port (587 for TLS, 465 for SSL, 25 for unencrypted)
-    'port' => getenv('SMTP_PORT') ?: 587,
+        // SMTP Port (587 for TLS, 465 for SSL, 25 for unencrypted)
+        'port' => (int)(getenv('SMTP_PORT') ?: 465),
 
-    // SMTP Username (usually your email address)
-    'username' => getenv('SMTP_USER') ?: '',
+        // SMTP Username (your email address)
+        'username' => getenv('SMTP_USER') ?: '',
 
-    // SMTP Password (app password for Gmail)
-    'password' => getenv('SMTP_PASS') ?: '',
+        // SMTP Password
+        'password' => getenv('SMTP_PASS') ?: '',
 
-    // Encryption type: 'tls', 'ssl', or '' for none
-    'encryption' => getenv('SMTP_ENCRYPTION') ?: 'tls',
+        // Encryption type: 'tls', 'ssl', or '' for none
+        'encryption' => getenv('SMTP_ENCRYPTION') ?: 'ssl',
+    ],
 
     // From email address
-    'from_email' => getenv('MAIL_FROM') ?: 'noreply@pillowpotion.com',
+    'from_email' => getenv('MAIL_FROM') ?: 'noreply@automation.pillowpotion.com',
 
     // From name
     'from_name' => getenv('MAIL_FROM_NAME') ?: 'AI Video Generator',
 
     // Reply-to email
-    'reply_to' => getenv('MAIL_REPLY_TO') ?: 'support@pillowpotion.com',
+    'reply_to' => getenv('MAIL_REPLY_TO') ?: 'noreply@automation.pillowpotion.com',
 
     // App URL for email links
     'app_url' => getenv('APP_URL') ?: 'https://automation.pillowpotion.com',
