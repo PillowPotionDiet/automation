@@ -1,9 +1,7 @@
 <?php
 /**
- * Email Configuration Test
+ * Email Configuration Test with Debug
  * DELETE THIS FILE AFTER TESTING!
- *
- * Visit: https://automation.pillowpotion.com/public/api/test-email.php?to=your@email.com
  */
 
 header('Content-Type: text/html; charset=UTF-8');
@@ -11,11 +9,8 @@ header('Content-Type: text/html; charset=UTF-8');
 // Load environment variables first
 require_once __DIR__ . '/../../app/bootstrap.php';
 
-// Load configuration
-require_once __DIR__ . '/../../app/services/EmailService.php';
-
 echo "<pre style='font-family: monospace; background: #1a1a2e; color: #0f0; padding: 20px;'>";
-echo "=== Email Configuration Test ===\n\n";
+echo "=== Email SMTP Debug Test ===\n\n";
 
 // Load email config
 $configPath = __DIR__ . '/../../app/config/email.php';
@@ -39,47 +34,128 @@ $testEmail = $_GET['to'] ?? null;
 
 if (!$testEmail) {
     echo "To send a test email, add ?to=your@email.com to the URL\n";
-    echo "Example: /api/test-email.php?to=test@example.com\n\n";
+    echo "Example: /public/api/test-email.php?to=test@example.com\n\n";
 } else {
     echo "Sending test email to: {$testEmail}\n\n";
+    echo "=== SMTP Debug Log ===\n";
 
-    try {
-        $result = EmailService::send(
-            $testEmail,
-            'Test Email - AI Video Generator',
-            '
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-</head>
-<body style="font-family: Arial, sans-serif; padding: 20px;">
-    <div style="background: linear-gradient(135deg, #6366f1, #8b5cf6); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-        <h1 style="color: white; margin: 0;">Email Test Successful!</h1>
-    </div>
-    <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
-        <p>If you are reading this, your email configuration is working correctly!</p>
-        <p><strong>Configuration:</strong></p>
-        <ul>
-            <li>SMTP Host: ' . $config['smtp']['host'] . '</li>
-            <li>SMTP Port: ' . $config['smtp']['port'] . '</li>
-            <li>Encryption: ' . $config['smtp']['encryption'] . '</li>
-        </ul>
-        <p style="color: #6b7280; font-size: 14px;">Sent at: ' . date('Y-m-d H:i:s') . '</p>
-    </div>
-</body>
-</html>'
-        );
+    // Direct SMTP test with full debug output
+    $host = $config['smtp']['host'];
+    $port = $config['smtp']['port'];
+    $user = $config['smtp']['username'];
+    $pass = $config['smtp']['password'];
+    $encryption = $config['smtp']['encryption'];
+    $fromEmail = $config['from_email'];
+    $fromName = $config['from_name'];
 
-        if ($result) {
-            echo "<span style='color: #0f0;'>SUCCESS! Email sent to {$testEmail}</span>\n";
-            echo "Check your inbox (and spam folder) for the test email.\n";
-        } else {
-            echo "<span style='color: red;'>FAILED! Could not send email.</span>\n";
-            echo "Check your error logs for more details.\n";
+    $context = stream_context_create([
+        'ssl' => [
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+            'allow_self_signed' => true
+        ]
+    ]);
+
+    echo "Connecting to ssl://{$host}:{$port}...\n";
+
+    $socket = @stream_socket_client(
+        "ssl://{$host}:{$port}",
+        $errno,
+        $errstr,
+        30,
+        STREAM_CLIENT_CONNECT,
+        $context
+    );
+
+    if (!$socket) {
+        echo "<span style='color:red'>Connection FAILED: {$errstr} ({$errno})</span>\n";
+    } else {
+        echo "<span style='color:#0f0'>Connected!</span>\n";
+
+        // Read greeting
+        $response = fgets($socket, 515);
+        echo "Server: {$response}";
+
+        // EHLO
+        $cmd = "EHLO localhost\r\n";
+        echo "Client: EHLO localhost\n";
+        fwrite($socket, $cmd);
+        while ($line = fgets($socket, 515)) {
+            echo "Server: {$line}";
+            if (substr($line, 3, 1) === ' ') break;
         }
-    } catch (Exception $e) {
-        echo "<span style='color: red;'>ERROR: " . $e->getMessage() . "</span>\n";
+
+        // AUTH LOGIN
+        $cmd = "AUTH LOGIN\r\n";
+        echo "Client: AUTH LOGIN\n";
+        fwrite($socket, $cmd);
+        $response = fgets($socket, 515);
+        echo "Server: {$response}";
+
+        // Username
+        echo "Client: [username base64]\n";
+        fwrite($socket, base64_encode($user) . "\r\n");
+        $response = fgets($socket, 515);
+        echo "Server: {$response}";
+
+        // Password
+        echo "Client: [password base64]\n";
+        fwrite($socket, base64_encode($pass) . "\r\n");
+        $response = fgets($socket, 515);
+        echo "Server: {$response}";
+
+        if (substr($response, 0, 3) === '235') {
+            echo "<span style='color:#0f0'>Authentication SUCCESS!</span>\n";
+
+            // MAIL FROM
+            $cmd = "MAIL FROM:<{$fromEmail}>\r\n";
+            echo "Client: MAIL FROM:<{$fromEmail}>\n";
+            fwrite($socket, $cmd);
+            $response = fgets($socket, 515);
+            echo "Server: {$response}";
+
+            // RCPT TO
+            $cmd = "RCPT TO:<{$testEmail}>\r\n";
+            echo "Client: RCPT TO:<{$testEmail}>\n";
+            fwrite($socket, $cmd);
+            $response = fgets($socket, 515);
+            echo "Server: {$response}";
+
+            // DATA
+            $cmd = "DATA\r\n";
+            echo "Client: DATA\n";
+            fwrite($socket, $cmd);
+            $response = fgets($socket, 515);
+            echo "Server: {$response}";
+
+            // Send message
+            $message = "Subject: Test Email from Debug Script\r\n";
+            $message .= "To: {$testEmail}\r\n";
+            $message .= "From: {$fromName} <{$fromEmail}>\r\n";
+            $message .= "MIME-Version: 1.0\r\n";
+            $message .= "Content-Type: text/html; charset=UTF-8\r\n";
+            $message .= "\r\n";
+            $message .= "<h1>Test Email</h1><p>This is a debug test sent at " . date('Y-m-d H:i:s') . "</p>";
+            $message .= "\r\n.\r\n";
+
+            echo "Client: [message content]\n";
+            fwrite($socket, $message);
+            $response = fgets($socket, 515);
+            echo "Server: {$response}";
+
+            if (substr($response, 0, 3) === '250') {
+                echo "<span style='color:#0f0'>EMAIL SENT SUCCESSFULLY!</span>\n";
+            } else {
+                echo "<span style='color:red'>EMAIL SEND FAILED!</span>\n";
+            }
+
+            // QUIT
+            fwrite($socket, "QUIT\r\n");
+        } else {
+            echo "<span style='color:red'>Authentication FAILED!</span>\n";
+        }
+
+        fclose($socket);
     }
 }
 
