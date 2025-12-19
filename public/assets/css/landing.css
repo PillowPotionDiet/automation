@@ -704,10 +704,24 @@
     max-width: 300px;
 }
 
-.footer-brand img {
+.footer-brand > img {
     width: 40px;
     height: 40px;
     margin-bottom: 16px;
+}
+
+.footer-brand .company-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 16px;
+}
+
+.footer-brand .company-badge img {
+    height: 24px;
+    width: auto;
+    display: block;
 }
 
 .footer-brand p {
@@ -751,6 +765,13 @@
 .made-by {
     color: rgba(255, 255, 255, 0.5);
     font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.made-by .heart-icon {
+    vertical-align: middle;
 }
 
 .made-by a {
