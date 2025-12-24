@@ -16,11 +16,13 @@
  * }
  */
 
+// Load config (handles path detection for different environments)
+require_once __DIR__ . '/../config.php';
+
 // Load dependencies
-require_once __DIR__ . '/../../../app/utils/Response.php';
-require_once __DIR__ . '/../../../app/models/User.php';
-require_once __DIR__ . '/../../../app/services/AuthService.php';
-require_once __DIR__ . '/../../../app/services/EmailService.php';
+require_once APP_PATH . '/models/User.php';
+require_once APP_PATH . '/services/AuthService.php';
+require_once APP_PATH . '/services/EmailService.php';
 
 // Only allow POST
 Response::requireMethod('POST');
@@ -57,7 +59,7 @@ try {
     $verificationToken = AuthService::generateSecureToken();
 
     // Update user with new token
-    require_once __DIR__ . '/../../../app/utils/Database.php';
+    require_once APP_PATH . '/utils/Database.php';
     Database::execute(
         "UPDATE users SET verification_token = ? WHERE id = ?",
         [$verificationToken, $user['id']]

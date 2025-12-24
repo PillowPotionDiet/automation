@@ -238,49 +238,91 @@ Example: A serene Japanese garden at sunset, with cherry blossoms falling gently
             btn.disabled = true;
             btn.innerHTML = '⏳ Generating...';
 
-            try {
-                const response = await App.apiPost('/tools/text-to-image.php', {
-                    prompt: prompt,
-                    model: selectedModel,
-                    aspect_ratio: selectedRatio,
-                    count: imageCount
-                });
+            const gallery = document.getElementById('image-gallery');
 
-                if (response.success) {
-                    // Add images to gallery
-                    const gallery = document.getElementById('image-gallery');
+            // Clear placeholder if exists
+            if (gallery.children.length === 1 && gallery.children[0].style.gridColumn) {
+                gallery.innerHTML = '';
+            }
 
-                    // Clear placeholder if exists
-                    if (gallery.children.length === 1 && gallery.children[0].style.gridColumn) {
-                        gallery.innerHTML = '';
-                    }
+            // Generate images (loop for count)
+            for (let i = 0; i < imageCount; i++) {
+                try {
+                    const response = await App.apiPost('/tools/text-to-image.php', {
+                        prompt: prompt,
+                        model: selectedModel,
+                        aspect_ratio: selectedRatio
+                    });
 
-                    response.data.images.forEach((img, index) => {
+                    if (response.success) {
+                        // Create placeholder card
+                        const cardId = 'img-' + response.data.request_uuid;
                         const card = document.createElement('div');
-                        card.className = 'image-card';
+                        card.className = 'image-card generating';
+                        card.id = cardId;
                         card.innerHTML = `
-                            <img src="${img.url}" alt="Generated image ${index + 1}">
-                            <div class="image-card-overlay">
-                                <div class="image-card-actions">
-                                    <button class="image-action-btn download" onclick="App.downloadFile('${img.url}', 'ai-image-${Date.now()}.png')">Download</button>
-                                </div>
+                            <div class="image-placeholder">
+                                <div class="spinner"></div>
+                                <p>Generating...</p>
                             </div>
                         `;
                         gallery.insertBefore(card, gallery.firstChild);
-                    });
 
-                    // Update credits
-                    App.updateCreditsDisplay();
-                    App.toast('Images generated successfully!', 'success');
-                } else {
-                    App.toast(response.error || 'Generation failed', 'error');
+                        // Poll for result
+                        App.pollGenerationStatus(
+                            response.data.request_uuid,
+                            // onUpdate
+                            (data) => {
+                                const el = document.getElementById(cardId);
+                                if (el && data.status === 'processing') {
+                                    el.querySelector('p').textContent = 'Processing...';
+                                }
+                            },
+                            // onComplete
+                            (resultUrl, data) => {
+                                const el = document.getElementById(cardId);
+                                if (el) {
+                                    el.classList.remove('generating');
+                                    el.innerHTML = `
+                                        <img src="${resultUrl}" alt="Generated image">
+                                        <div class="image-card-overlay">
+                                            <div class="image-card-actions">
+                                                <button class="image-action-btn download" onclick="App.downloadFile('${resultUrl}', 'ai-image-${Date.now()}.png')">Download</button>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                                App.toast('Image generated!', 'success');
+                            },
+                            // onError
+                            (error) => {
+                                const el = document.getElementById(cardId);
+                                if (el) {
+                                    el.classList.remove('generating');
+                                    el.classList.add('error');
+                                    el.innerHTML = `
+                                        <div class="image-placeholder error">
+                                            <span>❌</span>
+                                            <p>${error}</p>
+                                        </div>
+                                    `;
+                                }
+                                App.toast(error, 'error');
+                            }
+                        );
+
+                        // Update credits display
+                        App.updateCreditsDisplay();
+                    } else {
+                        App.toast(response.error || 'Generation failed', 'error');
+                    }
+                } catch (e) {
+                    App.toast('Failed to generate image', 'error');
                 }
-            } catch (e) {
-                App.toast('Failed to generate images', 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '🎨 Generate Images';
             }
+
+            btn.disabled = false;
+            btn.innerHTML = '🎨 Generate Images';
         }
     </script>
 </body>

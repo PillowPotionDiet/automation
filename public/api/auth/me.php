@@ -23,10 +23,12 @@
  * }
  */
 
+// Load config (handles path detection for different environments)
+require_once __DIR__ . '/../config.php';
+
 // Load dependencies
-require_once __DIR__ . '/../../../app/utils/Response.php';
-require_once __DIR__ . '/../../../app/middlewares/AuthMiddleware.php';
-require_once __DIR__ . '/../../../app/models/User.php';
+require_once APP_PATH . '/middlewares/AuthMiddleware.php';
+require_once APP_PATH . '/models/User.php';
 
 // Allow GET only
 Response::requireMethod('GET');

@@ -323,7 +323,8 @@ Example: A majestic eagle soaring through misty mountains at sunrise, golden lig
                 });
 
                 if (response.success) {
-                    generationId = response.data.generation_id;
+                    generationId = response.data.request_uuid;
+                    App.updateCreditsDisplay();
                     pollStatus();
                 } else {
                     App.toast(response.error || 'Generation failed', 'error');
@@ -337,47 +338,51 @@ Example: A majestic eagle soaring through misty mountains at sunrise, golden lig
             }
         }
 
-        async function pollStatus() {
+        function pollStatus() {
             let progress = 0;
             const progressFill = document.getElementById('progress-fill');
             const statusText = document.getElementById('status-text');
-
             const statuses = ['Initializing...', 'Processing prompt...', 'Generating frames...', 'Rendering video...', 'Almost done...'];
 
-            const interval = setInterval(async () => {
-                try {
-                    const response = await App.apiGet(`/api/webhook/status.php?id=${generationId}`);
+            // Simulate progress while waiting
+            const progressInterval = setInterval(() => {
+                progress = Math.min(progress + 5, 90);
+                progressFill.style.width = progress + '%';
+                statusText.textContent = statuses[Math.floor(progress / 20)] || 'Processing...';
+            }, 2000);
 
-                    if (response.success) {
-                        if (response.data.status === 'completed') {
-                            clearInterval(interval);
-                            progressFill.style.width = '100%';
-                            statusText.textContent = 'Complete!';
-
-                            // Show result
-                            document.getElementById('generation-status').classList.add('hidden');
-                            document.getElementById('result-container').classList.remove('hidden');
-                            document.getElementById('result-video').src = response.data.result_url;
-
-                            // Update credits
-                            App.updateCreditsDisplay();
-                            App.toast('Video generated successfully!', 'success');
-                        } else if (response.data.status === 'failed') {
-                            clearInterval(interval);
-                            App.toast('Generation failed: ' + (response.data.error || 'Unknown error'), 'error');
-                            document.getElementById('generate-btn').classList.remove('hidden');
-                            document.getElementById('generation-status').classList.add('hidden');
-                        } else {
-                            // Update progress
-                            progress = Math.min(progress + 10, 90);
-                            progressFill.style.width = progress + '%';
-                            statusText.textContent = statuses[Math.floor(progress / 20)] || 'Processing...';
-                        }
+            // Poll for actual status
+            App.pollGenerationStatus(
+                generationId,
+                // onUpdate
+                (data) => {
+                    if (data.status === 'processing') {
+                        statusText.textContent = 'Rendering video...';
                     }
-                } catch (e) {
-                    // Keep polling
-                }
-            }, 3000);
+                },
+                // onComplete
+                (resultUrl) => {
+                    clearInterval(progressInterval);
+                    progressFill.style.width = '100%';
+                    statusText.textContent = 'Complete!';
+
+                    // Show result
+                    setTimeout(() => {
+                        document.getElementById('generation-status').classList.add('hidden');
+                        document.getElementById('result-container').classList.remove('hidden');
+                        document.getElementById('result-video').src = resultUrl;
+                        App.toast('Video generated successfully!', 'success');
+                    }, 500);
+                },
+                // onError
+                (error) => {
+                    clearInterval(progressInterval);
+                    App.toast('Generation failed: ' + error, 'error');
+                    document.getElementById('generate-btn').classList.remove('hidden');
+                    document.getElementById('generation-status').classList.add('hidden');
+                },
+                5000 // Poll every 5 seconds for video
+            );
         }
 
         function downloadVideo() {

@@ -342,23 +342,68 @@ Tips:
                 });
 
                 if (response.success) {
-                    // Simulate progress for demo
-                    for (let i = 0; i < scenes.length; i++) {
-                        await new Promise(r => setTimeout(r, 3000));
-                        const el = document.getElementById(`scene-progress-${i}`);
-                        el.innerHTML = `
-                            <span style="color: var(--success); font-size: 1.25rem;">✓</span>
-                            <span>Scene ${i + 1}: Complete</span>
-                        `;
-                    }
-
-                    // Show result
-                    document.getElementById('progress-section').classList.add('hidden');
-                    document.getElementById('result-section').classList.remove('hidden');
-                    document.getElementById('final-video').src = response.data.video_url;
-
                     App.updateCreditsDisplay();
-                    App.toast('Video generated successfully!', 'success');
+
+                    // Track completion for each scene
+                    const sceneResults = response.data.scenes || [];
+                    let completedCount = 0;
+                    const completedVideos = [];
+
+                    sceneResults.forEach((sceneData, index) => {
+                        const progressEl = document.getElementById(`scene-progress-${index}`);
+
+                        if (sceneData.status === 'processing') {
+                            progressEl.innerHTML = `
+                                <div class="spinner" style="width: 24px; height: 24px; border-width: 3px;"></div>
+                                <span>Scene ${index + 1}: Processing...</span>
+                            `;
+
+                            // Poll for this scene's status
+                            App.pollGenerationStatus(
+                                sceneData.request_uuid,
+                                // onUpdate
+                                (data) => {
+                                    if (data.status === 'processing') {
+                                        progressEl.querySelector('span').textContent = `Scene ${index + 1}: Rendering...`;
+                                    }
+                                },
+                                // onComplete
+                                (resultUrl) => {
+                                    progressEl.innerHTML = `
+                                        <span style="color: var(--success); font-size: 1.25rem;">✓</span>
+                                        <span>Scene ${index + 1}: Complete</span>
+                                    `;
+                                    completedVideos[index] = resultUrl;
+                                    completedCount++;
+
+                                    // Check if all scenes are done
+                                    if (completedCount === sceneResults.length) {
+                                        showFinalResult(completedVideos);
+                                    }
+                                },
+                                // onError
+                                (error) => {
+                                    progressEl.innerHTML = `
+                                        <span style="color: var(--error); font-size: 1.25rem;">✕</span>
+                                        <span>Scene ${index + 1}: Failed - ${error}</span>
+                                    `;
+                                    completedCount++;
+
+                                    if (completedCount === sceneResults.length) {
+                                        showFinalResult(completedVideos);
+                                    }
+                                },
+                                5000
+                            );
+                        }
+                    });
+
+                    // Handle any failed scenes from the initial request
+                    if (response.data.errors && response.data.errors.length > 0) {
+                        response.data.errors.forEach(err => {
+                            App.toast(`Scene ${err.id} failed: ${err.error}`, 'error');
+                        });
+                    }
                 } else {
                     App.toast(response.error || 'Generation failed', 'error');
                     document.getElementById('generate-btn').classList.remove('hidden');
@@ -366,6 +411,24 @@ Tips:
                 }
             } catch (e) {
                 App.toast('Failed to generate video', 'error');
+                document.getElementById('generate-btn').classList.remove('hidden');
+                document.getElementById('progress-section').classList.add('hidden');
+            }
+        }
+
+        function showFinalResult(videos) {
+            // Filter out any null/undefined entries
+            const validVideos = videos.filter(v => v);
+
+            if (validVideos.length > 0) {
+                document.getElementById('progress-section').classList.add('hidden');
+                document.getElementById('result-section').classList.remove('hidden');
+
+                // Show first video (in production, would stitch all together)
+                document.getElementById('final-video').src = validVideos[0];
+                App.toast(`${validVideos.length} scenes generated successfully!`, 'success');
+            } else {
+                App.toast('All scenes failed to generate', 'error');
                 document.getElementById('generate-btn').classList.remove('hidden');
                 document.getElementById('progress-section').classList.add('hidden');
             }

@@ -539,7 +539,7 @@
 }
 
 /* =====================================================
-   Responsive
+   Responsive - Tablet (1024px)
    ===================================================== */
 @media (max-width: 1024px) {
     .hub-layout {
@@ -560,48 +560,271 @@
         max-width: 400px;
         margin: 0 auto 24px;
     }
+
+    .tools-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
+/* =====================================================
+   Responsive - Mobile (768px)
+   ===================================================== */
 @media (max-width: 768px) {
     .tools-hub-content {
-        padding-top: calc(var(--header-height) + 24px);
+        padding: calc(var(--header-height) + 20px) 16px 40px;
+    }
+
+    .welcome-section {
+        margin-bottom: 24px;
     }
 
     .welcome-section h1 {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
     }
 
     .welcome-section p {
-        font-size: 1rem;
+        font-size: 0.9375rem;
     }
 
     .quick-stats {
         grid-template-columns: 1fr 1fr;
-    }
-
-    .tools-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .tool-card-enhanced {
-        padding: 24px;
-    }
-}
-
-@media (max-width: 480px) {
-    .quick-stats {
-        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 24px;
     }
 
     .stat-card {
-        padding: 20px;
+        padding: 16px;
+        border-radius: 12px;
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+
+    .stat-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.25rem;
     }
 
     .stat-info h3 {
         font-size: 1.5rem;
     }
 
-    .quick-actions {
+    .stat-info p {
+        font-size: 0.75rem;
+    }
+
+    .tools-section-header {
+        margin-bottom: 16px;
+    }
+
+    .tools-section-header h2 {
+        font-size: 1.125rem;
+    }
+
+    .tools-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .tool-card-enhanced {
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+    .tool-card-header {
+        margin-bottom: 16px;
+    }
+
+    .tool-icon-large {
+        width: 52px;
+        height: 52px;
+        font-size: 1.5rem;
+        border-radius: 12px;
+    }
+
+    .tool-meta h3 {
+        font-size: 1.0625rem;
+    }
+
+    .tool-tag {
+        font-size: 0.6875rem;
+        padding: 3px 8px;
+    }
+
+    .tool-description {
+        font-size: 0.875rem;
+        margin-bottom: 16px;
+        line-height: 1.6;
+    }
+
+    .tool-footer {
+        padding-top: 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .tool-credits-info {
+        font-size: 0.8125rem;
+    }
+
+    .tool-btn {
+        padding: 8px 16px;
+        font-size: 0.8125rem;
+    }
+
+    .activity-section {
+        padding: 20px;
+        border-radius: 16px;
+    }
+
+    .activity-header {
+        margin-bottom: 16px;
+    }
+
+    .activity-header h2 {
+        font-size: 1.0625rem;
+    }
+
+    .activity-list {
+        gap: 12px;
+    }
+
+    .activity-item {
+        padding: 12px;
+        border-radius: 10px;
+        flex-wrap: wrap;
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .activity-info h4 {
+        font-size: 0.875rem;
+    }
+
+    .activity-info p {
+        font-size: 0.75rem;
+    }
+
+    .activity-status {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .credits-widget {
+        padding: 24px;
+        border-radius: 16px;
+        max-width: 100%;
+    }
+
+    .credits-widget-balance .amount {
+        font-size: 2.5rem;
+    }
+
+    .credits-widget-actions {
+        flex-direction: column;
+    }
+
+    .quick-actions {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        max-width: 100%;
+    }
+
+    .quick-action-btn {
+        padding: 12px 8px;
+        border-radius: 12px;
+    }
+
+    .quick-action-btn span:first-child {
+        font-size: 1.25rem;
+    }
+
+    .quick-action-btn span:last-child {
+        font-size: 0.6875rem;
+    }
+}
+
+/* =====================================================
+   Responsive - Small Mobile (480px)
+   ===================================================== */
+@media (max-width: 480px) {
+    .tools-hub-content {
+        padding: calc(var(--header-height) + 16px) 12px 32px;
+    }
+
+    .welcome-section h1 {
+        font-size: 1.25rem;
+    }
+
+    .welcome-section p {
+        font-size: 0.875rem;
+    }
+
+    .quick-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .stat-card {
+        padding: 12px;
+    }
+
+    .stat-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+
+    .stat-info h3 {
+        font-size: 1.25rem;
+    }
+
+    .tool-card-enhanced {
+        padding: 16px;
+    }
+
+    .tool-icon-large {
+        width: 44px;
+        height: 44px;
+        font-size: 1.25rem;
+    }
+
+    .tool-meta h3 {
+        font-size: 1rem;
+    }
+
+    .tool-description {
+        font-size: 0.8125rem;
+    }
+
+    .quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .quick-action-btn {
+        padding: 14px 10px;
+    }
+
+    .quick-action-btn span:last-child {
+        font-size: 0.75rem;
+    }
+
+    .activity-empty {
+        padding: 32px 16px;
+    }
+
+    .activity-empty-icon {
+        font-size: 2.5rem;
     }
 }

@@ -22,9 +22,11 @@
  * }
  */
 
+// Load config (handles path detection for different environments)
+require_once __DIR__ . '/../config.php';
+
 // Load dependencies
-require_once __DIR__ . '/../../../app/utils/Database.php';
-require_once __DIR__ . '/../../../app/utils/Response.php';
+require_once APP_PATH . '/utils/Database.php';
 
 // Set headers
 header('Content-Type: application/json');

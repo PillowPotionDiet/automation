@@ -485,3 +485,132 @@
 .theme-text-to-image .tooltip::after {
     border-top-color: var(--theme-primary);
 }
+
+/* =====================================================
+   Responsive - Tablet (768px)
+   ===================================================== */
+@media (max-width: 768px) {
+    .theme-text-to-image .image-prompt {
+        padding: 16px;
+        min-height: 80px;
+        font-size: 0.9375rem;
+    }
+
+    .theme-text-to-image .style-presets {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .theme-text-to-image .style-preset {
+        padding: 10px 8px;
+    }
+
+    .theme-text-to-image .style-preset-icon {
+        font-size: 1.25rem;
+        margin-bottom: 6px;
+    }
+
+    .theme-text-to-image .style-preset-name {
+        font-size: 0.75rem;
+    }
+
+    .theme-text-to-image .aspect-ratios {
+        gap: 8px;
+    }
+
+    .theme-text-to-image .aspect-ratio-btn {
+        padding: 12px 8px;
+    }
+
+    .theme-text-to-image .aspect-ratio-label {
+        font-size: 0.75rem;
+    }
+
+    .theme-text-to-image .image-gallery {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .theme-text-to-image .generation-status {
+        padding: 40px 16px;
+    }
+
+    .theme-text-to-image .generation-icon {
+        width: 64px;
+        height: 64px;
+        font-size: 1.5rem;
+    }
+
+    .theme-text-to-image .model-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .theme-text-to-image .model-option {
+        padding: 16px 12px;
+    }
+
+    .theme-text-to-image .model-option .model-name {
+        font-size: 0.875rem;
+    }
+}
+
+/* =====================================================
+   Responsive - Mobile (480px)
+   ===================================================== */
+@media (max-width: 480px) {
+    .theme-text-to-image .image-prompt {
+        padding: 14px;
+        min-height: 70px;
+        font-size: 0.875rem;
+        border-radius: 12px;
+    }
+
+    .theme-text-to-image .style-presets {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .theme-text-to-image .style-preset {
+        padding: 8px;
+        border-radius: 10px;
+    }
+
+    .theme-text-to-image .aspect-ratios {
+        flex-direction: column;
+    }
+
+    .theme-text-to-image .aspect-ratio-btn {
+        padding: 14px;
+        flex-direction: row;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .theme-text-to-image .aspect-ratio-preview {
+        margin-bottom: 0;
+    }
+
+    .theme-text-to-image .image-gallery {
+        grid-template-columns: 1fr;
+    }
+
+    .theme-text-to-image .image-card-overlay {
+        opacity: 1;
+        background: linear-gradient(transparent 60%, rgba(0,0,0,0.7));
+    }
+
+    .theme-text-to-image .image-action-btn {
+        padding: 8px;
+        font-size: 0.75rem;
+    }
+
+    .theme-text-to-image .generation-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 1.25rem;
+    }
+
+    .theme-text-to-image .model-grid {
+        grid-template-columns: 1fr;
+    }
+}

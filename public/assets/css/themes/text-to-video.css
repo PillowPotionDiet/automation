@@ -383,3 +383,121 @@
 .theme-text-to-video .tooltip::after {
     border-top-color: var(--theme-primary);
 }
+
+/* =====================================================
+   Responsive - Tablet (768px)
+   ===================================================== */
+@media (max-width: 768px) {
+    .theme-text-to-video .prompt-input {
+        padding: 16px;
+        padding-right: 16px;
+        min-height: 100px;
+        font-size: 0.9375rem;
+    }
+
+    .theme-text-to-video .prompt-actions {
+        position: static;
+        margin-top: 12px;
+        justify-content: flex-end;
+    }
+
+    .theme-text-to-video .settings-panel {
+        padding: 20px;
+    }
+
+    .theme-text-to-video .settings-panel h3 {
+        font-size: 0.9375rem;
+        margin-bottom: 16px;
+    }
+
+    .theme-text-to-video .setting-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 14px 0;
+    }
+
+    .theme-text-to-video .setting-value {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .theme-text-to-video .setting-btn {
+        flex: 1;
+        min-width: calc(33% - 6px);
+        text-align: center;
+        padding: 10px 12px;
+    }
+
+    .theme-text-to-video .duration-selector {
+        gap: 10px;
+    }
+
+    .theme-text-to-video .duration-option {
+        padding: 14px 10px;
+    }
+
+    .theme-text-to-video .duration-option .duration-time {
+        font-size: 1.25rem;
+    }
+
+    .theme-text-to-video .duration-option .duration-credits {
+        font-size: 0.75rem;
+    }
+}
+
+/* =====================================================
+   Responsive - Mobile (480px)
+   ===================================================== */
+@media (max-width: 480px) {
+    .theme-text-to-video .prompt-input {
+        padding: 14px;
+        min-height: 90px;
+        font-size: 0.875rem;
+        border-radius: 12px;
+    }
+
+    .theme-text-to-video .prompt-enhance-btn {
+        padding: 8px 14px;
+        font-size: 0.75rem;
+    }
+
+    .theme-text-to-video .settings-panel {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .theme-text-to-video .setting-label {
+        font-size: 0.875rem;
+    }
+
+    .theme-text-to-video .setting-btn {
+        font-size: 0.75rem;
+        padding: 8px 10px;
+    }
+
+    .theme-text-to-video .duration-selector {
+        flex-direction: column;
+    }
+
+    .theme-text-to-video .duration-option {
+        padding: 16px;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .theme-text-to-video .duration-option .duration-time {
+        font-size: 1.125rem;
+        margin-right: auto;
+    }
+
+    .theme-text-to-video .duration-option .duration-credits {
+        margin-top: 0;
+        margin-left: 12px;
+    }
+
+    .theme-text-to-video .generation-card {
+        border-radius: 12px;
+    }
+}

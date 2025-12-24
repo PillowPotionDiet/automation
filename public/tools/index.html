@@ -250,17 +250,17 @@
 
         async function loadRecentActivity() {
             try {
-                const response = await App.apiGet('/user/activity.php?limit=5');
-                if (response.success && response.data.length > 0) {
+                const response = await App.apiGet('/user/generations.php?limit=5');
+                if (response.success && response.data.generations && response.data.generations.length > 0) {
                     const list = document.getElementById('activity-list');
-                    list.innerHTML = response.data.map(item => `
+                    list.innerHTML = response.data.generations.map(item => `
                         <div class="activity-item">
-                            <div class="activity-icon ${item.type}">
-                                ${item.type === 'video' ? '🎬' : '🖼️'}
+                            <div class="activity-icon ${item.generation_type}">
+                                ${item.generation_type === 'video' ? '🎬' : '🖼️'}
                             </div>
                             <div class="activity-info">
-                                <h4>${item.tool_name}</h4>
-                                <p>${item.prompt.substring(0, 50)}...</p>
+                                <h4>${formatToolName(item.tool_type)}</h4>
+                                <p>${item.prompt ? item.prompt.substring(0, 50) + '...' : 'No prompt'}</p>
                             </div>
                             <div class="activity-status">
                                 <span class="badge badge-${item.status}">${item.status}</span>
@@ -268,10 +268,30 @@
                             </div>
                         </div>
                     `).join('');
+
+                    // Update stats
+                    const stats = response.data.statistics;
+                    document.getElementById('stat-videos').textContent = stats.video_count || 0;
+                    document.getElementById('stat-images').textContent = stats.image_count || 0;
+
+                    // Calculate time saved (approx 5 min per generation)
+                    const totalGen = stats.total_generations || 0;
+                    const hoursSaved = Math.round((totalGen * 5) / 60);
+                    document.getElementById('stat-saved').textContent = hoursSaved + 'h';
                 }
             } catch (e) {
-                // Keep empty state
+                console.error('Failed to load activity:', e);
             }
+        }
+
+        function formatToolName(toolType) {
+            const names = {
+                'text_to_image': 'Text to Image',
+                'text_to_video': 'Text to Video',
+                'script_to_video': 'Script to Video',
+                'youtube_story': 'YouTube Story'
+            };
+            return names[toolType] || toolType;
         }
     </script>
 </body>

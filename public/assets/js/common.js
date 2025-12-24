@@ -104,17 +104,88 @@ const App = {
         try {
             const response = await this.apiGet('/user/credits.php');
             if (response.success) {
-                this.user.credits = response.data.credits;
+                this.user.credits = response.data.balance;
                 localStorage.setItem('user', JSON.stringify(this.user));
 
                 const creditsEl = document.getElementById('credits-balance');
                 if (creditsEl) {
-                    creditsEl.textContent = this.formatNumber(response.data.credits);
+                    creditsEl.textContent = this.formatNumber(response.data.balance);
                 }
             }
         } catch (error) {
             console.error('Failed to update credits:', error);
         }
+    },
+
+    /**
+     * Poll for generation status
+     */
+    async pollGenerationStatus(requestUuid, onUpdate, onComplete, onError, interval = 3000) {
+        const poll = async () => {
+            try {
+                const response = await this.apiGet(`/tools/status.php?uuid=${requestUuid}`);
+
+                if (response.success) {
+                    const { status, result_url, error_message } = response.data;
+
+                    if (onUpdate) onUpdate(response.data);
+
+                    if (status === 'completed') {
+                        if (onComplete) onComplete(result_url, response.data);
+                        return;
+                    } else if (status === 'failed') {
+                        if (onError) onError(error_message || 'Generation failed');
+                        return;
+                    }
+
+                    // Continue polling
+                    setTimeout(poll, interval);
+                } else {
+                    if (onError) onError(response.error || 'Failed to check status');
+                }
+            } catch (error) {
+                console.error('Polling error:', error);
+                if (onError) onError('Network error while checking status');
+            }
+        };
+
+        poll();
+    },
+
+    /**
+     * Generate image via API
+     */
+    async generateImage(prompt, model = 'flux', aspectRatio = '1:1') {
+        const response = await this.apiPost('/tools/text-to-image.php', {
+            prompt,
+            model,
+            aspect_ratio: aspectRatio
+        });
+        return response;
+    },
+
+    /**
+     * Generate video via API
+     */
+    async generateVideo(prompt, model = 'kling-standard', duration = 5) {
+        const response = await this.apiPost('/tools/text-to-video.php', {
+            prompt,
+            model,
+            duration
+        });
+        return response;
+    },
+
+    /**
+     * Generate script-to-video via API
+     */
+    async generateScriptToVideo(title, scenes, model = 'kling-pro') {
+        const response = await this.apiPost('/tools/script-to-video.php', {
+            title,
+            scenes,
+            model
+        });
+        return response;
     },
 
     /**

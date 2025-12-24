@@ -558,18 +558,94 @@ body {
     margin-bottom: 4px;
 }
 
-/* RESPONSIVE */
+/* =====================================================
+   RESPONSIVE - Tablet (768px)
+   ===================================================== */
 @media (max-width: 768px) {
+    .container {
+        padding: 16px;
+    }
+
+    .header-content {
+        padding: 0 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    .header-nav {
+        gap: 8px;
+    }
+
+    .nav-link {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
     .step-indicator {
         overflow-x: auto;
+        padding: 20px 0;
+        margin-bottom: 24px;
+    }
+
+    .step-number {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+
+    .step-label {
+        font-size: 11px;
+    }
+
+    .step-line {
+        min-width: 40px;
+    }
+
+    .card {
+        padding: 20px;
+        border-radius: 10px;
+    }
+
+    .card-header h2 {
+        font-size: 20px;
+    }
+
+    .card-header p {
+        font-size: 13px;
     }
 
     .form-row {
         grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .form-label {
+        font-size: 14px;
+    }
+
+    .form-input,
+    .form-textarea,
+    .form-select {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+
+    .form-textarea {
+        min-height: 100px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 13px;
     }
 
     .btn-group {
         flex-direction: column;
+        margin-top: 20px;
     }
 
     .btn {
@@ -577,13 +653,271 @@ body {
         justify-content: center;
     }
 
+    .modal {
+        width: 95%;
+        max-height: 85vh;
+    }
+
+    .modal-header {
+        padding: 20px 20px 14px;
+    }
+
+    .modal-header h2 {
+        font-size: 18px;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .modal-footer {
+        padding: 14px 20px;
+        flex-direction: column;
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+    }
+
+    .toast {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        max-width: none;
+    }
+
+    .scene-card {
+        padding: 16px;
+    }
+
+    .scene-header {
+        margin-bottom: 12px;
+    }
+
+    .scene-number {
+        font-size: 14px;
+    }
+
+    .media-card {
+        padding: 14px;
+    }
+
+    .media-info {
+        font-size: 11px;
+    }
+
     .controls-bar {
         flex-direction: column;
+        padding: 14px 16px;
+        gap: 10px;
     }
 
     .controls-left,
     .controls-right {
         width: 100%;
         flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .controls-left .btn,
+    .controls-right .btn {
+        flex: 1;
+        min-width: calc(50% - 6px);
+    }
+
+    .badge {
+        padding: 3px 10px;
+        font-size: 11px;
+    }
+
+    .info-box {
+        padding: 14px;
+    }
+
+    .info-box h3 {
+        font-size: 13px;
+    }
+
+    .info-box p {
+        font-size: 12px;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* =====================================================
+   RESPONSIVE - Mobile (480px)
+   ===================================================== */
+@media (max-width: 480px) {
+    .container {
+        padding: 12px;
+    }
+
+    .header {
+        padding: 16px 0;
+        margin-bottom: 20px;
+    }
+
+    .header-content {
+        padding: 0 12px;
+    }
+
+    .logo {
+        font-size: 18px;
+    }
+
+    .header-nav {
+        gap: 6px;
+    }
+
+    .nav-link {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+
+    .step-indicator {
+        padding: 16px 0;
+        margin-bottom: 20px;
+    }
+
+    .step-number {
+        width: 32px;
+        height: 32px;
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .step-label {
+        font-size: 10px;
+    }
+
+    .step-line {
+        min-width: 30px;
+        margin: 0 6px;
+    }
+
+    .card {
+        padding: 16px;
+        margin-bottom: 16px;
+    }
+
+    .card-header {
+        margin-bottom: 16px;
+    }
+
+    .card-header h2 {
+        font-size: 18px;
+    }
+
+    .card-header p {
+        font-size: 12px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-label {
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .form-input,
+    .form-textarea,
+    .form-select {
+        padding: 10px 12px;
+        font-size: 14px;
+        border-radius: 6px;
+    }
+
+    .form-textarea {
+        min-height: 90px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+
+    .checkbox-group label {
+        font-size: 13px;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        font-size: 13px;
+        border-radius: 6px;
+    }
+
+    .btn-group {
+        margin-top: 16px;
+        gap: 10px;
+    }
+
+    .scene-card {
+        padding: 14px;
+        border-radius: 10px;
+    }
+
+    .scene-number {
+        font-size: 13px;
+    }
+
+    .media-card {
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .media-card img,
+    .media-card video {
+        border-radius: 6px;
+        margin-bottom: 10px;
+    }
+
+    .progress-bar {
+        height: 6px;
+        margin: 10px 0;
+    }
+
+    .controls-bar {
+        padding: 12px 14px;
+        border-radius: 10px;
+    }
+
+    .controls-left .btn,
+    .controls-right .btn {
+        min-width: 100%;
+    }
+
+    .badge {
+        padding: 2px 8px;
+        font-size: 10px;
+        border-radius: 10px;
+    }
+
+    .info-box {
+        padding: 12px;
+        border-radius: 6px;
+    }
+
+    .info-box h3 {
+        font-size: 12px;
+    }
+
+    .info-box p {
+        font-size: 11px;
+    }
+
+    .spinner {
+        width: 36px;
+        height: 36px;
+        border-width: 3px;
+    }
+
+    .loading-spinner p {
+        font-size: 14px;
     }
 }
