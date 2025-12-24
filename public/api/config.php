@@ -10,9 +10,10 @@
  */
 
 // Try to find the app folder (check multiple possible locations)
+// From public/api/config.php: ../../app goes to project root's app folder
 $possiblePaths = [
-    __DIR__ . '/../../../app',        // GitHub deploy: public/api/auth -> ../../../app (MAIN)
-    __DIR__ . '/../../app',           // Direct deploy: api/auth -> ../../app
+    __DIR__ . '/../../app',           // GitHub deploy: public/api -> ../../app (MAIN)
+    __DIR__ . '/../../../app',        // Alternative: in case of deeper nesting
     dirname($_SERVER['DOCUMENT_ROOT']) . '/app',  // Above document root
 ];
 
