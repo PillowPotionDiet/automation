@@ -1,0 +1,29 @@
+# =====================================================
+# Root .htaccess for Hostinger GitHub Deployment
+# Routes /public requests to the public folder
+# =====================================================
+
+# Enable rewrite engine
+RewriteEngine On
+
+# Set the base for rewrites
+RewriteBase /
+
+# If the request is for a file/directory inside public/, serve it directly
+# This handles: /public/api/auth/check.php -> public/api/auth/check.php
+RewriteCond %{REQUEST_URI} ^/public/(.*)$
+RewriteCond %{DOCUMENT_ROOT}/public/%1 -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/public/%1 -d
+RewriteRule ^public/(.*)$ public/$1 [L]
+
+# Handle PHP files in public/api/
+RewriteCond %{REQUEST_URI} ^/public/api/(.*)\.php$
+RewriteRule ^public/api/(.*)$ public/api/$1 [L]
+
+# Don't rewrite requests for existing files
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Don't rewrite requests for existing directories
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
