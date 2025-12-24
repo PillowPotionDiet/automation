@@ -4,8 +4,19 @@
  */
 
 const App = {
-    // API base URL
-    apiBase: '/api',
+    // Detect base path (handles /public/ deployment on Hostinger)
+    basePath: (() => {
+        const path = window.location.pathname;
+        if (path.startsWith('/public/')) {
+            return '/public';
+        }
+        return '';
+    })(),
+
+    // API base URL (with basePath prefix)
+    get apiBase() {
+        return this.basePath + '/api';
+    },
 
     // Current user
     user: null,
@@ -416,7 +427,7 @@ const App = {
             // Ignore errors
         }
         localStorage.removeItem('user');
-        window.location.href = '/auth/login.html';
+        window.location.href = this.basePath + '/auth/login.html';
     },
 
     /**
