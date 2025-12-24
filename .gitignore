@@ -2,8 +2,8 @@
 # AI Video Generator - Git Ignore
 # ==================================================
 
-# Environment variables (NEVER commit!)
-.env
+# Environment variables (kept for testing phase)
+# .env
 .env.local
 .env.production
 
