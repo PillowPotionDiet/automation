@@ -4,29 +4,20 @@
  */
 
 const Auth = {
-    // Detect base path (handles /public/ deployment on Hostinger)
-    basePath: (() => {
-        const path = window.location.pathname;
-        // If path starts with /public/, use /public as base
-        if (path.startsWith('/public/')) {
-            return '/public';
-        }
-        return '';
-    })(),
+    // Base path for Hostinger GitHub deployment (automation.pillowpotion.com/public/)
+    basePath: '/public',
 
-    // API endpoints (will be prefixed with basePath)
-    get endpoints() {
-        return {
-            login: this.basePath + '/api/auth/login.php',
-            signup: this.basePath + '/api/auth/signup.php',
-            logout: this.basePath + '/api/auth/logout.php',
-            forgotPassword: this.basePath + '/api/auth/forgot-password.php',
-            resetPassword: this.basePath + '/api/auth/reset-password.php',
-            verifyEmail: this.basePath + '/api/auth/verify-email.php',
-            resendVerification: this.basePath + '/api/auth/resend-verification.php',
-            checkAuth: this.basePath + '/api/auth/check.php',
-            refreshToken: this.basePath + '/api/auth/refresh.php'
-        };
+    // API endpoints
+    endpoints: {
+        login: '/public/api/auth/login.php',
+        signup: '/public/api/auth/signup.php',
+        logout: '/public/api/auth/logout.php',
+        forgotPassword: '/public/api/auth/forgot-password.php',
+        resetPassword: '/public/api/auth/reset-password.php',
+        verifyEmail: '/public/api/auth/verify-email.php',
+        resendVerification: '/public/api/auth/resend-verification.php',
+        checkAuth: '/public/api/auth/check.php',
+        refreshToken: '/public/api/auth/refresh.php'
     },
 
     /**

@@ -4,19 +4,11 @@
  */
 
 const App = {
-    // Detect base path (handles /public/ deployment on Hostinger)
-    basePath: (() => {
-        const path = window.location.pathname;
-        if (path.startsWith('/public/')) {
-            return '/public';
-        }
-        return '';
-    })(),
+    // Base path for Hostinger GitHub deployment (automation.pillowpotion.com/public/)
+    basePath: '/public',
 
-    // API base URL (with basePath prefix)
-    get apiBase() {
-        return this.basePath + '/api';
-    },
+    // API base URL
+    apiBase: '/public/api',
 
     // Current user
     user: null,
