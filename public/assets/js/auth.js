@@ -4,17 +4,29 @@
  */
 
 const Auth = {
-    // API endpoints
-    endpoints: {
-        login: '/api/auth/login.php',
-        signup: '/api/auth/signup.php',
-        logout: '/api/auth/logout.php',
-        forgotPassword: '/api/auth/forgot-password.php',
-        resetPassword: '/api/auth/reset-password.php',
-        verifyEmail: '/api/auth/verify-email.php',
-        resendVerification: '/api/auth/resend-verification.php',
-        checkAuth: '/api/auth/check.php',
-        refreshToken: '/api/auth/refresh.php'
+    // Detect base path (handles /public/ deployment on Hostinger)
+    basePath: (() => {
+        const path = window.location.pathname;
+        // If path starts with /public/, use /public as base
+        if (path.startsWith('/public/')) {
+            return '/public';
+        }
+        return '';
+    })(),
+
+    // API endpoints (will be prefixed with basePath)
+    get endpoints() {
+        return {
+            login: this.basePath + '/api/auth/login.php',
+            signup: this.basePath + '/api/auth/signup.php',
+            logout: this.basePath + '/api/auth/logout.php',
+            forgotPassword: this.basePath + '/api/auth/forgot-password.php',
+            resetPassword: this.basePath + '/api/auth/reset-password.php',
+            verifyEmail: this.basePath + '/api/auth/verify-email.php',
+            resendVerification: this.basePath + '/api/auth/resend-verification.php',
+            checkAuth: this.basePath + '/api/auth/check.php',
+            refreshToken: this.basePath + '/api/auth/refresh.php'
+        };
     },
 
     /**
@@ -170,9 +182,9 @@ const Auth = {
 
                 // Redirect based on role
                 if (data.data.user.role === 'admin') {
-                    window.location.href = '/admin/';
+                    window.location.href = this.basePath + '/admin/';
                 } else {
-                    window.location.href = '/tools/';
+                    window.location.href = this.basePath + '/tools/';
                 }
             } else {
                 this.showError(errorDiv, data.error || 'Login failed');
@@ -231,7 +243,7 @@ const Auth = {
 
             if (data.success) {
                 // Redirect to verification page
-                window.location.href = '/auth/verify-email.html?email=' + encodeURIComponent(email);
+                window.location.href = this.basePath + '/auth/verify-email.html?email=' + encodeURIComponent(email);
             } else {
                 this.showError(errorDiv, data.error || 'Signup failed');
             }
@@ -339,7 +351,7 @@ const Auth = {
 
             if (data.success) {
                 // Redirect to login with success message
-                window.location.href = '/auth/login.html?reset=success';
+                window.location.href = this.basePath + '/auth/login.html?reset=success';
             } else {
                 this.showError(errorDiv, data.error || 'Failed to reset password');
             }
@@ -432,7 +444,7 @@ const Auth = {
         }
 
         this.clearUser();
-        window.location.href = '/auth/login.html';
+        window.location.href = this.basePath + '/auth/login.html';
     },
 
     /**
@@ -514,7 +526,7 @@ const Auth = {
      */
     requireAuth() {
         if (!this.isLoggedIn()) {
-            window.location.href = '/auth/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+            window.location.href = this.basePath + '/auth/login.html?redirect=' + encodeURIComponent(window.location.pathname);
         }
     },
 
@@ -523,7 +535,7 @@ const Auth = {
      */
     requireAdmin() {
         if (!this.isAdmin()) {
-            window.location.href = '/tools/';
+            window.location.href = this.basePath + '/tools/';
         }
     }
 };
