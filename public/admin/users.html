@@ -280,9 +280,7 @@
                             <button class="action-btn" onclick="editUser('${user.id}')" title="Edit">✏️</button>
                             <button class="action-btn" onclick="addCreditsToUser('${user.email}')" title="Add Credits">💎</button>
                             ${user.role !== 'admin' ? `
-                                <button class="action-btn danger" onclick="suspendUser('${user.id}', '${user.status}')" title="${user.status === 'active' ? 'Suspend' : 'Activate'}">
-                                    ${user.status === 'active' ? '🚫' : '✓'}
-                                </button>
+                                <button class="action-btn danger" onclick="deleteUser(${user.id}, '${user.email}')" title="Delete User">🗑️</button>
                             ` : ''}
                         </div>
                     </td>
@@ -395,24 +393,23 @@
             }
         }
 
-        async function suspendUser(userId, currentStatus) {
-            const action = currentStatus === 'active' ? 'suspend' : 'activate';
-            if (!confirm(`Are you sure you want to ${action} this user?`)) return;
+        async function deleteUser(userId, email) {
+            if (!confirm(`Are you sure you want to DELETE user "${email}"?\n\nThis action cannot be undone!`)) return;
 
             try {
-                const response = await App.apiPut('/admin/users.php', {
-                    user_id: userId,
-                    status: currentStatus === 'active' ? 'suspended' : 'active'
+                const response = await App.apiPost('/admin/users.php', {
+                    action: 'delete',
+                    user_id: userId
                 });
 
                 if (response.success) {
-                    App.toast(`User ${action}ed successfully`, 'success');
+                    App.toast(`User "${email}" deleted successfully`, 'success');
                     loadUsers();
                 } else {
-                    App.toast(response.error, 'error');
+                    App.toast(response.message || response.error || 'Failed to delete user', 'error');
                 }
             } catch (e) {
-                App.toast(`Failed to ${action} user`, 'error');
+                App.toast('Failed to delete user', 'error');
             }
         }
 

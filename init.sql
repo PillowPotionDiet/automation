@@ -213,20 +213,18 @@ CREATE TABLE IF NOT EXISTS webhook_logs (
 
 -- =====================================================
 -- SEED: Admin User
--- Email: pillowpotion.com@gmail.com
--- Password: Ali547$$$
+-- Email: PillowPotion.com@gmail.com
+-- Password: Ayesha786$
 -- =====================================================
--- Generate password hash in PHP: password_hash('Ali547$$$', PASSWORD_BCRYPT, ['cost' => 12])
--- The hash below is a placeholder - generate actual hash when deploying
 
 INSERT INTO users (email, password_hash, role, credits, email_verified, api_key) VALUES
 (
     'pillowpotion.com@gmail.com',
-    '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4beL7Gw3cVZJVfHy', -- Change this hash!
+    '$2y$10$8K1p/a0dL1LXMIgoEDFrOOemTNgdQ0.VPXqB3rlHXHfBYLGXU1N9u',
     'admin',
     999999,
     TRUE,
-    NULL -- Admin will set their own API key
+    NULL
 );
 
 -- =====================================================
