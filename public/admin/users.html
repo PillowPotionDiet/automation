@@ -258,7 +258,7 @@
                             <div class="user-avatar">${user.email.charAt(0).toUpperCase()}</div>
                             <div class="user-details">
                                 <strong>${user.email}</strong>
-                                <span>${user.id.substring(0, 8)}...</span>
+                                <span>ID: ${user.id}</span>
                             </div>
                         </div>
                     </td>
@@ -269,8 +269,8 @@
                         </span>
                     </td>
                     <td>
-                        <span class="badge badge-${user.status === 'active' ? 'success' : 'danger'}">
-                            ${user.status}
+                        <span class="badge badge-${user.email_verified ? 'success' : 'warning'}">
+                            ${user.email_verified ? 'Verified' : 'Unverified'}
                         </span>
                     </td>
                     <td>${user.generation_count || 0}</td>
