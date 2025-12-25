@@ -117,14 +117,16 @@
         }
     </style>
 
-    <script src="../assets/js/common.js?v=2.2"></script>
     <script>
+        // API base path - works in any browser without dependencies
+        const API_BASE = '/public/api';
+
         document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
             const token = params.get('token');
             const email = params.get('email');
 
-            // If there's a token, verify it
+            // If there's a token, verify it immediately
             if (token) {
                 showView('verifying');
                 await verifyToken(token);
@@ -166,7 +168,8 @@
 
         async function verifyToken(token) {
             try {
-                const response = await fetch(App.getApiUrl('/auth/verify-email.php?token=' + encodeURIComponent(token)));
+                // Direct API call - works in any browser, any tab
+                const response = await fetch(API_BASE + '/auth/verify-email.php?token=' + encodeURIComponent(token));
                 const data = await response.json();
 
                 if (data.success) {
@@ -195,19 +198,25 @@
         document.getElementById('resend-verification')?.addEventListener('click', async () => {
             const email = document.getElementById('user-email').textContent;
             if (!email || email === 'your email') {
-                App.toast('Please enter your email address', 'error');
+                alert('Please enter your email address');
                 return;
             }
 
             try {
-                const response = await App.apiPost('/auth/resend-verification.php', { email });
-                if (response.success) {
-                    App.toast('Verification email sent!', 'success');
+                const response = await fetch(API_BASE + '/auth/resend-verification.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Verification email sent!');
                 } else {
-                    App.toast(response.message || response.error || 'Failed to send email', 'error');
+                    alert(data.message || data.error || 'Failed to send email');
                 }
             } catch (e) {
-                App.toast('Failed to resend verification email', 'error');
+                alert('Failed to resend verification email');
             }
         });
     </script>
