@@ -224,6 +224,8 @@
     padding-top: 20px;
     border-top: 1px solid var(--border-color);
     margin-top: auto;
+    gap: 12px;
+    flex-wrap: nowrap;
 }
 
 .tool-credits-info {
@@ -239,7 +241,7 @@
 }
 
 .tool-btn {
-    padding: 10px 20px;
+    padding: 10px 24px;
     background: var(--card-gradient);
     color: var(--white);
     border-radius: 10px;
@@ -248,6 +250,9 @@
     transition: all 0.3s ease;
     white-space: nowrap;
     flex-shrink: 0;
+    display: inline-block;
+    text-align: center;
+    min-width: fit-content;
 }
 
 .tool-btn:hover {
