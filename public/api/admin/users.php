@@ -174,6 +174,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 Response::success(null, 200, 'User deleted');
                 break;
 
+            case 'resend_verification':
+                if ($user['email_verified']) {
+                    Response::error('User is already verified', 400);
+                }
+
+                // Generate new verification token
+                require_once APP_PATH . '/services/AuthService.php';
+                require_once APP_PATH . '/services/EmailService.php';
+
+                $verificationToken = AuthService::generateSecureToken();
+
+                // Update user with new token
+                Database::execute(
+                    "UPDATE users SET verification_token = ? WHERE id = ?",
+                    [$verificationToken, $userId]
+                );
+
+                // Send verification email
+                $emailSent = EmailService::sendVerificationEmail($user['email'], $verificationToken);
+
+                if ($emailSent) {
+                    Response::success(null, 200, 'Verification email sent');
+                } else {
+                    Response::error('Failed to send verification email', 500);
+                }
+                break;
+
             default:
                 Response::validationError(['action' => 'Invalid action']);
         }

@@ -272,6 +272,11 @@
                         <span class="badge badge-${user.email_verified ? 'success' : 'warning'}">
                             ${user.email_verified ? 'Verified' : 'Unverified'}
                         </span>
+                        ${!user.email_verified ? `
+                            <button class="btn-link" onclick="sendVerificationEmail(${user.id}, '${user.email}')" style="display:block; font-size:11px; color:var(--primary); margin-top:4px; cursor:pointer; background:none; border:none;">
+                                📧 Send Verification
+                            </button>
+                        ` : ''}
                     </td>
                     <td>${user.generation_count || 0}</td>
                     <td>${App.formatDate(user.created_at)}</td>
@@ -410,6 +415,25 @@
                 }
             } catch (e) {
                 App.toast('Failed to delete user', 'error');
+            }
+        }
+
+        async function sendVerificationEmail(userId, email) {
+            if (!confirm(`Send verification email to "${email}"?`)) return;
+
+            try {
+                const response = await App.apiPost('/admin/users.php', {
+                    action: 'resend_verification',
+                    user_id: userId
+                });
+
+                if (response.success) {
+                    App.toast(`Verification email sent to ${email}`, 'success');
+                } else {
+                    App.toast(response.message || response.error || 'Failed to send email', 'error');
+                }
+            } catch (e) {
+                App.toast('Failed to send verification email', 'error');
             }
         }
 
