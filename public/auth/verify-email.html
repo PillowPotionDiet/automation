@@ -26,7 +26,8 @@
                     <h1>AI Video Generator</h1>
                 </div>
 
-                <div class="verify-content">
+                <!-- Check Email View (shown after signup) -->
+                <div class="verify-content" id="check-email-view">
                     <div class="verify-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></div>
                     <h2>Check Your Email</h2>
                     <p>
@@ -42,21 +43,173 @@
                     </div>
                 </div>
 
-                <div class="auth-footer" style="margin-top: 32px;">
+                <!-- Verifying View (shown while verifying token) -->
+                <div class="verify-content hidden" id="verifying-view">
+                    <div class="verify-icon" style="animation: pulse 1.5s infinite;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <h2>Verifying Your Email...</h2>
+                    <p>Please wait while we verify your email address.</p>
+                </div>
+
+                <!-- Success View -->
+                <div class="verify-content hidden" id="success-view">
+                    <div class="verify-icon" style="color: var(--success);">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
+                    <h2>Email Verified!</h2>
+                    <p id="success-message">Your email has been verified successfully.</p>
+                    <div id="credits-badge" class="credits-badge hidden">
+                        <span>+20 Credits Added!</span>
+                    </div>
+                    <div style="margin-top: 32px;">
+                        <a href="login.html" class="btn btn-primary" style="display: inline-block; padding: 12px 32px; text-decoration: none;">Login Now</a>
+                    </div>
+                </div>
+
+                <!-- Error View -->
+                <div class="verify-content hidden" id="error-view">
+                    <div class="verify-icon" style="color: var(--danger);">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                        </svg>
+                    </div>
+                    <h2>Verification Failed</h2>
+                    <p id="error-message">The verification link is invalid or has expired.</p>
+                    <div style="margin-top: 32px;">
+                        <a href="login.html" class="btn btn-secondary" style="display: inline-block; padding: 12px 32px; text-decoration: none; margin-right: 8px;">Login</a>
+                        <a href="signup.html" class="btn btn-primary" style="display: inline-block; padding: 12px 32px; text-decoration: none;">Sign Up Again</a>
+                    </div>
+                </div>
+
+                <div class="auth-footer" style="margin-top: 32px;" id="signup-footer">
                     <p>Wrong email? <a href="signup.html">Sign up again</a></p>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="../assets/js/auth.js?v=2.1"></script>
-    <script>
-        // Show email from URL
-        const params = new URLSearchParams(window.location.search);
-        const email = params.get('email');
-        if (email) {
-            document.getElementById('user-email').textContent = email;
+    <style>
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
+        .credits-badge {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.125rem;
+            margin-top: 16px;
+            display: inline-block;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+
+    <script src="../assets/js/common.js?v=2.2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+            const email = params.get('email');
+
+            // If there's a token, verify it
+            if (token) {
+                showView('verifying');
+                await verifyToken(token);
+            } else if (email) {
+                // Just showing "check your email" after signup
+                document.getElementById('user-email').textContent = email;
+                showView('check-email');
+            } else {
+                // No token or email, show check email view
+                showView('check-email');
+            }
+        });
+
+        function showView(view) {
+            // Hide all views
+            document.getElementById('check-email-view').classList.add('hidden');
+            document.getElementById('verifying-view').classList.add('hidden');
+            document.getElementById('success-view').classList.add('hidden');
+            document.getElementById('error-view').classList.add('hidden');
+            document.getElementById('signup-footer').classList.add('hidden');
+
+            // Show requested view
+            switch(view) {
+                case 'check-email':
+                    document.getElementById('check-email-view').classList.remove('hidden');
+                    document.getElementById('signup-footer').classList.remove('hidden');
+                    break;
+                case 'verifying':
+                    document.getElementById('verifying-view').classList.remove('hidden');
+                    break;
+                case 'success':
+                    document.getElementById('success-view').classList.remove('hidden');
+                    break;
+                case 'error':
+                    document.getElementById('error-view').classList.remove('hidden');
+                    break;
+            }
+        }
+
+        async function verifyToken(token) {
+            try {
+                const response = await fetch(App.getApiUrl('/auth/verify-email.php?token=' + encodeURIComponent(token)));
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('success-message').textContent = data.message || 'Your email has been verified successfully.';
+
+                    // Show credits badge if credits were added
+                    if (data.data && data.data.credits_added) {
+                        const badge = document.getElementById('credits-badge');
+                        badge.querySelector('span').textContent = '+' + data.data.credits_added + ' Credits Added!';
+                        badge.classList.remove('hidden');
+                    }
+
+                    showView('success');
+                } else {
+                    document.getElementById('error-message').textContent = data.message || data.error || 'The verification link is invalid or has expired.';
+                    showView('error');
+                }
+            } catch (e) {
+                console.error('Verification error:', e);
+                document.getElementById('error-message').textContent = 'An error occurred while verifying your email. Please try again.';
+                showView('error');
+            }
+        }
+
+        // Resend verification email handler
+        document.getElementById('resend-verification')?.addEventListener('click', async () => {
+            const email = document.getElementById('user-email').textContent;
+            if (!email || email === 'your email') {
+                App.toast('Please enter your email address', 'error');
+                return;
+            }
+
+            try {
+                const response = await App.apiPost('/auth/resend-verification.php', { email });
+                if (response.success) {
+                    App.toast('Verification email sent!', 'success');
+                } else {
+                    App.toast(response.message || response.error || 'Failed to send email', 'error');
+                }
+            } catch (e) {
+                App.toast('Failed to resend verification email', 'error');
+            }
+        });
     </script>
 </body>
 </html>
