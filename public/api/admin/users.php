@@ -164,6 +164,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                         ['amount' => $amount, 'reason' => $reason]
                     );
 
+                    // Send email notification to user (only for positive credits)
+                    if ($amount > 0) {
+                        require_once APP_PATH . '/services/EmailService.php';
+                        EmailService::sendAdminCreditAddedEmail(
+                            $user['email'],
+                            $amount,
+                            $result['new_balance'],
+                            $reason
+                        );
+                    }
+
                     Response::success([
                         'new_balance' => $result['new_balance']
                     ], 200, "Credits updated. New balance: {$result['new_balance']}");

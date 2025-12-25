@@ -144,6 +144,32 @@ class EmailService
     }
 
     /**
+     * Send admin credit added notification email
+     *
+     * @param string $toEmail
+     * @param int $credits
+     * @param int $newBalance
+     * @param string $reason
+     * @return bool
+     */
+    public static function sendAdminCreditAddedEmail(string $toEmail, int $credits, int $newBalance, string $reason = ''): bool
+    {
+        self::loadConfig();
+
+        $subject = "Credits Added to Your Account - AI Video Generator";
+
+        $body = self::getEmailTemplate('admin_credit_added', [
+            'email' => $toEmail,
+            'credits' => $credits,
+            'new_balance' => $newBalance,
+            'reason' => $reason ?: 'Admin credit adjustment',
+            'dashboard_url' => self::$config['app_url'] . '/tools/'
+        ]);
+
+        return self::send($toEmail, $subject, $body);
+    }
+
+    /**
      * Send email using SMTP
      *
      * @param string $to
@@ -516,6 +542,33 @@ class EmailService
         <p style="text-align: center; margin: 30px 0;">
             <a href="mailto:{{support_email}}" style="background: #6366f1; color: white; padding: 14px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">Contact Support</a>
         </p>
+    </div>
+</body>
+</html>',
+
+            'admin_credit_added' => '
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #10b981, #059669); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+        <h1 style="color: white; margin: 0;">Credits Added!</h1>
+    </div>
+    <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+        <h2 style="color: #1f2937;">You Have Received Credits</h2>
+        <p>Great news! Credits have been added to your account.</p>
+        <div style="background: #ecfdf5; border: 1px solid #10b981; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+            <p style="margin: 0; color: #059669; font-size: 32px; font-weight: bold;">+{{credits}} Credits</p>
+            <p style="margin: 10px 0 0; color: #6b7280; font-size: 14px;">New Balance: {{new_balance}} credits</p>
+        </div>
+        <p style="color: #4b5563;"><strong>Reason:</strong> {{reason}}</p>
+        <p style="text-align: center; margin: 30px 0;">
+            <a href="{{dashboard_url}}" style="background: #10b981; color: white; padding: 14px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">Go to Dashboard</a>
+        </p>
+        <p style="color: #6b7280; font-size: 14px;">Use your credits to generate amazing AI images and videos!</p>
     </div>
 </body>
 </html>'
