@@ -38,11 +38,13 @@ if ($envFile) {
                 $value = $matches[1];
             }
 
-            // Set environment variable
+            // Set environment variable (use $_ENV/$_SERVER directly to avoid putenv issues with special chars)
             if (!empty($key)) {
-                putenv("{$key}={$value}");
+                // putenv can have issues with special characters, so we escape them
                 $_ENV[$key] = $value;
                 $_SERVER[$key] = $value;
+                // For putenv, we need to be careful with special characters
+                putenv("{$key}=" . $value);
             }
         }
     }

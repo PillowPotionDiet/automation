@@ -60,6 +60,18 @@
                         Settings
                     </a>
                 </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Quick Access</div>
+                    <a href="../tools/" target="_blank" class="nav-item">
+                        <span class="nav-icon">🚀</span>
+                        Open Tools Page
+                    </a>
+                    <a href="#" onclick="logout()" class="nav-item">
+                        <span class="nav-icon">🚪</span>
+                        Logout
+                    </a>
+                </div>
             </nav>
 
             <div class="admin-sidebar-footer">
@@ -81,7 +93,7 @@
                     <p>Overview of your platform performance</p>
                 </div>
                 <div class="admin-header-right">
-                    <a href="../tools/" class="btn btn-secondary">View Site</a>
+                    <a href="../tools/" target="_blank" class="btn btn-secondary">🚀 Open Tools</a>
                     <button class="btn btn-primary" onclick="location.reload()">Refresh</button>
                 </div>
             </div>
@@ -343,6 +355,11 @@
 
         function toggleSidebar() {
             document.getElementById('admin-sidebar').classList.toggle('open');
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = '../auth/login.html';
         }
     </script>
 </body>
