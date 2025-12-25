@@ -18,6 +18,33 @@ require_once APP_PATH . '/middlewares/AdminMiddleware.php';
 $admin = AdminMiddleware::check();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Get single user by ID
+    if (isset($_GET['id'])) {
+        $userId = (int) $_GET['id'];
+        $user = Database::fetchOne(
+            "SELECT id, email, role, credits, email_verified, api_key, created_at, updated_at,
+                    (SELECT COUNT(*) FROM generations WHERE user_id = users.id) as generation_count
+             FROM users WHERE id = ?",
+            [$userId]
+        );
+
+        if (!$user) {
+            Response::notFound('User not found');
+        }
+
+        Response::success([
+            'id' => (int) $user['id'],
+            'email' => $user['email'],
+            'role' => $user['role'],
+            'credits' => (int) $user['credits'],
+            'email_verified' => (bool) $user['email_verified'],
+            'has_api_key' => !empty($user['api_key']),
+            'generation_count' => (int) $user['generation_count'],
+            'created_at' => $user['created_at'],
+            'updated_at' => $user['updated_at']
+        ]);
+    }
+
     // List users
     $limit = min(100, max(1, (int) ($_GET['limit'] ?? 20)));
     $offset = max(0, (int) ($_GET['offset'] ?? 0));
@@ -25,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $role = $_GET['role'] ?? null;
 
     try {
-        $where = ["role != 'admin'"];
+        $where = ["1=1"];
         $params = [];
 
         if ($search) {
@@ -88,9 +115,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     $action = $input['action'] ?? null;
     $userId = $input['user_id'] ?? null;
+    $email = $input['email'] ?? null;
+
+    // Allow lookup by email if user_id not provided
+    if (!$userId && $email) {
+        $userByEmail = Database::fetchOne("SELECT id FROM users WHERE email = ?", [$email]);
+        if ($userByEmail) {
+            $userId = $userByEmail['id'];
+        }
+    }
 
     if (!$userId) {
-        Response::validationError(['user_id' => 'User ID is required']);
+        Response::validationError(['user_id' => 'User ID or email is required']);
     }
 
     // Verify user exists

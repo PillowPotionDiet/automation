@@ -355,7 +355,8 @@
             const reason = document.getElementById('credits-reason').value;
 
             try {
-                const response = await App.apiPost('/admin/add-credits.php', {
+                const response = await App.apiPost('/admin/users.php', {
+                    action: 'add_credits',
                     email,
                     amount,
                     reason
@@ -366,7 +367,7 @@
                     closeModal('add-credits-modal');
                     loadUsers();
                 } else {
-                    App.toast(response.error, 'error');
+                    App.toast(response.message || response.error || 'Failed to add credits', 'error');
                 }
             } catch (e) {
                 App.toast('Failed to add credits', 'error');
