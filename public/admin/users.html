@@ -90,6 +90,9 @@
                     <h2>All Users</h2>
                     <div class="table-actions">
                         <input type="text" class="search-input" placeholder="Search by email..." id="search-input">
+                        <button class="btn btn-secondary" onclick="refreshUsers()" title="Refresh Users" style="margin-left: 8px;">
+                            🔄 Refresh
+                        </button>
                     </div>
                 </div>
                 <div class="table-container">
@@ -153,6 +156,22 @@
                     <button type="submit" class="btn btn-primary">Add Credits</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div class="admin-modal hidden" id="user-details-modal">
+        <div class="admin-modal-content" style="max-width: 500px;">
+            <div class="admin-modal-header">
+                <h2>User Details</h2>
+                <button class="modal-close" onclick="closeModal('user-details-modal')">×</button>
+            </div>
+            <div class="user-details-content" id="user-details-content">
+                <p style="text-align: center; padding: 24px;">Loading...</p>
+            </div>
+            <div class="admin-modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('user-details-modal')">Close</button>
+            </div>
         </div>
     </div>
 
@@ -282,6 +301,7 @@
                     <td>${App.formatDate(user.created_at)}</td>
                     <td>
                         <div class="action-btns">
+                            <button class="action-btn" onclick="viewUserDetails(${user.id})" title="View Details">👁️</button>
                             <button class="action-btn" onclick="editUser('${user.id}')" title="Edit">✏️</button>
                             <button class="action-btn" onclick="addCreditsToUser('${user.email}')" title="Add Credits">💎</button>
                             ${user.role !== 'admin' ? `
@@ -447,6 +467,66 @@
 
         function toggleSidebar() {
             document.getElementById('admin-sidebar').classList.toggle('open');
+        }
+
+        function refreshUsers() {
+            App.toast('Refreshing users...', 'info');
+            loadUsers();
+        }
+
+        async function viewUserDetails(userId) {
+            openModal('user-details-modal');
+            document.getElementById('user-details-content').innerHTML = '<p style="text-align: center; padding: 24px;">Loading...</p>';
+
+            try {
+                const response = await App.apiGet(`/admin/users.php?id=${userId}`);
+                if (response.success) {
+                    const user = response.data;
+                    document.getElementById('user-details-content').innerHTML = `
+                        <div style="padding: 16px 0;">
+                            <div style="text-align: center; margin-bottom: 24px;">
+                                <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin: 0 auto 12px;">
+                                    ${user.email.charAt(0).toUpperCase()}
+                                </div>
+                                <h3 style="margin: 0; font-size: 18px;">${user.email}</h3>
+                                <span class="badge badge-${user.role === 'admin' ? 'processing' : 'success'}" style="margin-top: 8px;">${user.role}</span>
+                            </div>
+                            <div style="display: grid; gap: 12px;">
+                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-50); border-radius: 8px;">
+                                    <span style="color: var(--text-secondary);">User ID</span>
+                                    <strong>${user.id}</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-50); border-radius: 8px;">
+                                    <span style="color: var(--text-secondary);">Credits Balance</span>
+                                    <strong>${App.formatNumber(user.credits)} 💎</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-50); border-radius: 8px;">
+                                    <span style="color: var(--text-secondary);">Email Status</span>
+                                    <span class="badge badge-${user.email_verified ? 'success' : 'warning'}">${user.email_verified ? 'Verified' : 'Unverified'}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-50); border-radius: 8px;">
+                                    <span style="color: var(--text-secondary);">Generations</span>
+                                    <strong>${user.generation_count || 0}</strong>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-50); border-radius: 8px;">
+                                    <span style="color: var(--text-secondary);">Joined</span>
+                                    <strong>${App.formatDate(user.created_at)}</strong>
+                                </div>
+                                ${user.last_login ? `
+                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-50); border-radius: 8px;">
+                                    <span style="color: var(--text-secondary);">Last Login</span>
+                                    <strong>${App.formatDate(user.last_login)}</strong>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('user-details-content').innerHTML = '<p style="text-align: center; padding: 24px; color: var(--danger);">Failed to load user details</p>';
+                }
+            } catch (e) {
+                document.getElementById('user-details-content').innerHTML = '<p style="text-align: center; padding: 24px; color: var(--danger);">Failed to load user details</p>';
+            }
         }
     </script>
 </body>
