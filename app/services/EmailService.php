@@ -39,7 +39,7 @@ class EmailService
     {
         self::loadConfig();
 
-        $verifyUrl = self::$config['app_url'] . '/verify-email.html?token=' . $verificationToken;
+        $verifyUrl = self::$config['app_url'] . '/auth/verify-email.html?token=' . $verificationToken;
 
         $subject = self::$config['subjects']['verification'];
 
@@ -62,7 +62,7 @@ class EmailService
     {
         self::loadConfig();
 
-        $resetUrl = self::$config['app_url'] . '/reset-password.html?token=' . $resetToken;
+        $resetUrl = self::$config['app_url'] . '/auth/reset-password.html?token=' . $resetToken;
 
         $subject = self::$config['subjects']['password_reset'];
 
@@ -86,7 +86,7 @@ class EmailService
         self::loadConfig();
 
         $subject = self::$config['subjects']['welcome'];
-        $loginUrl = self::$config['app_url'] . '/login.html';
+        $loginUrl = self::$config['app_url'] . '/auth/login.html';
 
         $body = self::getEmailTemplate('welcome', [
             'email' => $toEmail,
