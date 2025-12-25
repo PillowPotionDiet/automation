@@ -178,7 +178,13 @@ const Auth = {
                     window.location.href = this.basePath + '/tools/';
                 }
             } else {
-                this.showError(errorDiv, data.error || 'Login failed');
+                // Handle validation errors (errors object) or general error (message)
+                let errorMsg = data.message || data.error || 'Login failed';
+                if (data.errors) {
+                    const firstError = Object.values(data.errors)[0];
+                    if (firstError) errorMsg = firstError;
+                }
+                this.showError(errorDiv, errorMsg);
             }
         } catch (error) {
             console.error('Login error:', error);
@@ -236,7 +242,14 @@ const Auth = {
                 // Redirect to verification page
                 window.location.href = this.basePath + '/auth/verify-email.html?email=' + encodeURIComponent(email);
             } else {
-                this.showError(errorDiv, data.error || 'Signup failed');
+                // Handle validation errors (errors object) or general error (message)
+                let errorMsg = data.message || data.error || 'Signup failed';
+                if (data.errors) {
+                    // Get first validation error
+                    const firstError = Object.values(data.errors)[0];
+                    if (firstError) errorMsg = firstError;
+                }
+                this.showError(errorDiv, errorMsg);
             }
         } catch (error) {
             console.error('Signup error:', error);
