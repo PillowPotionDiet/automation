@@ -47,7 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     // List users
     $limit = min(100, max(1, (int) ($_GET['limit'] ?? 20)));
-    $offset = max(0, (int) ($_GET['offset'] ?? 0));
+    $page = max(1, (int) ($_GET['page'] ?? 1));
+    $offset = ($page - 1) * $limit;
     $search = $_GET['search'] ?? null;
     $role = $_GET['role'] ?? null;
 
@@ -68,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $whereClause = implode(' AND ', $where);
 
         // Get total count
-        $total = Database::fetchColumn(
+        $total = (int) Database::fetchColumn(
             "SELECT COUNT(*) FROM users WHERE {$whereClause}",
             $params
         );
@@ -78,7 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $params[] = $offset;
 
         $users = Database::fetchAll(
-            "SELECT id, email, role, credits, email_verified, api_key, created_at, updated_at
+            "SELECT id, email, role, credits, email_verified, api_key, created_at, updated_at,
+                    (SELECT COUNT(*) FROM generations WHERE user_id = users.id) as generation_count
              FROM users
              WHERE {$whereClause}
              ORDER BY created_at DESC
@@ -86,10 +88,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $params
         );
 
+        // Calculate pagination
+        $totalPages = (int) ceil($total / $limit);
+        $from = $total > 0 ? $offset + 1 : 0;
+        $to = min($offset + $limit, $total);
+
         Response::success([
-            'total' => (int) $total,
-            'limit' => $limit,
-            'offset' => $offset,
             'items' => array_map(function ($u) {
                 return [
                     'id' => (int) $u['id'],
@@ -98,10 +102,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     'credits' => (int) $u['credits'],
                     'email_verified' => (bool) $u['email_verified'],
                     'has_api_key' => !empty($u['api_key']),
+                    'generation_count' => (int) ($u['generation_count'] ?? 0),
                     'created_at' => $u['created_at'],
                     'updated_at' => $u['updated_at']
                 ];
-            }, $users)
+            }, $users),
+            'pagination' => [
+                'total' => $total,
+                'pages' => $totalPages,
+                'page' => $page,
+                'limit' => $limit,
+                'from' => $from,
+                'to' => $to
+            ]
         ]);
 
     } catch (Exception $e) {
@@ -196,6 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
             case 'set_api_key':
                 $apiKey = $input['api_key'] ?? null;
+                $notify = $input['notify'] ?? false;
 
                 User::setApiKey($userId, $apiKey);
 
@@ -205,6 +219,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     $userId,
                     ['has_key' => !empty($apiKey)]
                 );
+
+                // Send notification email if requested
+                if ($notify && !empty($apiKey)) {
+                    require_once APP_PATH . '/services/EmailService.php';
+                    EmailService::sendApiKeyAssignedEmail($user['email'], $apiKey);
+                }
 
                 Response::success(null, 200, 'API key updated');
                 break;
@@ -246,6 +266,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 } else {
                     Response::error('Failed to send verification email', 500);
                 }
+                break;
+
+            case 'edit':
+                // Edit user details (credits, role)
+                $updates = [];
+                $params = [];
+
+                // Update credits if provided
+                if (isset($input['credits'])) {
+                    $newCredits = (int) $input['credits'];
+                    if ($newCredits < 0) {
+                        Response::validationError(['credits' => 'Credits cannot be negative']);
+                    }
+
+                    // Calculate difference for logging
+                    $creditDiff = $newCredits - $user['credits'];
+
+                    $updates[] = 'credits = ?';
+                    $params[] = $newCredits;
+                }
+
+                // Update role if provided (only super admins in future, for now allow)
+                if (isset($input['role'])) {
+                    $newRole = $input['role'];
+                    if (!in_array($newRole, ['user', 'admin'])) {
+                        Response::validationError(['role' => 'Invalid role']);
+                    }
+                    $updates[] = 'role = ?';
+                    $params[] = $newRole;
+                }
+
+                if (empty($updates)) {
+                    Response::error('No fields to update', 400);
+                }
+
+                // Add user ID to params
+                $params[] = $userId;
+
+                Database::execute(
+                    "UPDATE users SET " . implode(', ', $updates) . " WHERE id = ?",
+                    $params
+                );
+
+                AdminMiddleware::logAction(
+                    $admin['user_id'],
+                    'edit_user',
+                    $userId,
+                    ['changes' => $input]
+                );
+
+                Response::success(null, 200, 'User updated successfully');
                 break;
 
             default:

@@ -282,10 +282,11 @@
         // Initialize step indicator (Step 4 in 6-step flow)
         document.getElementById('stepIndicator').innerHTML = Utils.createStepIndicator(4);
 
-        // Check if user has completed page 3 (Scene Prompts)
+        // Check if user has completed page 3, or initialize dummy data for testing
         if (!StateManager.hasCompletedPage(3)) {
-            Utils.showError('Please complete Step 3 first');
-            setTimeout(() => Utils.navigateTo('page3.html'), 2000);
+            // Initialize dummy data for direct URL access testing
+            DummyData.ensureDataForPage(4);
+            Utils.showSuccess('🧪 Test Mode: Loaded dummy data for testing');
         }
 
         // Get locked global state for reference images

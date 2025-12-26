@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeminiGen Automation - Step 1: Script Input</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=5.0">
+    <link rel="stylesheet" href="styles.css?v=6.0">
     <style>
         .brain-option {
             display: flex;
@@ -206,11 +206,13 @@
         </div>
     </div>
 
-    <!-- API & Webhook Validation Modal (NON-CLOSEABLE) -->
+    <!-- API & Webhook Validation Modal (NON-CLOSEABLE for regular users) -->
     <div id="validationModal" class="modal-overlay" style="display: none;">
         <div class="modal">
             <div class="modal-header">
                 <h2>🔑 API & Webhook Setup Required</h2>
+                <!-- Admin-only close button -->
+                <button id="adminCloseBtn" class="modal-close-btn" style="display: none;" onclick="closeValidationModal()">×</button>
             </div>
             <div class="modal-body">
                 <p style="margin-bottom: 20px;">
@@ -269,7 +271,7 @@
     <!-- Scripts -->
     <script src="state-manager.js?v=7.0"></script>
     <script src="api-handler.js?v=19.0"></script>
-    <script src="common.js?v=5.0"></script>
+    <script src="common.js?v=7.0"></script>
     <script src="geminigen-brain.js?v=1.0"></script>
     <script src="storyboard-brain.js?v=1.0"></script>
     <script>
@@ -293,10 +295,21 @@
         numParagraphsInput.addEventListener('input', updateEstimation);
         scenesPerParagraphInput.addEventListener('input', updateEstimation);
 
+        // Close validation modal (admin only)
+        function closeValidationModal() {
+            document.getElementById('validationModal').style.display = 'none';
+        }
+
         // Check if API key exists
         window.addEventListener('DOMContentLoaded', () => {
             const apiKey = StateManager.getApiKey();
             const webhookConfigured = StateManager.isWebhookConfigured();
+
+            // Check if user is admin - show close button
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            if (user && user.role === 'admin') {
+                document.getElementById('adminCloseBtn').style.display = 'block';
+            }
 
             if (!apiKey || !webhookConfigured) {
                 // Show validation modal

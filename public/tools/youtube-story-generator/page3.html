@@ -258,10 +258,11 @@
         // Initialize step indicator (Step 3 in 6-step flow)
         document.getElementById('stepIndicator').innerHTML = Utils.createStepIndicator(3);
 
-        // Check if user has completed page 2 (Identity Locking)
+        // Check if user has completed page 2, or initialize dummy data for testing
         if (!StateManager.hasCompletedPage(2)) {
-            Utils.showError('Please complete Step 2 (Identity Locking) first');
-            setTimeout(() => Utils.navigateTo('page2.html'), 2000);
+            // Initialize dummy data for direct URL access testing
+            DummyData.ensureDataForPage(3);
+            Utils.showSuccess('🧪 Test Mode: Loaded dummy data for testing');
         }
 
         // Get locked global state

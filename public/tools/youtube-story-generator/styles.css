@@ -337,11 +337,37 @@ body {
 .modal-header {
     padding: 24px 24px 16px;
     border-bottom: 1px solid var(--border-color);
+    position: relative;
 }
 
 .modal-header h2 {
     font-size: 20px;
     font-weight: 700;
+}
+
+/* Admin-only modal close button */
+.modal-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--error-color);
+    color: white;
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.modal-close-btn:hover {
+    background: #dc2626;
+    transform: scale(1.1);
 }
 
 .modal-body {

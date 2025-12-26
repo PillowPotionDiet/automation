@@ -422,10 +422,11 @@
         // Initialize step indicator (6 steps now)
         document.getElementById('stepIndicator').innerHTML = Utils.createStepIndicator(2);
 
-        // Check if user has completed page 1
+        // Check if user has completed page 1, or initialize dummy data for testing
         if (!StateManager.hasCompletedPage(1)) {
-            Utils.showError('Please complete Step 1 first');
-            setTimeout(() => Utils.navigateTo('index.html'), 2000);
+            // Initialize dummy data for direct URL access testing
+            DummyData.ensureDataForPage(2);
+            Utils.showSuccess('🧪 Test Mode: Loaded dummy data for testing');
         }
 
         // Get extracted data from previous step

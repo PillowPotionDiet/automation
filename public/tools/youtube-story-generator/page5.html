@@ -274,10 +274,11 @@
         // Initialize step indicator
         document.getElementById('stepIndicator').innerHTML = Utils.createStepIndicator(5);
 
-        // Check if user has completed page 4
+        // Check if user has completed page 4, or initialize dummy data for testing
         if (!StateManager.hasCompletedPage(4)) {
-            Utils.showError('Please complete Step 4 first');
-            setTimeout(() => Utils.navigateTo('page4.html'), 2000);
+            // Initialize dummy data for direct URL access testing
+            DummyData.ensureDataForPage(5);
+            Utils.showSuccess('🧪 Test Mode: Loaded dummy data for testing');
         }
 
         const scenes = StateManager.getScenes();

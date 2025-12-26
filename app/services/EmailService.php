@@ -144,6 +144,28 @@ class EmailService
     }
 
     /**
+     * Send API key assigned notification email
+     *
+     * @param string $toEmail
+     * @param string $apiKey
+     * @return bool
+     */
+    public static function sendApiKeyAssignedEmail(string $toEmail, string $apiKey): bool
+    {
+        self::loadConfig();
+
+        $subject = "GeminiGen API Key Assigned - AI Video Generator";
+
+        $body = self::getEmailTemplate('api_key_assigned', [
+            'email' => $toEmail,
+            'api_key' => $apiKey,
+            'dashboard_url' => self::$config['app_url'] . '/tools/youtube-story-generator/'
+        ]);
+
+        return self::send($toEmail, $subject, $body);
+    }
+
+    /**
      * Send admin credit added notification email
      *
      * @param string $toEmail
@@ -569,6 +591,33 @@ class EmailService
             <a href="{{dashboard_url}}" style="background: #10b981; color: white; padding: 14px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">Go to Dashboard</a>
         </p>
         <p style="color: #6b7280; font-size: 14px;">Use your credits to generate amazing AI images and videos!</p>
+    </div>
+</body>
+</html>',
+
+            'api_key_assigned' => '
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="background: linear-gradient(135deg, #6366f1, #8b5cf6); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+        <h1 style="color: white; margin: 0;">API Key Assigned!</h1>
+    </div>
+    <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+        <h2 style="color: #1f2937;">Your GeminiGen API Key is Ready</h2>
+        <p>Great news! A GeminiGen API key has been assigned to your account. You can now use the AI YouTube Story Generator tool.</p>
+        <div style="background: #f0f9ff; border: 1px solid #6366f1; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 0 0 10px; color: #6b7280; font-size: 14px;">Your API Key:</p>
+            <p style="margin: 0; color: #1f2937; font-size: 14px; font-family: monospace; word-break: break-all; background: #e0e7ff; padding: 12px; border-radius: 6px;">{{api_key}}</p>
+        </div>
+        <p style="color: #ef4444; font-size: 14px;"><strong>Important:</strong> Keep this API key secure and do not share it with anyone.</p>
+        <p style="text-align: center; margin: 30px 0;">
+            <a href="{{dashboard_url}}" style="background: #6366f1; color: white; padding: 14px 30px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">Start Creating Videos</a>
+        </p>
+        <p style="color: #6b7280; font-size: 14px;">The API key is already saved in your account settings. Just visit the YouTube Story Generator to start creating!</p>
     </div>
 </body>
 </html>'

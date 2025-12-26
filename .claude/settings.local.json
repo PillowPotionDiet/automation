@@ -14,7 +14,10 @@
       "Bash(php -r:*)",
       "Bash(node -e:*)",
       "Bash(ls -la \"e:\\\\Tool\\\\script-to-video-generator\\\\public\\\\logo\"\" 2>/dev/null || ls -la \"e:Toolscript-to-video-generatorlogo\"\")",
-      "Bash(ls -la \"e:\\\\Tool\\\\script-to-video-generator\\\\public\\\\assets\\\\images\"\" 2>/dev/null || echo \"Folder not found \")"
+      "Bash(ls -la \"e:\\\\Tool\\\\script-to-video-generator\\\\public\\\\assets\\\\images\"\" 2>/dev/null || echo \"Folder not found \")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd .env file for Hostinger deployment \\(testing phase\\)\n\n- Remove .env from gitignore temporarily\n- Include environment configuration for deployment\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd cache-busting query strings to JS files to bypass Cloudflare CDN cache\n\nAdded ?v=2.0 to all auth.js and common.js references in HTML files\nto force browsers to download the updated JavaScript files with the\ncorrect /public API paths instead of serving cached old versions.\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nFix error message display for API validation errors\n\n- Updated auth.js to properly parse validation errors from API response\n- API returns errors in ''errors'' object and ''message'' field, not ''error''\n- Now shows specific validation messages \\(e.g., \"Email already exists\"\\)\n- Bumped cache version to v=2.1\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }
