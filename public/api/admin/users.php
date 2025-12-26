@@ -115,6 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     'credits' => (int) $u['credits'],
                     'email_verified' => (bool) $u['email_verified'],
                     'has_api_key' => !empty($u['api_key']),
+                    'api_key' => $u['api_key'] ?? null,
                     'api_key_masked' => maskApiKey($u['api_key'] ?? null),
                     'generation_count' => (int) ($u['generation_count'] ?? 0),
                     'created_at' => $u['created_at'],
