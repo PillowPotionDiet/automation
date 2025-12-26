@@ -17,6 +17,18 @@ require_once APP_PATH . '/middlewares/AdminMiddleware.php';
 // Check admin access
 $admin = AdminMiddleware::check();
 
+/**
+ * Mask API key for display (show first 4 and last 4 characters)
+ */
+function maskApiKey($apiKey) {
+    if (empty($apiKey)) return null;
+    $len = strlen($apiKey);
+    if ($len <= 8) {
+        return str_repeat('•', $len);
+    }
+    return substr($apiKey, 0, 4) . str_repeat('•', $len - 8) . substr($apiKey, -4);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Get single user by ID
     if (isset($_GET['id'])) {
@@ -39,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'credits' => (int) $user['credits'],
             'email_verified' => (bool) $user['email_verified'],
             'has_api_key' => !empty($user['api_key']),
+            'api_key_masked' => maskApiKey($user['api_key'] ?? null),
             'generation_count' => (int) $user['generation_count'],
             'created_at' => $user['created_at'],
             'updated_at' => $user['updated_at']
@@ -102,6 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                     'credits' => (int) $u['credits'],
                     'email_verified' => (bool) $u['email_verified'],
                     'has_api_key' => !empty($u['api_key']),
+                    'api_key_masked' => maskApiKey($u['api_key'] ?? null),
                     'generation_count' => (int) ($u['generation_count'] ?? 0),
                     'created_at' => $u['created_at'],
                     'updated_at' => $u['updated_at']

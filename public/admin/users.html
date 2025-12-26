@@ -103,6 +103,7 @@
                                 <th>Credits</th>
                                 <th>Role</th>
                                 <th>Status</th>
+                                <th>API Key</th>
                                 <th>Generations</th>
                                 <th>Joined</th>
                                 <th>Actions</th>
@@ -110,7 +111,7 @@
                         </thead>
                         <tbody id="users-table">
                             <tr>
-                                <td colspan="7" style="text-align: center; padding: 48px;">
+                                <td colspan="8" style="text-align: center; padding: 48px;">
                                     Loading...
                                 </td>
                             </tr>
@@ -290,7 +291,7 @@
             if (!users || users.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 48px;">
+                        <td colspan="8" style="text-align: center; padding: 48px;">
                             No users found
                         </td>
                     </tr>
@@ -325,6 +326,20 @@
                             </button>
                         ` : ''}
                     </td>
+                    <td>
+                        ${user.has_api_key ? `
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <span class="badge badge-success" style="font-size: 11px;">✓ Assigned</span>
+                                <button class="action-btn" onclick="assignApiKey(${user.id}, '${user.email}', true)" title="Update API Key" style="font-size: 10px; padding: 2px 6px;">🔑</button>
+                            </div>
+                            <code style="display: block; font-size: 10px; color: var(--text-secondary); margin-top: 4px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${user.api_key_masked || ''}">${user.api_key_masked || '••••••••'}</code>
+                        ` : `
+                            <span class="badge badge-warning" style="font-size: 11px;">Not Set</span>
+                            <button class="btn-link" onclick="assignApiKey(${user.id}, '${user.email}', false)" style="display: block; font-size: 11px; color: var(--primary); margin-top: 4px; cursor: pointer; background: none; border: none;">
+                                + Assign Key
+                            </button>
+                        `}
+                    </td>
                     <td>${user.generation_count || 0}</td>
                     <td>${App.formatDate(user.created_at)}</td>
                     <td>
@@ -332,7 +347,6 @@
                             <button class="action-btn" onclick="viewUserDetails(${user.id})" title="View Details">👁️</button>
                             <button class="action-btn" onclick="editUser(${user.id})" title="Edit">✏️</button>
                             <button class="action-btn" onclick="addCreditsToUser('${user.email}')" title="Add Credits">💎</button>
-                            <button class="action-btn" onclick="assignApiKey(${user.id}, '${user.email}', ${user.has_api_key || false})" title="${user.has_api_key ? 'Update' : 'Assign'} GeminiGen API">🔑</button>
                             ${user.role !== 'admin' ? `
                                 <button class="action-btn danger" onclick="deleteUser(${user.id}, '${user.email}')" title="Delete User">🗑️</button>
                             ` : ''}
@@ -570,6 +584,14 @@
                                 <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-50); border-radius: 8px;">
                                     <span style="color: var(--text-secondary);">Email Status</span>
                                     <span class="badge badge-${user.email_verified ? 'success' : 'warning'}">${user.email_verified ? 'Verified' : 'Unverified'}</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-50); border-radius: 8px;">
+                                    <span style="color: var(--text-secondary);">API Key</span>
+                                    ${user.has_api_key ? `
+                                        <span><span class="badge badge-success" style="font-size: 11px;">Assigned</span> <code style="font-size: 11px; margin-left: 4px;">${user.api_key_masked || '••••'}</code></span>
+                                    ` : `
+                                        <span class="badge badge-warning" style="font-size: 11px;">Not Set</span>
+                                    `}
                                 </div>
                                 <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--gray-50); border-radius: 8px;">
                                     <span style="color: var(--text-secondary);">Generations</span>
