@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $userId = (int) $_GET['id'];
         $user = Database::fetchOne(
             "SELECT id, email, role, credits, email_verified, api_key, created_at, updated_at,
-                    (SELECT COUNT(*) FROM generations WHERE user_id = users.id) as generation_count
+                    (SELECT COUNT(*) FROM generation_logs WHERE user_id = users.id) as generation_count
              FROM users WHERE id = ?",
             [$userId]
         );
@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         $users = Database::fetchAll(
             "SELECT id, email, role, credits, email_verified, api_key, created_at, updated_at,
-                    (SELECT COUNT(*) FROM generations WHERE user_id = users.id) as generation_count
+                    (SELECT COUNT(*) FROM generation_logs WHERE user_id = users.id) as generation_count
              FROM users
              WHERE {$whereClause}
              ORDER BY created_at DESC
