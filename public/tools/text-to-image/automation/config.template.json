@@ -1,0 +1,16 @@
+{
+  "google_email": "your-email@gmail.com",
+  "google_password": "your-password",
+  "prompts": [
+    "A magical forest with glowing mushrooms, fantasy art, 8k ultra detailed",
+    "A golden dragon in a crystal cave, cinematic lighting, epic fantasy",
+    "A futuristic city at sunset, cyberpunk style, neon lights"
+  ],
+  "settings": {
+    "headless": false,
+    "images_per_prompt": 1,
+    "timeout": 120,
+    "delay_between_prompts": 5,
+    "target_url": "https://labs.google/fx/tools/image-fx"
+  }
+}
