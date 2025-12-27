@@ -17,60 +17,138 @@
             --warning-color: #f59e0b;
         }
 
-        .info-banner {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            border-radius: 12px;
-            padding: 20px 24px;
-            margin-bottom: 24px;
+        /* Wizard Steps */
+        .wizard-container {
+            max-width: 700px;
+            margin: 0 auto;
         }
 
-        .info-banner h3 {
-            color: var(--theme-primary);
-            margin-bottom: 8px;
-            display: flex;
+        .step-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .step-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .step-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .step-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .step-description {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, var(--theme-primary) 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .next-btn {
+            display: inline-flex;
             align-items: center;
             gap: 8px;
+            padding: 14px 32px;
+            background: var(--theme-primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 20px;
         }
 
-        .info-banner p {
+        .next-btn:hover {
+            background: var(--theme-primary-hover);
+        }
+
+        .skip-link {
+            display: block;
+            margin-top: 16px;
             color: var(--text-secondary);
             font-size: 14px;
-            margin-bottom: 4px;
+            cursor: pointer;
         }
 
-        .info-banner code {
-            background: rgba(0,0,0,0.1);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 13px;
+        .skip-link:hover {
+            color: var(--theme-primary);
         }
 
-        .form-section {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-
-        .form-section h2 {
-            font-size: 18px;
-            margin-bottom: 16px;
+        /* Step Indicators */
+        .steps-indicator {
             display: flex;
-            align-items: center;
+            justify-content: center;
             gap: 8px;
+            margin-bottom: 30px;
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            background: var(--theme-primary);
+            transform: scale(1.2);
+        }
+
+        .step-dot.completed {
+            background: var(--success-color);
+        }
+
+        /* Form Styles */
+        .form-section {
+            text-align: left;
+            margin-top: 30px;
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
@@ -82,58 +160,71 @@
 
         .form-input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 14px 18px;
             border: 2px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 14px;
+            border-radius: 10px;
+            font-size: 15px;
             transition: all 0.2s;
         }
 
         .form-input:focus {
             outline: none;
             border-color: var(--theme-primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
         }
 
         .checkbox-group {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin: 12px 0;
+            padding: 14px 18px;
+            background: var(--bg-color);
+            border-radius: 10px;
+            cursor: pointer;
         }
 
         .checkbox-group input {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
+            width: 20px;
+            height: 20px;
         }
 
-        .checkbox-group label {
-            cursor: pointer;
-            font-size: 14px;
-            margin: 0;
+        /* Prompts List */
+        .prompts-container {
+            margin-top: 20px;
+        }
+
+        .prompt-input-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .prompt-input-row input {
+            flex: 1;
         }
 
         .prompts-list {
             list-style: none;
             padding: 0;
-            margin: 12px 0 0 0;
+            margin: 0;
+            max-height: 250px;
+            overflow-y: auto;
         }
 
         .prompt-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 16px;
+            padding: 14px 18px;
             background: var(--bg-color);
-            border-radius: 8px;
+            border-radius: 10px;
             margin-bottom: 8px;
         }
 
         .prompt-item .num {
             font-weight: 700;
             color: var(--theme-primary);
-            min-width: 24px;
+            min-width: 28px;
         }
 
         .prompt-item .text {
@@ -146,119 +237,112 @@
             border: none;
             color: var(--error-color);
             cursor: pointer;
-            font-size: 20px;
+            font-size: 22px;
             padding: 0 8px;
-            opacity: 0.7;
-            transition: opacity 0.2s;
+            opacity: 0.6;
         }
 
         .prompt-item .remove:hover {
             opacity: 1;
         }
 
-        .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-        }
-
-        .setting-item {
-            padding: 14px 16px;
-            background: var(--bg-color);
-            border-radius: 8px;
-        }
-
-        .setting-item label {
+        .quick-actions {
             display: flex;
-            align-items: center;
             gap: 10px;
-            font-size: 14px;
-            margin: 0;
+            margin-top: 12px;
         }
 
-        .setting-item input[type="number"] {
-            width: 70px;
-            padding: 8px;
-            border: 2px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 14px;
+        .quick-actions button {
+            padding: 8px 16px;
+            font-size: 13px;
         }
 
-        .btn-row {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-top: 8px;
-        }
-
-        .btn-large {
-            padding: 14px 28px;
-            font-size: 15px;
-        }
-
-        .status-box {
-            padding: 14px 18px;
-            border-radius: 8px;
+        /* Gallery */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
             margin-top: 20px;
-            display: none;
         }
 
-        .status-box.success {
-            display: block;
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
-            border: 1px solid rgba(16, 185, 129, 0.2);
+        .gallery-item {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.2s;
         }
 
-        .status-box.error {
-            display: block;
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--error-color);
-            border: 1px solid rgba(239, 68, 68, 0.2);
+        .gallery-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
 
-        .instructions-section {
-            margin-top: 32px;
+        .gallery-item img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
         }
 
-        .instruction-step {
-            background: rgba(99, 102, 241, 0.05);
-            border-left: 4px solid var(--theme-primary);
+        .gallery-item-info {
+            padding: 12px;
+        }
+
+        .gallery-item-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .empty-gallery {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-gallery .icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Info Box */
+        .info-box {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
             padding: 16px 20px;
-            border-radius: 0 8px 8px 0;
-            margin-bottom: 12px;
+            margin-top: 20px;
+            text-align: left;
         }
 
-        .instruction-step h4 {
-            font-size: 14px;
-            margin-bottom: 8px;
-            color: var(--theme-primary);
-        }
-
-        .instruction-step p {
+        .info-box p {
             font-size: 13px;
             color: var(--text-secondary);
-            margin-bottom: 4px;
+            margin: 4px 0;
         }
 
-        .instruction-step.warning {
-            background: rgba(245, 158, 11, 0.05);
-            border-left-color: var(--warning-color);
+        .info-box code {
+            background: rgba(0,0,0,0.08);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
         }
 
-        .instruction-step.warning h4 {
-            color: var(--warning-color);
-        }
-
+        /* Responsive */
         @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
+            .step-card {
+                padding: 30px 20px;
             }
-            .btn-row {
-                flex-direction: column;
+            .step-title {
+                font-size: 24px;
             }
-            .btn-row .btn {
-                width: 100%;
+            .download-btn {
+                padding: 14px 28px;
+                font-size: 16px;
             }
         }
     </style>
@@ -286,164 +370,222 @@
 
     <!-- Main Content -->
     <div class="page-wrapper">
-        <div class="tools-hub-content" style="max-width: 900px;">
+        <div class="tools-hub-content wizard-container">
 
-            <!-- Info Banner -->
-            <div class="info-banner">
-                <h3>🤖 Google Flow (ImageFX) Browser Automation</h3>
-                <p>Generate images using your Google account via browser automation.</p>
-                <p>Configure your settings below, save the config, then run <code>run.bat</code> to start generating.</p>
+            <!-- Step Indicators -->
+            <div class="steps-indicator">
+                <div class="step-dot active" data-step="1"></div>
+                <div class="step-dot" data-step="2"></div>
+                <div class="step-dot" data-step="3"></div>
+                <div class="step-dot" data-step="4"></div>
+                <div class="step-dot" data-step="5"></div>
             </div>
 
-            <!-- Login Section -->
-            <div class="form-section">
-                <h2>🔐 Google Login</h2>
-                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">
-                    Enter credentials for auto-login, or use manual login mode to login in the browser yourself.
-                </p>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="email" class="form-input" placeholder="your-email@gmail.com">
+            <!-- Step 1: Download App -->
+            <div class="step-section active" id="step-1">
+                <div class="step-card">
+                    <div class="step-icon">📥</div>
+                    <h2 class="step-title">Download the App</h2>
+                    <p class="step-description">
+                        To generate images using Google Flow, you need our desktop app.<br>
+                        It runs locally on your computer for security.
+                    </p>
+                    <a href="automation/TextToImage.exe" download class="download-btn">
+                        ⬇️ Download TextToImage.exe
+                    </a>
+                    <button class="next-btn" onclick="nextStep(2)">
+                        I've Downloaded → Next
+                    </button>
+                    <div class="info-box">
+                        <p>📌 <strong>One-time download</strong> - You only need to download this once.</p>
+                        <p>🔒 <strong>Safe & Local</strong> - The app runs on your computer, your data stays with you.</p>
                     </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" id="password" class="form-input" placeholder="••••••••">
-                    </div>
-                </div>
-
-                <div class="checkbox-group">
-                    <input type="checkbox" id="manual-login">
-                    <label for="manual-login">Use manual login (opens browser for you to login)</label>
-                </div>
-            </div>
-
-            <!-- Prompts Section -->
-            <div class="form-section">
-                <h2>✨ Image Prompts</h2>
-                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">
-                    Add prompts to generate images for. Each prompt will create one image.
-                </p>
-
-                <div class="form-group">
-                    <label>Add Prompt</label>
-                    <div style="display: flex; gap: 12px;">
-                        <input type="text" id="new-prompt" class="form-input" style="flex: 1;"
-                            placeholder="A magical forest with glowing mushrooms, fantasy art, 8k ultra detailed">
-                        <button class="btn btn-primary" onclick="addPrompt()">Add</button>
-                    </div>
-                </div>
-
-                <ul id="prompts-list" class="prompts-list"></ul>
-
-                <div style="display: flex; gap: 12px; margin-top: 16px;">
-                    <button class="btn btn-secondary" onclick="clearPrompts()">Clear All</button>
-                    <button class="btn btn-secondary" onclick="addSamples()">Add Sample Prompts</button>
                 </div>
             </div>
 
-            <!-- Settings Section -->
-            <div class="form-section">
-                <h2>⚙️ Settings</h2>
-                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 16px;">
-                    Configure automation behavior.
-                </p>
+            <!-- Step 2: Google Login -->
+            <div class="step-section" id="step-2">
+                <div class="step-card">
+                    <div class="step-icon">🔐</div>
+                    <h2 class="step-title">Google Login</h2>
+                    <p class="step-description">
+                        Enter your Google credentials to login automatically,<br>
+                        or use manual login to sign in yourself.
+                    </p>
 
-                <div class="settings-grid">
-                    <div class="setting-item">
-                        <label>
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="email" class="form-input" placeholder="your-email@gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="password" class="form-input" placeholder="••••••••">
+                        </div>
+                        <label class="checkbox-group">
+                            <input type="checkbox" id="manual-login">
+                            <span>Use manual login (I'll login in the browser myself)</span>
+                        </label>
+                    </div>
+
+                    <button class="next-btn" onclick="nextStep(3)">
+                        Next → Add Prompts
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Add Prompts -->
+            <div class="step-section" id="step-3">
+                <div class="step-card">
+                    <div class="step-icon">✨</div>
+                    <h2 class="step-title">Add Your Prompts</h2>
+                    <p class="step-description">
+                        Enter the image descriptions you want to generate.
+                    </p>
+
+                    <div class="prompts-container">
+                        <div class="prompt-input-row">
+                            <input type="text" id="new-prompt" class="form-input"
+                                placeholder="A magical forest with glowing mushrooms...">
+                            <button class="btn btn-primary" onclick="addPrompt()">Add</button>
+                        </div>
+
+                        <ul id="prompts-list" class="prompts-list"></ul>
+
+                        <div class="quick-actions">
+                            <button class="btn btn-secondary" onclick="addSamples()">+ Add Samples</button>
+                            <button class="btn btn-secondary" onclick="clearPrompts()">Clear All</button>
+                        </div>
+                    </div>
+
+                    <button class="next-btn" onclick="nextStep(4)" id="prompts-next-btn" disabled>
+                        Next → Settings
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 4: Settings & Run -->
+            <div class="step-section" id="step-4">
+                <div class="step-card">
+                    <div class="step-icon">🚀</div>
+                    <h2 class="step-title">Ready to Generate!</h2>
+                    <p class="step-description">
+                        Click the button below to save your config and start generating.
+                    </p>
+
+                    <div class="form-section">
+                        <label class="checkbox-group" style="margin-bottom: 12px;">
                             <input type="checkbox" id="headless">
-                            Run headless (hidden browser)
+                            <span>Run in background (hidden browser)</span>
                         </label>
                     </div>
-                    <div class="setting-item">
-                        <label>
-                            Timeout (sec):
-                            <input type="number" id="timeout" value="120" min="30" max="300">
-                        </label>
+
+                    <button class="download-btn" onclick="downloadAndRun()">
+                        💾 Download Config & Run App
+                    </button>
+
+                    <div class="info-box">
+                        <p>1️⃣ Click the button above to download <code>config.json</code></p>
+                        <p>2️⃣ Place it in the same folder as <code>TextToImage.exe</code></p>
+                        <p>3️⃣ Run <code>TextToImage.exe</code></p>
+                        <p>4️⃣ Come back here to see your images!</p>
                     </div>
-                    <div class="setting-item">
-                        <label>
-                            Delay between prompts (sec):
-                            <input type="number" id="delay" value="5" min="1" max="30">
-                        </label>
+
+                    <button class="next-btn" onclick="nextStep(5)" style="margin-top: 30px;">
+                        I've Run the App → View Gallery
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 5: Gallery -->
+            <div class="step-section" id="step-5">
+                <div class="step-card">
+                    <div class="step-icon">🖼️</div>
+                    <h2 class="step-title">Your Generated Images</h2>
+                    <p class="step-description">
+                        Images generated by the app will appear here.
+                    </p>
+
+                    <div style="display: flex; gap: 12px; justify-content: center; margin-bottom: 20px;">
+                        <button class="btn btn-secondary" onclick="refreshGallery()">🔄 Refresh</button>
+                        <button class="btn btn-secondary" onclick="goToStep(1)">+ Generate More</button>
+                    </div>
+
+                    <div id="gallery-container">
+                        <div class="empty-gallery">
+                            <div class="icon">🖼️</div>
+                            <h3>No images yet</h3>
+                            <p>Run the app to generate images, then click Refresh</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Actions -->
-            <div class="form-section">
-                <div class="btn-row">
-                    <button class="btn btn-success btn-large" onclick="saveConfig()">💾 Save Configuration</button>
-                    <button class="btn btn-primary btn-large" onclick="downloadConfig()">⬇️ Download config.json</button>
-                </div>
-
-                <div id="status" class="status-box"></div>
-            </div>
-
-            <!-- Instructions -->
-            <div class="instructions-section">
-                <h2 style="margin-bottom: 16px;">📖 How to Use</h2>
-
-                <div class="instruction-step">
-                    <h4>Step 1: Initial Setup (One Time)</h4>
-                    <p>1. Navigate to the <code>automation</code> folder in this project</p>
-                    <p>2. Run <code>setup.bat</code> to install Python and dependencies</p>
-                    <p>3. Wait for installation to complete</p>
-                </div>
-
-                <div class="instruction-step">
-                    <h4>Step 2: Configure</h4>
-                    <p>1. Fill in your Google credentials above (or check "manual login")</p>
-                    <p>2. Add your image prompts using the form above</p>
-                    <p>3. Adjust settings if needed</p>
-                    <p>4. Click "Download config.json"</p>
-                    <p>5. Place <code>config.json</code> in the <code>automation</code> folder</p>
-                </div>
-
-                <div class="instruction-step">
-                    <h4>Step 3: Run</h4>
-                    <p>1. Double-click <code>run.bat</code> in the automation folder</p>
-                    <p>2. If using 2FA, complete verification when prompted</p>
-                    <p>3. Wait for images to generate</p>
-                    <p>4. Images are saved in <code>automation/output/images/</code></p>
-                </div>
-
-                <div class="instruction-step warning">
-                    <h4>⚠️ Important Notes</h4>
-                    <p>• Your credentials are stored locally in config.json - keep it safe!</p>
-                    <p>• Never share your config.json file with anyone</p>
-                    <p>• Google may require 2FA verification during automation</p>
-                    <p>• If headless mode fails, try with browser visible</p>
-                </div>
-            </div>
         </div>
     </div>
 
     <script src="../../assets/js/common.js?v=2.0"></script>
     <script>
+        let currentStep = 1;
         let prompts = [];
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Check login (optional - tool can work without login)
+            // Check login
             const user = JSON.parse(localStorage.getItem('user') || 'null');
             if (user) {
                 document.getElementById('user-email').textContent = user.email;
             }
 
-            // Load saved config
+            // Load saved data
             loadSavedConfig();
             renderPrompts();
 
             // Enter key to add prompt
             document.getElementById('new-prompt').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    addPrompt();
-                }
+                if (e.key === 'Enter') addPrompt();
             });
+
+            // Check if returning user (has config)
+            if (localStorage.getItem('text-to-image-downloaded')) {
+                // Skip to prompts step
+                goToStep(3);
+            }
         });
 
+        function goToStep(step) {
+            currentStep = step;
+            updateSteps();
+        }
+
+        function nextStep(step) {
+            currentStep = step;
+            updateSteps();
+
+            // Mark download complete
+            if (step === 2) {
+                localStorage.setItem('text-to-image-downloaded', 'true');
+            }
+        }
+
+        function updateSteps() {
+            // Hide all steps
+            document.querySelectorAll('.step-section').forEach(s => s.classList.remove('active'));
+
+            // Show current step
+            document.getElementById(`step-${currentStep}`).classList.add('active');
+
+            // Update dots
+            document.querySelectorAll('.step-dot').forEach((dot, i) => {
+                dot.classList.remove('active', 'completed');
+                if (i + 1 === currentStep) {
+                    dot.classList.add('active');
+                } else if (i + 1 < currentStep) {
+                    dot.classList.add('completed');
+                }
+            });
+        }
+
+        // Prompts functions
         function addPrompt() {
             const input = document.getElementById('new-prompt');
             const text = input.value.trim();
@@ -469,11 +611,9 @@
 
         function addSamples() {
             const samples = [
-                "A magical forest with glowing mushrooms, fantasy art, 8k ultra detailed",
-                "A golden dragon in a crystal cave, cinematic lighting, epic fantasy",
-                "A futuristic city at sunset, cyberpunk style, neon lights",
-                "An astronaut riding a horse on Mars with Earth in the background",
-                "A cozy coffee shop on a rainy day with warm lighting"
+                "A magical forest with glowing mushrooms, fantasy art, 8k",
+                "A golden dragon in a crystal cave, cinematic lighting",
+                "A futuristic city at sunset, cyberpunk style, neon lights"
             ];
             prompts = [...prompts, ...samples];
             renderPrompts();
@@ -482,17 +622,21 @@
 
         function renderPrompts() {
             const list = document.getElementById('prompts-list');
+            const nextBtn = document.getElementById('prompts-next-btn');
+
             if (prompts.length === 0) {
-                list.innerHTML = '<li style="color: var(--text-secondary); padding: 16px; text-align: center;">No prompts added yet. Add some prompts above!</li>';
-                return;
+                list.innerHTML = '<li style="text-align: center; padding: 20px; color: var(--text-secondary);">No prompts added yet</li>';
+                nextBtn.disabled = true;
+            } else {
+                list.innerHTML = prompts.map((p, i) => `
+                    <li class="prompt-item">
+                        <span class="num">${i + 1}</span>
+                        <span class="text">${escapeHtml(p)}</span>
+                        <button class="remove" onclick="removePrompt(${i})">×</button>
+                    </li>
+                `).join('');
+                nextBtn.disabled = false;
             }
-            list.innerHTML = prompts.map((p, i) => `
-                <li class="prompt-item">
-                    <span class="num">${i + 1}</span>
-                    <span class="text">${escapeHtml(p)}</span>
-                    <button class="remove" onclick="removePrompt(${i})" title="Remove">×</button>
-                </li>
-            `).join('');
         }
 
         function escapeHtml(text) {
@@ -501,18 +645,17 @@
             return div.innerHTML;
         }
 
+        // Config functions
         function getConfig() {
-            const manualLogin = document.getElementById('manual-login').checked;
             return {
                 google_email: document.getElementById('email').value,
                 google_password: document.getElementById('password').value,
                 prompts: prompts,
                 settings: {
-                    login_method: manualLogin ? 'manual' : 'auto',
+                    login_method: document.getElementById('manual-login').checked ? 'manual' : 'auto',
                     headless: document.getElementById('headless').checked,
-                    timeout: parseInt(document.getElementById('timeout').value) || 120,
-                    delay_between_prompts: parseInt(document.getElementById('delay').value) || 5,
-                    target_url: "https://labs.google/fx/tools/image-fx"
+                    timeout: 120,
+                    delay_between_prompts: 5
                 }
             };
         }
@@ -531,30 +674,19 @@
                     document.getElementById('password').value = config.google_password || '';
                     document.getElementById('manual-login').checked = config.settings?.login_method === 'manual';
                     document.getElementById('headless').checked = config.settings?.headless || false;
-                    document.getElementById('timeout').value = config.settings?.timeout || 120;
-                    document.getElementById('delay').value = config.settings?.delay_between_prompts || 5;
                     prompts = config.prompts || [];
-                } catch (e) {
-                    console.error('Failed to load saved config:', e);
-                }
+                } catch (e) {}
             }
         }
 
-        function saveConfig() {
+        function downloadAndRun() {
             if (prompts.length === 0) {
-                showStatus('Please add at least one prompt', 'error');
+                alert('Please add at least one prompt!');
+                goToStep(3);
                 return;
             }
 
             saveToLocalStorage();
-            showStatus('Configuration saved! Click "Download config.json" and place it in the automation folder, then run run.bat', 'success');
-        }
-
-        function downloadConfig() {
-            if (prompts.length === 0) {
-                showStatus('Please add at least one prompt', 'error');
-                return;
-            }
 
             const config = getConfig();
             const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
@@ -564,14 +696,24 @@
             a.download = 'config.json';
             a.click();
             URL.revokeObjectURL(url);
-
-            showStatus('config.json downloaded! Place it in the automation folder and run run.bat to start generating images.', 'success');
         }
 
-        function showStatus(message, type) {
-            const status = document.getElementById('status');
-            status.textContent = message;
-            status.className = 'status-box ' + type;
+        function refreshGallery() {
+            // Since we can't read local files from browser,
+            // show instructions to manually upload or view locally
+            const container = document.getElementById('gallery-container');
+            container.innerHTML = `
+                <div class="info-box" style="text-align: center;">
+                    <p style="font-size: 16px; margin-bottom: 16px;">
+                        📁 Your images are saved in the <code>output/images</code> folder<br>
+                        next to the TextToImage.exe app.
+                    </p>
+                    <p>
+                        Due to browser security, we can't directly access local files.<br>
+                        Open the folder to view your generated images!
+                    </p>
+                </div>
+            `;
         }
     </script>
 </body>
