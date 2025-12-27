@@ -15,13 +15,24 @@ class AuthMiddleware
     /**
      * Check if user is authenticated
      * Returns user data if valid, exits with 401 if not
+     * Supports both cookie-based and Bearer token authentication
      *
      * @return array User payload from token
      */
     public static function check(): array
     {
-        // Get token from cookie
-        $token = AuthService::getTokenFromCookie();
+        $token = null;
+
+        // First, try Bearer token from Authorization header (for desktop/API clients)
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+        if (preg_match('/Bearer\s+(.+)$/i', $authHeader, $matches)) {
+            $token = $matches[1];
+        }
+
+        // Fall back to cookie-based authentication (for web app)
+        if (!$token) {
+            $token = AuthService::getTokenFromCookie();
+        }
 
         if (!$token) {
             Response::unauthorized('Authentication required. Please log in.');
@@ -31,8 +42,10 @@ class AuthMiddleware
         $payload = AuthService::verifyToken($token);
 
         if (!$payload) {
-            // Clear invalid cookies
-            AuthService::clearAuthCookies();
+            // Clear invalid cookies (only if using cookies)
+            if (!$authHeader) {
+                AuthService::clearAuthCookies();
+            }
             Response::unauthorized('Session expired. Please log in again.');
         }
 
@@ -48,12 +61,24 @@ class AuthMiddleware
 
     /**
      * Check authentication and return user or null (non-blocking)
+     * Supports both cookie-based and Bearer token authentication
      *
      * @return array|null User payload or null if not authenticated
      */
     public static function checkOptional(): ?array
     {
-        $token = AuthService::getTokenFromCookie();
+        $token = null;
+
+        // First, try Bearer token from Authorization header
+        $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+        if (preg_match('/Bearer\s+(.+)$/i', $authHeader, $matches)) {
+            $token = $matches[1];
+        }
+
+        // Fall back to cookie-based authentication
+        if (!$token) {
+            $token = AuthService::getTokenFromCookie();
+        }
 
         if (!$token) {
             return null;

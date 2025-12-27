@@ -94,6 +94,7 @@ try {
 
     Response::success([
         'user' => $userData,
+        'token' => $token,  // Include token for desktop/API clients
         'redirect' => $user['role'] === 'admin' ? '/admin/' : '/tools/'
     ], 200, 'Login successful');
 

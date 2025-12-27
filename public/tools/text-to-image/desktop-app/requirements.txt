@@ -1,0 +1,21 @@
+# Text-to-Image Desktop App Dependencies
+
+# UI Framework
+customtkinter>=5.2.0
+
+# Image Processing
+pillow>=10.0.0
+
+# Browser Automation
+selenium>=4.15.0
+webdriver-manager>=4.0.0
+undetected-chromedriver>=3.5.0
+
+# HTTP Requests
+requests>=2.31.0
+
+# Security - Credential Encryption
+cryptography>=41.0.0
+
+# Build Tool
+pyinstaller>=6.0.0

@@ -95,6 +95,90 @@ def create_driver(headless=False):
     return driver
 
 
+def detect_2fa_type(driver):
+    """Detect what type of 2FA verification is being requested"""
+    page_source = driver.page_source.lower()
+    current_url = driver.current_url.lower()
+
+    # Check for different 2FA types
+    if "authenticator" in page_source or "verification code" in page_source:
+        return "authenticator"
+    elif "phone" in page_source and ("text" in page_source or "sms" in page_source):
+        return "sms"
+    elif "phone" in page_source and "call" in page_source:
+        return "phone_call"
+    elif "security key" in page_source or "usb" in page_source:
+        return "security_key"
+    elif "google prompt" in page_source or "tap yes" in page_source:
+        return "google_prompt"
+    elif "backup" in page_source and "code" in page_source:
+        return "backup_code"
+    elif "recovery" in page_source:
+        return "recovery"
+    elif "challenge" in current_url:
+        return "unknown_challenge"
+    else:
+        return None
+
+
+def print_2fa_instructions(tfa_type):
+    """Print instructions based on 2FA type"""
+    print("\n" + "="*60)
+    print("  🔐 TWO-FACTOR AUTHENTICATION REQUIRED")
+    print("="*60)
+
+    instructions = {
+        "authenticator": [
+            "  📱 Open your Authenticator app (Google Authenticator, Authy, etc.)",
+            "  📝 Enter the 6-digit code shown in the app",
+            "  ⏰ Codes refresh every 30 seconds"
+        ],
+        "sms": [
+            "  📱 Check your phone for an SMS with a verification code",
+            "  📝 Enter the code in the browser",
+            "  💡 If you don't receive it, click 'Resend' or try another method"
+        ],
+        "phone_call": [
+            "  📞 You will receive a phone call with a verification code",
+            "  📝 Enter the code spoken during the call",
+            "  💡 Make sure your phone is nearby"
+        ],
+        "security_key": [
+            "  🔑 Insert your security key (YubiKey, Titan, etc.)",
+            "  👆 Touch the key when prompted",
+            "  💡 Make sure the key is properly connected"
+        ],
+        "google_prompt": [
+            "  📱 Check your phone for a Google prompt notification",
+            "  👆 Tap 'Yes' on the notification to approve",
+            "  💡 Make sure you're signed into Google on your phone"
+        ],
+        "backup_code": [
+            "  📋 Enter one of your backup codes",
+            "  📝 These are the codes you saved when setting up 2FA",
+            "  ⚠️ Each backup code can only be used once"
+        ],
+        "recovery": [
+            "  📧 Check your recovery email or phone",
+            "  📝 Enter the verification code",
+            "  💡 This helps verify your identity"
+        ],
+        "unknown_challenge": [
+            "  ❓ Google requires additional verification",
+            "  👀 Please check the browser window",
+            "  📝 Complete the verification as prompted"
+        ]
+    }
+
+    for line in instructions.get(tfa_type, instructions["unknown_challenge"]):
+        print(line)
+
+    print("="*60)
+    print("  ⏳ Complete verification in the browser window...")
+    print("  ⏰ You have 180 seconds to complete this step")
+    print("="*60 + "\n")
+
+
 def login_google_auto(driver, email, password, timeout=60):
     """Automatically login to Google account using credentials"""
     print("\n[LOGIN] Automatic login with credentials...")
@@ -130,20 +214,40 @@ def login_google_auto(driver, email, password, timeout=60):
         # Check if we're still on login page (might need 2FA)
         current_url = driver.current_url
         if "challenge" in current_url or "signin" in current_url:
-            print("\n" + "="*50)
-            print("  2FA or additional verification required!")
-            print("  Please complete the verification in the browser.")
-            print("  Waiting up to 120 seconds...")
-            print("="*50 + "\n")
+            # Detect the type of 2FA
+            tfa_type = detect_2fa_type(driver)
 
-            # Wait for user to complete 2FA
-            for i in range(120):
+            if tfa_type:
+                print_2fa_instructions(tfa_type)
+            else:
+                print("\n" + "="*50)
+                print("  🔐 Additional verification required!")
+                print("  Please complete the verification in the browser.")
+                print("  Waiting up to 180 seconds...")
+                print("="*50 + "\n")
+
+            # Wait for user to complete 2FA (extended to 180 seconds)
+            tfa_timeout = 180
+            for i in range(tfa_timeout):
                 time.sleep(1)
-                if "myaccount" in driver.current_url or "google.com" in driver.current_url:
-                    if "signin" not in driver.current_url and "challenge" not in driver.current_url:
+                current = driver.current_url
+
+                # Check if login completed
+                if "myaccount" in current or "labs.google" in current:
+                    if "signin" not in current and "challenge" not in current:
+                        print("  ✅ 2FA verification successful!")
                         break
-                if i % 10 == 0:
-                    print(f"  Waiting... {120-i}s remaining")
+
+                # Also check if we reached any Google service
+                if "google.com" in current:
+                    if "signin" not in current and "challenge" not in current and "accounts" not in current:
+                        print("  ✅ 2FA verification successful!")
+                        break
+
+                # Progress indicator
+                if i % 15 == 0 and i > 0:
+                    remaining = tfa_timeout - i
+                    print(f"  ⏳ Waiting for 2FA... {remaining}s remaining")
 
         print("  - Login successful!")
         return True
