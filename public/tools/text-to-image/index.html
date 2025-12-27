@@ -385,20 +385,21 @@
             <div class="step-section active" id="step-1">
                 <div class="step-card">
                     <div class="step-icon">📥</div>
-                    <h2 class="step-title">Download the App</h2>
+                    <h2 class="step-title">Download the Automation Tool</h2>
                     <p class="step-description">
-                        To generate images using Google Flow, you need our desktop app.<br>
-                        It runs locally on your computer for security.
+                        To generate images using Google Flow, download our automation tool.<br>
+                        It runs locally on your computer using Python.
                     </p>
-                    <a href="automation/TextToImage.exe" download class="download-btn">
-                        ⬇️ Download TextToImage.exe
+                    <a href="automation/automation-tool.zip" download class="download-btn">
+                        ⬇️ Download Automation Tool
                     </a>
                     <button class="next-btn" onclick="nextStep(2)">
                         I've Downloaded → Next
                     </button>
                     <div class="info-box">
-                        <p>📌 <strong>One-time download</strong> - You only need to download this once.</p>
-                        <p>🔒 <strong>Safe & Local</strong> - The app runs on your computer, your data stays with you.</p>
+                        <p>📌 <strong>Requirements:</strong> Python 3.8+ must be installed on your computer.</p>
+                        <p>🔧 <strong>First time?</strong> Run <code>setup.bat</code> to install dependencies.</p>
+                        <p>🔒 <strong>Safe & Local</strong> - The tool runs on your computer, your data stays with you.</p>
                     </div>
                 </div>
             </div>
@@ -486,9 +487,9 @@
 
                     <div class="info-box">
                         <p>1️⃣ Click the button above to download <code>config.json</code></p>
-                        <p>2️⃣ Place it in the same folder as <code>TextToImage.exe</code></p>
-                        <p>3️⃣ Run <code>TextToImage.exe</code></p>
-                        <p>4️⃣ Come back here to see your images!</p>
+                        <p>2️⃣ Extract the automation tool ZIP and place <code>config.json</code> in that folder</p>
+                        <p>3️⃣ Run <code>run.bat</code> (double-click it)</p>
+                        <p>4️⃣ Images will be saved in the <code>output/images</code> folder!</p>
                     </div>
 
                     <button class="next-btn" onclick="nextStep(5)" style="margin-top: 30px;">
