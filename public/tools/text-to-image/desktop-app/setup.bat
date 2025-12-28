@@ -4,16 +4,6 @@ echo   Text-to-Image Desktop App Setup
 echo ============================================
 echo.
 
-REM Set short temp directory to avoid Windows Long Path issues
-set TMPDIR=%~d0\tmp
-set TEMP=%~d0\tmp
-set TMP=%~d0\tmp
-if not exist "%TMPDIR%" mkdir "%TMPDIR%"
-
-REM Clear pip cache to avoid long path issues
-echo Clearing pip cache...
-pip cache purge >nul 2>&1
-
 REM Check if Python is installed
 python --version >nul 2>&1
 if errorlevel 1 (
@@ -32,15 +22,44 @@ echo Python found!
 python --version
 echo.
 
+REM Check if using Microsoft Store Python (has long path issues)
+python -c "import sys; exit(0 if 'WindowsApps' in sys.executable else 1)" 2>nul
+if not errorlevel 1 (
+    echo ============================================
+    echo   IMPORTANT: Microsoft Store Python Detected
+    echo ============================================
+    echo.
+    echo You are using Microsoft Store Python which has
+    echo Windows Long Path issues.
+    echo.
+    echo Please enable Long Paths in Windows:
+    echo.
+    echo 1. Press Win + R, type: regedit
+    echo 2. Navigate to:
+    echo    HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem
+    echo 3. Set "LongPathsEnabled" to 1
+    echo 4. Restart your computer
+    echo.
+    echo OR install Python from python.org instead:
+    echo    https://python.org/downloads
+    echo.
+    echo After fixing, run this setup again.
+    echo.
+    pause
+    exit /b 1
+)
+
 echo Installing dependencies...
-echo (Using short temp path to avoid Windows Long Path issues)
-echo.
-pip install --no-cache-dir --target="%~dp0lib" -r requirements.txt
+pip install --no-cache-dir -r requirements.txt
 
 if errorlevel 1 (
     echo.
     echo ERROR: Failed to install some dependencies.
-    echo Please try running: pip install -r requirements.txt
+    echo.
+    echo If you see "Windows Long Path" error:
+    echo 1. Enable Long Paths in Windows Registry
+    echo 2. Or install Python from python.org
+    echo.
     pause
     exit /b 1
 )
