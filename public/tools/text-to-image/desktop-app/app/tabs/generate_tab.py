@@ -327,11 +327,14 @@ class GenerateTab(ctk.CTkFrame):
 
         self.generate_btn = ctk.CTkButton(
             self.generate_frame,
-            text="🚀 Start Generation",
+            text="Start Generation",
             font=FONTS["heading_sm"],
-            height=50,
             command=self._start_generation,
-            **BUTTON_STYLES["success"]
+            fg_color=COLORS["success"],
+            hover_color=COLORS["success_hover"],
+            text_color="#ffffff",
+            corner_radius=8,
+            height=50
         )
         self.generate_btn.pack(fill="x")
 
