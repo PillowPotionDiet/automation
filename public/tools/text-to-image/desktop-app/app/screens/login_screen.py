@@ -27,13 +27,25 @@ class LoginScreen(ctk.CTkFrame):
         center_frame = ctk.CTkFrame(self, fg_color="transparent")
         center_frame.place(relx=0.5, rely=0.5, anchor="center")
 
-        # Logo placeholder
-        logo_label = ctk.CTkLabel(
+        # Logo frame with icon-style border
+        logo_frame = ctk.CTkFrame(
             center_frame,
-            text="🖼️",
-            font=("Segoe UI Emoji", 64),
+            fg_color=self.colors["card"],
+            corner_radius=16,
+            width=80,
+            height=80
         )
-        logo_label.pack(pady=(0, 10))
+        logo_frame.pack(pady=(0, 15))
+        logo_frame.pack_propagate(False)
+
+        # Logo text icon
+        logo_label = ctk.CTkLabel(
+            logo_frame,
+            text="T2I",
+            font=("Segoe UI", 28, "bold"),
+            text_color=self.colors["primary"]
+        )
+        logo_label.place(relx=0.5, rely=0.5, anchor="center")
 
         # App title
         title_label = ctk.CTkLabel(
@@ -57,11 +69,9 @@ class LoginScreen(ctk.CTkFrame):
         login_card = ctk.CTkFrame(
             center_frame,
             fg_color=self.colors["card"],
-            corner_radius=16,
-            width=400
+            corner_radius=16
         )
         login_card.pack(padx=20, pady=10)
-        login_card.pack_propagate(False)
 
         # Tab view for login methods
         self.tabview = ctk.CTkTabview(
@@ -70,10 +80,10 @@ class LoginScreen(ctk.CTkFrame):
             segmented_button_fg_color=self.colors["bg_secondary"],
             segmented_button_selected_color=self.colors["primary"],
             segmented_button_unselected_color=self.colors["bg_secondary"],
-            width=360,
-            height=280
+            width=380,
+            height=320
         )
-        self.tabview.pack(padx=20, pady=20, fill="both", expand=True)
+        self.tabview.pack(padx=20, pady=20)
 
         # API Token tab
         token_tab = self.tabview.add("API Token")

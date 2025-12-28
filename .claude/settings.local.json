@@ -28,7 +28,9 @@
       "Bash(python -c:*)",
       "Bash(reg query \"HKLM\\\\SYSTEM\\\\CurrentControlSet\\\\Control\\\\FileSystem\" /v LongPathsEnabled)",
       "Bash(powershell -Command:*)",
-      "Bash(git check-ignore:*)"
+      "Bash(git check-ignore:*)",
+      "Bash(powershell -Command \"Get-ChildItem ''e:\\\\Tool\\\\script-to-video-generator\\\\public\\\\tools\\\\text-to-image\\\\desktop-app\\\\assets'' -Recurse | Format-Table Name, FullName\")",
+      "Bash(curl:*)"
     ]
   }
 }

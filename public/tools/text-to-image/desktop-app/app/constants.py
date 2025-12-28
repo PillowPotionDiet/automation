@@ -8,7 +8,7 @@ APP_VERSION = "1.0.0"
 APP_AUTHOR = "AI Video Gen"
 
 # API Configuration
-API_BASE_URL = "https://automation.pillowpotion.com"
+API_BASE_URL = "https://automation.pillowpotion.com/public"
 API_LOGIN = f"{API_BASE_URL}/api/auth/login.php"
 API_ME = f"{API_BASE_URL}/api/auth/me.php"
 API_CREDITS = f"{API_BASE_URL}/api/user/credits.php"

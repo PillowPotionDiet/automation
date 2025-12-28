@@ -35,6 +35,16 @@ class APIService:
                 json={"email": email, "password": password},
                 timeout=30
             )
+
+            # Check if response is JSON
+            content_type = response.headers.get('Content-Type', '')
+            if 'application/json' not in content_type:
+                return {"success": False, "error": f"Server returned non-JSON response (HTTP {response.status_code})"}
+
+            # Check for empty response
+            if not response.text.strip():
+                return {"success": False, "error": "Empty response from server"}
+
             data = response.json()
 
             if data.get("success"):
@@ -64,6 +74,8 @@ class APIService:
             return {"success": False, "error": "Cannot connect to server"}
         except requests.exceptions.Timeout:
             return {"success": False, "error": "Connection timeout"}
+        except requests.exceptions.JSONDecodeError as e:
+            return {"success": False, "error": f"Invalid server response: {str(e)[:50]}"}
         except Exception as e:
             return {"success": False, "error": str(e)}
 
