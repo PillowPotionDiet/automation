@@ -23,7 +23,7 @@ python --version
 echo.
 
 echo Installing dependencies...
-pip install -r requirements.txt
+pip install --no-cache-dir -r requirements.txt
 
 if errorlevel 1 (
     echo.
