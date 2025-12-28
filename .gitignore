@@ -37,6 +37,9 @@ vendor/
 dist/
 build/
 
+# Exception: Include desktop app distribution files
+!public/tools/text-to-image/desktop-app/dist/
+
 # Uploaded files (user content)
 uploads/
 public/uploads/
