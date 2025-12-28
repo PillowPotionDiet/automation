@@ -26,7 +26,9 @@
       "Bash(python -m PyInstaller:*)",
       "Bash(pip install:*)",
       "Bash(python -c:*)",
-      "Bash(reg query \"HKLM\\\\SYSTEM\\\\CurrentControlSet\\\\Control\\\\FileSystem\" /v LongPathsEnabled)"
+      "Bash(reg query \"HKLM\\\\SYSTEM\\\\CurrentControlSet\\\\Control\\\\FileSystem\" /v LongPathsEnabled)",
+      "Bash(powershell -Command:*)",
+      "Bash(git check-ignore:*)"
     ]
   }
 }

@@ -40,6 +40,9 @@ build/
 # Exception: Include desktop app distribution files
 !public/tools/text-to-image/desktop-app/dist/
 
+# Desktop app installed libraries (user installs locally)
+public/tools/text-to-image/desktop-app/lib/
+
 # Uploaded files (user content)
 uploads/
 public/uploads/
