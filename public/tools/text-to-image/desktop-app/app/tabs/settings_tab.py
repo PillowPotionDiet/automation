@@ -312,7 +312,12 @@ class SettingsTab(ctk.CTkFrame):
             width=60,
             height=28,
             command=self._open_output_folder,
-            **BUTTON_STYLES["secondary"]
+            fg_color="transparent",
+            hover_color=self.colors["card_hover"],
+            text_color=self.colors["text"],
+            border_width=1,
+            border_color=self.colors["border"],
+            corner_radius=8
         )
         open_folder_btn.pack(side="right")
 
@@ -322,10 +327,16 @@ class SettingsTab(ctk.CTkFrame):
 
         clear_cache_btn = ctk.CTkButton(
             cache_row,
-            text="🗑️ Clear History",
+            text="Clear History",
             font=FONTS["body"],
             command=self._clear_history,
-            **BUTTON_STYLES["secondary"]
+            fg_color="transparent",
+            hover_color=self.colors["card_hover"],
+            text_color=self.colors["text"],
+            border_width=1,
+            border_color=self.colors["border"],
+            corner_radius=8,
+            height=40
         )
         clear_cache_btn.pack(side="left")
 
@@ -362,21 +373,31 @@ class SettingsTab(ctk.CTkFrame):
 
         website_btn = ctk.CTkButton(
             links_row,
-            text="🌐 Website",
+            text="Website",
             font=FONTS["body_sm"],
             width=100,
+            height=32,
             command=lambda: webbrowser.open(API_BASE_URL),
-            **BUTTON_STYLES["secondary"]
+            fg_color="transparent",
+            hover_color=self.colors["card_hover"],
+            text_color=self.colors["text"],
+            border_width=1,
+            border_color=self.colors["border"],
+            corner_radius=8
         )
         website_btn.pack(side="left", padx=(0, 10))
 
         # Save Button
         save_btn = ctk.CTkButton(
             scroll,
-            text="💾 Save Settings",
+            text="Save Settings",
             font=FONTS["body"],
             command=self._save_settings,
-            **BUTTON_STYLES["success"]
+            fg_color=COLORS["success"],
+            hover_color=COLORS["success_hover"],
+            text_color="#ffffff",
+            corner_radius=8,
+            height=40
         )
         save_btn.pack(fill="x", pady=10)
 
@@ -448,8 +469,12 @@ class SettingsTab(ctk.CTkFrame):
             dialog,
             text="OK",
             width=80,
+            height=36,
             command=dialog.destroy,
-            **BUTTON_STYLES["primary"]
+            fg_color=COLORS["primary"],
+            hover_color=COLORS["primary_hover"],
+            text_color="#ffffff",
+            corner_radius=8
         )
         ok_btn.pack()
 

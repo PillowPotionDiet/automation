@@ -4,25 +4,57 @@ Generate Tab - Prompt entry and image generation
 
 import customtkinter as ctk
 import threading
-from typing import Callable, Optional
+import uuid
+from typing import Callable, Optional, List
 from datetime import datetime
 from app.theme import COLORS, FONTS, BUTTON_STYLES, INPUT_STYLE, get_theme_colors
 from app.constants import CREDITS_PER_IMAGE
 
 
+# Available style tags
+STYLE_TAGS = [
+    "35mm film",
+    "Minimal",
+    "Handmade",
+    "Sketchy",
+    "Abstract",
+    "Painting",
+    "DSLR",
+    "Editorial photo",
+    "Natural light"
+]
+
+# Available aspect ratios
+ASPECT_RATIOS = [
+    "Square",
+    "Portrait (9:16)",
+    "Landscape (16:9)",
+    "Mobile portrait (3:4)",
+    "Mobile landscape (4:3)"
+]
+
+
 class GenerateTab(ctk.CTkFrame):
     """Image generation tab"""
 
-    def __init__(self, parent, api_service, config_service, on_credits_update: Callable):
+    def __init__(self, parent, api_service, config_service, on_credits_update: Callable, on_generation_complete: Callable = None):
         super().__init__(parent, fg_color="transparent")
         self.api = api_service
         self.config = config_service
         self.on_credits_update = on_credits_update
+        self.on_generation_complete = on_generation_complete
         self.colors = get_theme_colors("dark")
 
         self.is_generating = False
         self.generation_thread: Optional[threading.Thread] = None
         self.stop_requested = False
+
+        # New features state
+        self.selected_style_tags: List[str] = []
+        self.selected_aspect_ratio = "Square"
+        self.lock_seed = False
+        self.current_project_id = str(uuid.uuid4())[:8]
+        self.current_project_name = f"Project {datetime.now().strftime('%Y%m%d_%H%M')}"
 
         self._create_widgets()
         self._load_saved_data()
@@ -235,6 +267,194 @@ class GenerateTab(ctk.CTkFrame):
         )
         clear_btn.pack(side="left")
 
+        # Project Section
+        project_card = ctk.CTkFrame(
+            scroll,
+            fg_color=self.colors["card"],
+            corner_radius=12
+        )
+        project_card.pack(fill="x", pady=(0, 20))
+
+        project_header = ctk.CTkFrame(project_card, fg_color="transparent")
+        project_header.pack(fill="x", padx=20, pady=15)
+
+        project_label = ctk.CTkLabel(
+            project_header,
+            text="📁 Project",
+            font=FONTS["heading_sm"],
+            text_color=self.colors["text"]
+        )
+        project_label.pack(side="left")
+
+        new_project_btn = ctk.CTkButton(
+            project_header,
+            text="+ New Project",
+            font=FONTS["body_sm"],
+            width=120,
+            command=self._new_project,
+            **BUTTON_STYLES["secondary"]
+        )
+        new_project_btn.pack(side="right")
+
+        # Project name input
+        project_name_frame = ctk.CTkFrame(project_card, fg_color="transparent")
+        project_name_frame.pack(fill="x", padx=20, pady=(0, 15))
+
+        project_name_label = ctk.CTkLabel(
+            project_name_frame,
+            text="Project Name",
+            font=FONTS["body_sm"],
+            text_color=self.colors["text_secondary"]
+        )
+        project_name_label.pack(anchor="w")
+
+        self.project_name_entry = ctk.CTkEntry(
+            project_name_frame,
+            placeholder_text="Enter project name...",
+            font=FONTS["body"],
+            height=INPUT_STYLE["height"],
+            corner_radius=INPUT_STYLE["corner_radius"],
+            border_width=INPUT_STYLE["border_width"],
+            border_color=self.colors["border"],
+            fg_color=self.colors["input_bg"]
+        )
+        self.project_name_entry.insert(0, self.current_project_name)
+        self.project_name_entry.pack(fill="x", pady=(5, 0))
+
+        # Seed lock option
+        seed_frame = ctk.CTkFrame(project_card, fg_color="transparent")
+        seed_frame.pack(fill="x", padx=20, pady=(0, 15))
+
+        self.lock_seed_var = ctk.BooleanVar(value=False)
+        seed_check = ctk.CTkCheckBox(
+            seed_frame,
+            text="Lock Seed (maintain character consistency across all prompts)",
+            font=FONTS["body_sm"],
+            variable=self.lock_seed_var,
+            fg_color=self.colors["primary"],
+            hover_color=self.colors["primary_hover"]
+        )
+        seed_check.pack(anchor="w")
+
+        seed_info = ctk.CTkLabel(
+            seed_frame,
+            text="When enabled, the seed from the first generation will be locked for all subsequent prompts in this project",
+            font=FONTS["caption"],
+            text_color=self.colors["text_secondary"],
+            wraplength=500,
+            justify="left"
+        )
+        seed_info.pack(anchor="w", pady=(5, 0))
+
+        # Style Tags Section
+        style_card = ctk.CTkFrame(
+            scroll,
+            fg_color=self.colors["card"],
+            corner_radius=12
+        )
+        style_card.pack(fill="x", pady=(0, 20))
+
+        style_header = ctk.CTkLabel(
+            style_card,
+            text="🎨 Style Tags",
+            font=FONTS["heading_sm"],
+            text_color=self.colors["text"]
+        )
+        style_header.pack(anchor="w", padx=20, pady=(15, 5))
+
+        style_info = ctk.CTkLabel(
+            style_card,
+            text="Select one or more style tags to apply to your images",
+            font=FONTS["body_sm"],
+            text_color=self.colors["text_secondary"]
+        )
+        style_info.pack(anchor="w", padx=20, pady=(0, 10))
+
+        # Style tags grid
+        style_tags_frame = ctk.CTkFrame(style_card, fg_color="transparent")
+        style_tags_frame.pack(fill="x", padx=20, pady=(0, 15))
+
+        self.style_tag_buttons = {}
+        row_frame = None
+        for i, tag in enumerate(STYLE_TAGS):
+            if i % 3 == 0:
+                row_frame = ctk.CTkFrame(style_tags_frame, fg_color="transparent")
+                row_frame.pack(fill="x", pady=2)
+
+            btn = ctk.CTkButton(
+                row_frame,
+                text=tag,
+                font=FONTS["body_sm"],
+                width=150,
+                height=32,
+                corner_radius=16,
+                fg_color=self.colors["bg_secondary"],
+                hover_color=self.colors["primary"],
+                text_color=self.colors["text"],
+                command=lambda t=tag: self._toggle_style_tag(t)
+            )
+            btn.pack(side="left", padx=5, pady=2)
+            self.style_tag_buttons[tag] = btn
+
+        # Aspect Ratio Section
+        ratio_card = ctk.CTkFrame(
+            scroll,
+            fg_color=self.colors["card"],
+            corner_radius=12
+        )
+        ratio_card.pack(fill="x", pady=(0, 20))
+
+        ratio_header = ctk.CTkLabel(
+            ratio_card,
+            text="📐 Aspect Ratio",
+            font=FONTS["heading_sm"],
+            text_color=self.colors["text"]
+        )
+        ratio_header.pack(anchor="w", padx=20, pady=(15, 10))
+
+        ratio_frame = ctk.CTkFrame(ratio_card, fg_color="transparent")
+        ratio_frame.pack(fill="x", padx=20, pady=(0, 15))
+
+        self.aspect_ratio_var = ctk.StringVar(value="Square")
+        self.aspect_ratio_dropdown = ctk.CTkOptionMenu(
+            ratio_frame,
+            values=ASPECT_RATIOS,
+            variable=self.aspect_ratio_var,
+            font=FONTS["body"],
+            width=200,
+            height=35,
+            corner_radius=8,
+            fg_color=self.colors["input_bg"],
+            button_color=self.colors["primary"],
+            button_hover_color=self.colors["primary_hover"],
+            dropdown_fg_color=self.colors["card"],
+            dropdown_hover_color=self.colors["primary"]
+        )
+        self.aspect_ratio_dropdown.pack(side="left")
+
+        # Aspect ratio preview icons
+        ratio_icons = ctk.CTkFrame(ratio_frame, fg_color="transparent")
+        ratio_icons.pack(side="left", padx=20)
+
+        ratio_labels = {
+            "Square": "1:1",
+            "Portrait (9:16)": "9:16",
+            "Landscape (16:9)": "16:9",
+            "Mobile portrait (3:4)": "3:4",
+            "Mobile landscape (4:3)": "4:3"
+        }
+
+        self.ratio_info_label = ctk.CTkLabel(
+            ratio_icons,
+            text="1:1 - Square format",
+            font=FONTS["body_sm"],
+            text_color=self.colors["text_secondary"]
+        )
+        self.ratio_info_label.pack(side="left")
+
+        # Update ratio info when selection changes
+        self.aspect_ratio_var.trace_add("write", self._on_ratio_change)
+
         # Settings Section
         settings_card = ctk.CTkFrame(
             scroll,
@@ -419,6 +639,51 @@ class GenerateTab(ctk.CTkFrame):
         self.google_email.configure(state=state)
         self.google_password.configure(state=state)
 
+    def _new_project(self):
+        """Start a new project"""
+        self.current_project_id = str(uuid.uuid4())[:8]
+        self.current_project_name = f"Project {datetime.now().strftime('%Y%m%d_%H%M')}"
+        self.project_name_entry.delete(0, "end")
+        self.project_name_entry.insert(0, self.current_project_name)
+
+        # Clear prompts for new project
+        self.config.clear_prompts()
+        self._refresh_prompts_list()
+
+        # Reset style tags
+        self.selected_style_tags = []
+        for tag, btn in self.style_tag_buttons.items():
+            btn.configure(fg_color=self.colors["bg_secondary"])
+
+        # Reset aspect ratio
+        self.aspect_ratio_var.set("Square")
+
+        # Reset seed lock
+        self.lock_seed_var.set(False)
+
+        self._show_message("New project started! Add your prompts.")
+
+    def _toggle_style_tag(self, tag: str):
+        """Toggle a style tag selection"""
+        if tag in self.selected_style_tags:
+            self.selected_style_tags.remove(tag)
+            self.style_tag_buttons[tag].configure(fg_color=self.colors["bg_secondary"])
+        else:
+            self.selected_style_tags.append(tag)
+            self.style_tag_buttons[tag].configure(fg_color=self.colors["primary"])
+
+    def _on_ratio_change(self, *args):
+        """Handle aspect ratio change"""
+        ratio = self.aspect_ratio_var.get()
+        ratio_info = {
+            "Square": "1:1 - Square format",
+            "Portrait (9:16)": "9:16 - Vertical/Phone screens",
+            "Landscape (16:9)": "16:9 - Widescreen/TV",
+            "Mobile portrait (3:4)": "3:4 - Mobile portrait",
+            "Mobile landscape (4:3)": "4:3 - Mobile landscape"
+        }
+        self.ratio_info_label.configure(text=ratio_info.get(ratio, ""))
+
     def _add_prompt(self):
         """Add a new prompt"""
         prompt = self.prompt_entry.get().strip()
@@ -578,7 +843,10 @@ class GenerateTab(ctk.CTkFrame):
 
             prompts = self.config.get_prompts()
 
-            # Create automation instance
+            # Get current project name
+            project_name = self.project_name_entry.get().strip() or self.current_project_name
+
+            # Create automation instance with new parameters
             automation = GoogleFlowAutomation(
                 email=self.google_email.get(),
                 password=self.google_password.get(),
@@ -588,11 +856,20 @@ class GenerateTab(ctk.CTkFrame):
                 delay=int(self.delay_entry.get()),
                 output_dir=self.config.get_images_dir(),
                 log_callback=self._log,
-                progress_callback=self._update_progress
+                progress_callback=self._update_progress,
+                style_tags=self.selected_style_tags,
+                aspect_ratio=self.aspect_ratio_var.get(),
+                lock_seed=self.lock_seed_var.get(),
+                project_name=project_name
             )
 
             # Run generation
             results = automation.generate_images(prompts, stop_check=lambda: self.stop_requested)
+
+            # Add project info to results
+            for result in results:
+                result["project_id"] = self.current_project_id
+                result["project_name"] = project_name
 
             # Update UI
             self.after(0, lambda: self._generation_complete(results))
@@ -649,6 +926,134 @@ class GenerateTab(ctk.CTkFrame):
 
         # Show success message
         self.progress_label.configure(text=f"✅ Generated {len(results)} images!")
+
+        # Show results popup
+        if results:
+            self._show_results_popup(results)
+
+        # Call callback if provided
+        if self.on_generation_complete:
+            self.on_generation_complete(results)
+
+    def _show_results_popup(self, results: list):
+        """Show a popup with the generated images"""
+        popup = ctk.CTkToplevel(self)
+        popup.title("Generation Complete!")
+        popup.geometry("600x500")
+        popup.transient(self.winfo_toplevel())
+        popup.grab_set()
+
+        # Center the popup
+        popup.update_idletasks()
+        x = (popup.winfo_screenwidth() - 600) // 2
+        y = (popup.winfo_screenheight() - 500) // 2
+        popup.geometry(f"+{x}+{y}")
+
+        # Header
+        header_frame = ctk.CTkFrame(popup, fg_color=self.colors["primary"], height=60)
+        header_frame.pack(fill="x")
+        header_frame.pack_propagate(False)
+
+        header_label = ctk.CTkLabel(
+            header_frame,
+            text=f"🎉 Generated {len(results)} Images!",
+            font=FONTS["heading_lg"],
+            text_color="#ffffff"
+        )
+        header_label.pack(expand=True)
+
+        # Project info
+        project_name = results[0].get("project_name", "Unknown Project") if results else "Unknown"
+        info_frame = ctk.CTkFrame(popup, fg_color=self.colors["card"], height=40)
+        info_frame.pack(fill="x", padx=20, pady=10)
+
+        project_label = ctk.CTkLabel(
+            info_frame,
+            text=f"📁 Project: {project_name}",
+            font=FONTS["body"],
+            text_color=self.colors["text"]
+        )
+        project_label.pack(side="left", padx=15, pady=10)
+
+        # Scrollable image grid
+        scroll_frame = ctk.CTkScrollableFrame(
+            popup,
+            fg_color="transparent"
+        )
+        scroll_frame.pack(fill="both", expand=True, padx=20, pady=10)
+
+        # Display images in grid
+        row_frame = None
+        for i, result in enumerate(results):
+            if i % 2 == 0:
+                row_frame = ctk.CTkFrame(scroll_frame, fg_color="transparent")
+                row_frame.pack(fill="x", pady=5)
+
+            img_card = ctk.CTkFrame(
+                row_frame,
+                fg_color=self.colors["card"],
+                corner_radius=8
+            )
+            img_card.pack(side="left", padx=5, fill="x", expand=True)
+
+            # Try to load and display image
+            try:
+                from PIL import Image
+                img_path = result.get("file", "")
+                if img_path:
+                    img = Image.open(img_path)
+                    img.thumbnail((250, 200))
+                    ctk_img = ctk.CTkImage(light_image=img, dark_image=img, size=img.size)
+                    img_label = ctk.CTkLabel(img_card, image=ctk_img, text="")
+                    img_label.pack(padx=10, pady=10)
+            except Exception:
+                # Show placeholder if image can't be loaded
+                placeholder = ctk.CTkLabel(
+                    img_card,
+                    text="🖼️ Image",
+                    font=FONTS["body"],
+                    text_color=self.colors["text_secondary"],
+                    width=250,
+                    height=150
+                )
+                placeholder.pack(padx=10, pady=10)
+
+            # Prompt text (truncated)
+            prompt_text = result.get("prompt", "")[:40] + "..." if len(result.get("prompt", "")) > 40 else result.get("prompt", "")
+            prompt_label = ctk.CTkLabel(
+                img_card,
+                text=prompt_text,
+                font=FONTS["caption"],
+                text_color=self.colors["text_secondary"],
+                wraplength=230
+            )
+            prompt_label.pack(padx=10, pady=(0, 10))
+
+        # Bottom buttons
+        btn_frame = ctk.CTkFrame(popup, fg_color="transparent")
+        btn_frame.pack(fill="x", padx=20, pady=15)
+
+        view_gallery_btn = ctk.CTkButton(
+            btn_frame,
+            text="View in Gallery",
+            font=FONTS["body"],
+            command=lambda: [popup.destroy(), self._go_to_gallery()],
+            **BUTTON_STYLES["primary"]
+        )
+        view_gallery_btn.pack(side="left", padx=5)
+
+        close_btn = ctk.CTkButton(
+            btn_frame,
+            text="Close",
+            font=FONTS["body"],
+            command=popup.destroy,
+            **BUTTON_STYLES["secondary"]
+        )
+        close_btn.pack(side="right", padx=5)
+
+    def _go_to_gallery(self):
+        """Navigate to gallery tab - to be connected by main app"""
+        pass  # This will be handled by the main app
 
     def _generation_failed(self):
         """Handle generation failure"""

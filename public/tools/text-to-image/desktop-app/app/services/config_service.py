@@ -238,6 +238,10 @@ class ConfigService:
         """Get recent generations"""
         return self.get("recent_generations", [])[:limit]
 
+    def get_generations(self) -> List[dict]:
+        """Get all generations"""
+        return self.get("recent_generations", [])
+
     def clear_history(self):
         """Clear generation history"""
         self.set("recent_generations", [])
