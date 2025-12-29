@@ -92,6 +92,14 @@ const App = {
         // Close modal on escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
+                // Admin shortcut: Ctrl+Shift+Escape to close ALL popups
+                if (e.ctrlKey && e.shiftKey && this.isAdmin()) {
+                    e.preventDefault();
+                    this.closeAllPopups();
+                    return;
+                }
+
+                // Regular escape: close single modal
                 const modal = document.querySelector('.modal-overlay:not(.hidden)');
                 if (modal) this.closeModal(modal);
             }
@@ -266,6 +274,81 @@ const App = {
             modal.classList.add('hidden');
             document.body.style.overflow = '';
         }
+    },
+
+    /**
+     * Close all popups/modals across the application (Admin only)
+     * Closes all visible modals, overlays, loading screens, and popup elements
+     */
+    closeAllPopups() {
+        // Check if user is admin
+        if (!this.isAdmin()) {
+            console.warn('closeAllPopups: Admin access required');
+            return false;
+        }
+
+        let closedCount = 0;
+
+        // Close all modal overlays (standard modals)
+        document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(modal => {
+            modal.classList.add('hidden');
+            closedCount++;
+        });
+
+        // Close all admin modals
+        document.querySelectorAll('.admin-modal:not(.hidden)').forEach(modal => {
+            modal.classList.add('hidden');
+            closedCount++;
+        });
+
+        // Close any loading overlays
+        document.querySelectorAll('.loading-overlay:not(.hidden)').forEach(overlay => {
+            overlay.classList.add('hidden');
+            closedCount++;
+        });
+
+        // Close any toast notifications
+        document.querySelectorAll('.toast').forEach(toast => {
+            toast.remove();
+            closedCount++;
+        });
+
+        // Close any custom popups with common popup class names
+        const popupSelectors = [
+            '.popup:not(.hidden)',
+            '.dialog:not(.hidden)',
+            '.overlay:not(.hidden)',
+            '[role="dialog"]:not(.hidden)',
+            '.modal:not(.hidden)'
+        ];
+
+        popupSelectors.forEach(selector => {
+            document.querySelectorAll(selector).forEach(popup => {
+                // Avoid closing the main page content
+                if (!popup.classList.contains('page-wrapper') &&
+                    !popup.classList.contains('main-content')) {
+                    popup.classList.add('hidden');
+                    closedCount++;
+                }
+            });
+        });
+
+        // Restore body scroll
+        document.body.style.overflow = '';
+
+        if (closedCount > 0) {
+            console.log(`Admin: Closed ${closedCount} popup(s)`);
+            this.toast(`Closed ${closedCount} popup(s)`, 'success', 2000);
+        }
+
+        return closedCount;
+    },
+
+    /**
+     * Check if current user is admin
+     */
+    isAdmin() {
+        return this.user && this.user.role === 'admin';
     },
 
     /**
