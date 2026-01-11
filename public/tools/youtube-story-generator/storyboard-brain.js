@@ -11,9 +11,14 @@ const StoryboardBrain = {
      * Uses enhanced analyzer for detailed character detection
      */
     extractCharacters(script) {
+        console.log('[Storyboard Brain] Checking for EnhancedCharacterAnalyzer:', typeof EnhancedCharacterAnalyzer);
+
         // Use enhanced analyzer if available, fallback to basic
         if (typeof EnhancedCharacterAnalyzer !== 'undefined') {
+            console.log('[Storyboard Brain] Using EnhancedCharacterAnalyzer');
             const detailedCharacters = EnhancedCharacterAnalyzer.extractCharacters(script);
+
+            console.log('[Storyboard Brain] Enhanced analyzer returned:', detailedCharacters.length, 'characters');
 
             // Convert to legacy format - enhanced analyzer already has 'content' property
             return detailedCharacters.map(char => ({
@@ -23,6 +28,7 @@ const StoryboardBrain = {
         }
 
         // Fallback to basic extraction
+        console.warn('[Storyboard Brain] EnhancedCharacterAnalyzer not found! Using fallback basic extraction');
         return this.basicExtractCharacters(script);
     },
 
@@ -241,9 +247,14 @@ const StoryboardBrain = {
      * Uses enhanced analyzer for detailed environment detection
      */
     extractEnvironments(script) {
+        console.log('[Storyboard Brain] Checking for EnhancedEnvironmentAnalyzer:', typeof EnhancedEnvironmentAnalyzer);
+
         // Use enhanced analyzer if available, fallback to basic
         if (typeof EnhancedEnvironmentAnalyzer !== 'undefined') {
+            console.log('[Storyboard Brain] Using EnhancedEnvironmentAnalyzer');
             const detailedEnvironments = EnhancedEnvironmentAnalyzer.extractEnvironments(script);
+
+            console.log('[Storyboard Brain] Enhanced analyzer returned:', detailedEnvironments.length, 'environments');
 
             // Convert to legacy format - enhanced analyzer already has 'content' property
             return detailedEnvironments.map(env => ({
@@ -253,6 +264,7 @@ const StoryboardBrain = {
         }
 
         // Fallback to basic extraction
+        console.warn('[Storyboard Brain] EnhancedEnvironmentAnalyzer not found! Using fallback basic extraction');
         return this.basicExtractEnvironments(script);
     },
 
