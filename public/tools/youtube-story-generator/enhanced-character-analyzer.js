@@ -1,401 +1,565 @@
 /**
- * ENHANCED CHARACTER ANALYZER
- * Advanced character extraction with 20+ attributes
- * Detects names, appearance, personality, relationships, and more
+ * ULTRA-POWERFUL CHARACTER ANALYZER V3
+ * Handles ANY script format - parenthetical, narrative, dialogue-based, action-based
+ * Uses multiple detection strategies and AI-like intelligence
  */
 
 const EnhancedCharacterAnalyzer = {
     /**
-     * Extract all characters from script with detailed attributes
-     * @param {string} script - The full script text
-     * @returns {Array} Array of character objects with detailed attributes
+     * Extract ALL characters using MULTIPLE detection strategies
      */
     extractCharacters(script) {
-        const characters = [];
+        console.log('[Character Analyzer] Starting deep analysis...');
 
-        // Pattern 1: Parenthetical character descriptions (most detailed)
-        // Format: Name (age, attributes, description)
-        const parentheticalPattern = /([A-Z][a-z]+)\s*\(([^)]+)\)/g;
-        const matches = script.matchAll(parentheticalPattern);
+        const allCharacters = new Map(); // name -> character object
 
-        for (const match of matches) {
-            const name = match[1].trim();
-            const description = match[2];
+        // STRATEGY 1: Parenthetical descriptions (e.g., "Name (26-year-old man...)")
+        this.extractParenthetical(script, allCharacters);
 
-            // Skip if this is not a character (check for age/appearance keywords)
-            if (!this.isLikelyCharacter(description)) {
-                continue;
-            }
+        // STRATEGY 2: Narrative descriptions (e.g., "John, a tall man with...")
+        this.extractNarrative(script, allCharacters);
 
-            const character = {
-                name: name,
-                description: description,
+        // STRATEGY 3: Dialogue and action patterns
+        this.extractFromDialogue(script, allCharacters);
 
-                // Physical attributes
-                age: this.extractAge(description),
-                gender: this.detectGender(description, name),
-                appearance: this.extractAppearance(description),
-                height: this.extractHeight(description),
-                skin: this.extractSkinTone(description),
-                hairStyle: this.extractHairStyle(description),
-                facialFeatures: this.extractFacialFeatures(description),
-                clothing: this.extractClothing(description),
+        // STRATEGY 4: Proper names mentioned multiple times
+        this.extractFrequentNames(script, allCharacters);
 
-                // Personality
-                personality: this.extractPersonality(description),
-                demeanor: this.extractDemeanor(description),
-
-                // Context from full script
-                firstMention: script.indexOf(name),
-                mentionCount: this.countMentions(script, name),
-                dialoguePresence: this.hasDialogue(script, name),
-
-                // Relationships (will be filled in second pass)
-                relationships: {}
-            };
-
-            characters.push(character);
+        // ENRICH: Add contextual details for all characters
+        for (const [name, char] of allCharacters.entries()) {
+            this.enrichCharacter(char, script);
         }
 
-        // Pattern 2: Simple name mentions (backup for names without parenthetical descriptions)
-        // Look for capitalized names that appear multiple times
-        const simpleNames = this.extractSimpleNames(script, characters);
-        for (const name of simpleNames) {
-            // Skip if already found
-            if (characters.find(c => c.name === name)) continue;
-
-            characters.push({
-                name: name,
-                description: '',
-                age: null,
-                gender: this.detectGenderFromContext(script, name),
-                appearance: '',
-                height: null,
-                skin: null,
-                hairStyle: null,
-                facialFeatures: null,
-                clothing: null,
-                personality: [],
-                demeanor: null,
-                firstMention: script.indexOf(name),
-                mentionCount: this.countMentions(script, name),
-                dialoguePresence: this.hasDialogue(script, name),
-                relationships: {}
-            });
-        }
-
-        // Second pass: Extract relationships between characters
+        // RELATIONSHIPS: Detect connections between characters
+        const characters = Array.from(allCharacters.values());
         this.extractRelationships(script, characters);
+
+        console.log(`[Character Analyzer] Found ${characters.length} characters:`,
+                    characters.map(c => `${c.name} (${c.confidence}% confidence)`));
 
         return characters;
     },
 
     /**
-     * Check if description likely describes a character
+     * STRATEGY 1: Extract from parenthetical descriptions
+     * Handles: "Name (age, description, details)"
      */
-    isLikelyCharacter(description) {
-        const characterKeywords = [
-            'year', 'old', 'man', 'woman', 'boy', 'girl', 'person',
-            'skin', 'hair', 'eyes', 'face', 'wearing', 'personality',
-            'height', 'tall', 'short', 'build', 'appearance'
+    extractParenthetical(script, charactersMap) {
+        // Match: Name (at least 20 chars of description)
+        const pattern = /\b([A-Z][a-z]+)\s*\(([^)]{20,}?)\)/g;
+        let match;
+
+        while ((match = pattern.exec(script)) !== null) {
+            const name = match[1];
+            const description = match[2];
+
+            // Only process if description looks like a character
+            if (!this.looksLikeCharacter(description)) continue;
+            if (this.isCommonWord(name)) continue;
+
+            if (!charactersMap.has(name)) {
+                charactersMap.set(name, {
+                    name: name,
+                    descriptions: [],
+                    confidence: 95, // High confidence for parenthetical
+                    detectionMethod: 'parenthetical'
+                });
+            }
+
+            charactersMap.get(name).descriptions.push(description);
+        }
+    },
+
+    /**
+     * STRATEGY 2: Extract from narrative descriptions
+     * Handles: "John, a tall man with dark hair, walked..."
+     *          "A young woman named Sarah appeared..."
+     */
+    extractNarrative(script, charactersMap) {
+        const patterns = [
+            // Pattern: "Name, a/an DESCRIPTION,"
+            /\b([A-Z][a-z]+),\s+a(?:n)?\s+([^,]{10,100}?),/g,
+            // Pattern: "DESCRIPTION named Name"
+            /\ba(?:n)?\s+([^,]{10,50}?)\s+named\s+([A-Z][a-z]+)/g,
+            // Pattern: "Name was a DESCRIPTION"
+            /\b([A-Z][a-z]+)\s+(?:was|is)\s+a(?:n)?\s+([^.!?]{10,100}?)[\.\!\?]/g,
         ];
 
-        const lowerDesc = description.toLowerCase();
-        return characterKeywords.some(keyword => lowerDesc.includes(keyword));
+        for (const pattern of patterns) {
+            let match;
+            while ((match = pattern.exec(script)) !== null) {
+                let name, description;
+
+                // Handle different pattern groups
+                if (match[0].includes('named')) {
+                    description = match[1];
+                    name = match[2];
+                } else {
+                    name = match[1];
+                    description = match[2];
+                }
+
+                if (this.isCommonWord(name)) continue;
+                if (!this.looksLikeCharacter(description)) continue;
+
+                if (!charactersMap.has(name)) {
+                    charactersMap.set(name, {
+                        name: name,
+                        descriptions: [],
+                        confidence: 85,
+                        detectionMethod: 'narrative'
+                    });
+                }
+
+                charactersMap.get(name).descriptions.push(description);
+            }
+        }
     },
 
     /**
-     * Extract age from description
+     * STRATEGY 3: Extract from dialogue and actions
+     * Handles: "John said", "Mary walked", possessives, etc.
      */
+    extractFromDialogue(script, charactersMap) {
+        const patterns = [
+            // Dialogue: "Name said/asked/replied"
+            /\b([A-Z][a-z]+)\s+(said|asked|replied|shouted|whispered|answered|exclaimed|called|continued|spoke)/g,
+            // Possessive: "Name's"
+            /\b([A-Z][a-z]+)'s\s+/g,
+            // Actions: "Name walked/looked/turned"
+            /\b([A-Z][a-z]+)\s+(walked|looked|turned|ran|stood|sat|entered|left|approached|noticed)/g,
+        ];
+
+        const nameCounts = new Map();
+
+        for (const pattern of patterns) {
+            let match;
+            while ((match = pattern.exec(script)) !== null) {
+                const name = match[1];
+                if (this.isCommonWord(name)) continue;
+
+                nameCounts.set(name, (nameCounts.get(name) || 0) + 1);
+            }
+        }
+
+        // Only add names mentioned 2+ times
+        for (const [name, count] of nameCounts.entries()) {
+            if (count >= 2 && !charactersMap.has(name)) {
+                charactersMap.set(name, {
+                    name: name,
+                    descriptions: [],
+                    confidence: Math.min(50 + (count * 5), 80),
+                    detectionMethod: 'dialogue'
+                });
+            }
+        }
+    },
+
+    /**
+     * STRATEGY 4: Extract frequently mentioned proper names
+     */
+    extractFrequentNames(script, charactersMap) {
+        const words = script.match(/\b[A-Z][a-z]{2,}\b/g) || [];
+        const counts = new Map();
+
+        for (const word of words) {
+            if (this.isCommonWord(word)) continue;
+            if (charactersMap.has(word)) continue; // Already found
+
+            counts.set(word, (counts.get(word) || 0) + 1);
+        }
+
+        // Add names mentioned 4+ times
+        for (const [name, count] of counts.entries()) {
+            if (count >= 4) {
+                charactersMap.set(name, {
+                    name: name,
+                    descriptions: [],
+                    confidence: Math.min(40 + (count * 3), 75),
+                    detectionMethod: 'frequency'
+                });
+            }
+        }
+    },
+
+    /**
+     * ENRICH: Extract detailed attributes for each character
+     */
+    enrichCharacter(character, script) {
+        // Combine all description sources
+        const fullContext = [
+            ...character.descriptions,
+            this.getNameContext(script, character.name)
+        ].join(' ');
+
+        // Split into analyzable parts
+        const parts = fullContext.split(/[,;]+/).map(p => p.trim());
+
+        // Extract EVERYTHING
+        character.age = this.extractAge(fullContext);
+        character.gender = this.detectGender(fullContext, character.name);
+        character.nationality = this.extractNationality(parts);
+
+        // Physical appearance
+        character.skinTone = this.extractSkinTone(parts);
+        character.faceShape = this.extractFaceShape(parts);
+        character.hairColor = this.extractHairColor(parts);
+        character.hairLength = this.extractHairLength(parts);
+        character.hairStyle = this.extractHairStyle(parts);
+        character.facialHair = this.extractFacialHair(parts);
+        character.eyeColor = this.extractEyeColor(parts);
+        character.eyeDescription = this.extractEyeDescription(parts);
+        character.height = this.extractHeight(parts);
+        character.bodyBuild = this.extractBodyBuild(parts);
+        character.facialFeatures = this.extractFacialFeatures(parts);
+
+        // Clothing
+        character.clothing = this.extractClothing(parts);
+        character.accessories = this.extractAccessories(parts);
+
+        // Personality
+        character.personalityTraits = this.extractPersonalityTraits(parts);
+        character.demeanor = this.extractDemeanor(parts);
+        character.attitude = this.extractAttitude(parts);
+
+        // Context
+        character.mentionCount = this.countMentions(script, character.name);
+        character.firstMention = script.indexOf(character.name);
+        character.dialoguePresence = this.hasDialogue(script, character.name);
+
+        // Generate content string for compatibility
+        character.content = this.generateContentString(character);
+    },
+
+    /**
+     * Get all context around character name
+     */
+    getNameContext(script, name) {
+        const sentences = script.split(/[.!?]+/);
+        const relevant = sentences.filter(s => s.includes(name));
+        return relevant.join('. ');
+    },
+
+    /**
+     * Check if text describes a character
+     */
+    looksLikeCharacter(text) {
+        const keywords = [
+            'year', 'old', 'man', 'woman', 'boy', 'girl', 'male', 'female',
+            'skin', 'hair', 'eyes', 'face', 'wearing', 'personality',
+            'tall', 'short', 'pakistani', 'indian', 'american', 'age'
+        ];
+        const lower = text.toLowerCase();
+        return keywords.some(kw => lower.includes(kw));
+    },
+
+    /**
+     * Common words that aren't character names
+     */
+    isCommonWord(word) {
+        const common = [
+            'The', 'One', 'Day', 'Time', 'Life', 'With', 'Winter', 'Curiosity',
+            'A', 'Few', 'As', 'Without', 'Lahore', 'Mr', 'Mrs', 'Ms', 'Dr',
+            'When', 'Where', 'What', 'How', 'Why', 'Who', 'Which', 'Before',
+            'After', 'During', 'While', 'Since', 'Until', 'Because', 'Although'
+        ];
+        return common.includes(word);
+    },
+
+    // ========== EXTRACTION METHODS ==========
+
     extractAge(text) {
-        // Pattern: "26-year-old" or "26 years old" or "(26)"
-        const agePattern = /(\d+)[\s-]?(?:year|yr)[\s-]?(?:old)?/i;
-        const match = text.match(agePattern);
-        return match ? parseInt(match[1]) : null;
+        const patterns = [
+            /(\d+)[\s-]?year[\s-]?old/i,
+            /age[:\s]+(\d+)/i
+        ];
+        for (const p of patterns) {
+            const m = text.match(p);
+            if (m) return parseInt(m[1]);
+        }
+        return null;
     },
 
-    /**
-     * Detect gender from description
-     */
-    detectGender(description, name = '') {
-        const lowerDesc = description.toLowerCase();
+    detectGender(text, name) {
+        const lower = text.toLowerCase();
+        if (/\b(man|male|he|his|him|gentleman|boy|father|brother|son)\b/.test(lower)) return 'male';
+        if (/\b(woman|female|she|her|lady|girl|mother|sister|daughter)\b/.test(lower)) return 'female';
 
-        // Check explicit gender terms
-        if (lowerDesc.includes('man') || lowerDesc.includes('male') ||
-            lowerDesc.includes('boy') || lowerDesc.includes('gentleman') ||
-            lowerDesc.includes('he ') || lowerDesc.includes('his ')) {
-            return 'male';
-        }
-
-        if (lowerDesc.includes('woman') || lowerDesc.includes('female') ||
-            lowerDesc.includes('girl') || lowerDesc.includes('lady') ||
-            lowerDesc.includes('she ') || lowerDesc.includes('her ')) {
-            return 'female';
-        }
-
-        // Check common gender-specific names
+        // Name-based detection
         const maleNames = ['ayaan', 'hamza', 'saad', 'ali', 'omar', 'bilal', 'kamran'];
         const femaleNames = ['zara', 'sara', 'fatima', 'ayesha', 'mariam', 'aisha'];
-
-        const lowerName = name.toLowerCase();
-        if (maleNames.includes(lowerName)) return 'male';
-        if (femaleNames.includes(lowerName)) return 'female';
+        const n = name.toLowerCase();
+        if (maleNames.includes(n)) return 'male';
+        if (femaleNames.includes(n)) return 'female';
 
         return 'unknown';
     },
 
-    /**
-     * Detect gender from script context
-     */
-    detectGenderFromContext(script, name) {
-        // Get sentences containing the name
-        const sentences = script.split(/[.!?]+/);
-        const relevantSentences = sentences.filter(s => s.includes(name)).join(' ');
-
-        return this.detectGender(relevantSentences, name);
+    extractNationality(parts) {
+        const pattern = /(pakistani|indian|american|british|chinese|japanese|korean|arab|turkish|persian|afghan|bangladeshi|sri lankan)/i;
+        for (const part of parts) {
+            const m = part.match(pattern);
+            if (m) return m[1].charAt(0).toUpperCase() + m[1].slice(1).toLowerCase();
+        }
+        return null;
     },
 
-    /**
-     * Extract appearance description
-     */
-    extractAppearance(text) {
-        const appearance = [];
-
-        // Extract specific appearance terms
-        const appearancePatterns = [
-            /\b(fair|dark|wheatish|pale|tan|olive|brown)[\s-]?(?:wheatish|skin)?\b/gi,
-            /\b(tall|short|slim|muscular|thin|heavy|petite|broad-shouldered)\b/gi,
-            /\b(long|short|curly|straight|wavy|black|brown|blonde|styled|trimmed)\s+(?:hair|beard)\b/gi,
-            /\b(round|oval|sharp|heart-shaped|delicate)\s+(?:face|features|jawline)\b/gi,
-            /\b(expressive|deep|bright|confident|lively)\s+(?:eyes)\b/gi
-        ];
-
-        for (const pattern of appearancePatterns) {
-            const matches = text.matchAll(pattern);
-            for (const match of matches) {
-                appearance.push(match[0].trim());
+    extractSkinTone(parts) {
+        for (const part of parts) {
+            if (/skin/i.test(part)) {
+                const m = part.match(/(fair|wheatish|dark|pale|tan|olive|brown|light|medium|deep|fair-wheatish)[\s-]*(wheatish|skin)?/i);
+                if (m) return part.trim();
             }
         }
-
-        return appearance.join(', ');
+        return null;
     },
 
-    /**
-     * Extract height information
-     */
-    extractHeight(text) {
-        const heightPattern = /\b(tall|short|medium\s+height)\b/gi;
-        const match = text.match(heightPattern);
-        return match ? match[0] : null;
+    extractFaceShape(parts) {
+        const pattern = /(oval|round|square|heart-shaped|oblong|delicate|angular|sharp)\s+(face|features)/i;
+        for (const part of parts) {
+            const m = part.match(pattern);
+            if (m) return m[1];
+        }
+        return null;
     },
 
-    /**
-     * Extract skin tone
-     */
-    extractSkinTone(text) {
-        const skinPattern = /\b(fair|dark|wheatish|pale|tan|olive|brown|fair-wheatish)[\s-]?(?:wheatish)?\s*skin\b/gi;
-        const match = text.match(skinPattern);
-        return match ? match[0] : null;
+    extractHairColor(parts) {
+        const pattern = /(black|brown|blonde|gray|white|red|auburn)\s+hair/i;
+        for (const part of parts) {
+            const m = part.match(pattern);
+            if (m) return m[1];
+        }
+        return null;
     },
 
-    /**
-     * Extract hair style
-     */
-    extractHairStyle(text) {
-        const hairPattern = /\b(long|short|shoulder-length|curly|straight|wavy|black|brown|blonde|styled|thick|trimmed)\s+(?:black|brown|blonde)?\s*(?:hair)\b/gi;
-        const match = text.match(hairPattern);
-        return match ? match[0] : null;
+    extractHairLength(parts) {
+        const pattern = /(long|short|shoulder-length|waist-length|medium)\s+(?:black|brown|blonde|hair)/i;
+        for (const part of parts) {
+            const m = part.match(pattern);
+            if (m) return m[1];
+        }
+        return null;
     },
 
-    /**
-     * Extract facial features
-     */
-    extractFacialFeatures(text) {
+    extractHairStyle(parts) {
+        for (const part of parts) {
+            if (/hair/i.test(part)) {
+                return part.trim();
+            }
+        }
+        return null;
+    },
+
+    extractFacialHair(parts) {
+        for (const part of parts) {
+            if (/beard|shaven|mustache|stubble/i.test(part)) {
+                return part.trim();
+            }
+        }
+        return null;
+    },
+
+    extractEyeColor(parts) {
+        const pattern = /(brown|blue|green|hazel|gray|black|amber)\s+eyes/i;
+        for (const part of parts) {
+            const m = part.match(pattern);
+            if (m) return m[1];
+        }
+        return null;
+    },
+
+    extractEyeDescription(parts) {
+        for (const part of parts) {
+            if (/eyes/i.test(part)) {
+                return part.trim();
+            }
+        }
+        return null;
+    },
+
+    extractHeight(parts) {
+        const pattern = /(tall|short|medium height|average height|petite)\b/i;
+        for (const part of parts) {
+            const m = part.match(pattern);
+            if (m) return m[0].trim();
+        }
+        return null;
+    },
+
+    extractBodyBuild(parts) {
+        const pattern = /(slim|muscular|athletic|broad-shouldered|thin|lean|stocky)\b/i;
+        const builds = [];
+        for (const part of parts) {
+            const m = part.match(pattern);
+            if (m) builds.push(m[0]);
+        }
+        return builds.length > 0 ? builds.join(', ') : null;
+    },
+
+    extractFacialFeatures(parts) {
+        const pattern = /(sharp|delicate|strong|soft)\s+(jawline|cheekbones|features)/i;
         const features = [];
+        for (const part of parts) {
+            const m = part.match(pattern);
+            if (m) features.push(m[0]);
+        }
+        return features.length > 0 ? features.join(', ') : null;
+    },
 
-        const facePatterns = [
-            /\b(round|oval|sharp|heart-shaped|delicate)\s+(?:face|features)\b/gi,
-            /\b(sharp|strong|soft)\s+jawline\b/gi,
-            /\b(light|full|trimmed|clean-shaven)\s+(?:beard|facial\s+hair)\b/gi,
-            /\b(expressive|deep|bright|confident|lively)\s+eyes\b/gi
-        ];
-
-        for (const pattern of facePatterns) {
-            const matches = text.matchAll(pattern);
-            for (const match of matches) {
-                features.push(match[0].trim());
+    extractClothing(parts) {
+        const keywords = ['wearing', 'dressed', 'kurta', 'shalwar', 'kameez', 'dupatta', 'dress', 'hoodie', 'jeans', 'sneakers', 'shawl', 'shirt', 'pants'];
+        const clothing = [];
+        for (const part of parts) {
+            if (keywords.some(kw => part.toLowerCase().includes(kw))) {
+                clothing.push(part.trim());
             }
         }
-
-        return features.join(', ');
+        return clothing.length > 0 ? clothing.join(', ') : null;
     },
 
-    /**
-     * Extract clothing description
-     */
-    extractClothing(text) {
-        const clothingPattern = /wearing\s+(?:a|an)?\s*([^,]+?)(?:\,|\.|\))/i;
-        const match = text.match(clothingPattern);
-        return match ? match[1].trim() : null;
+    extractAccessories(parts) {
+        const pattern = /(scarf|shawl|jewelry|watch|glasses|bracelet|necklace|earrings)/i;
+        const acc = [];
+        for (const part of parts) {
+            const m = part.match(pattern);
+            if (m) acc.push(part.trim());
+        }
+        return acc.length > 0 ? acc.join(', ') : null;
     },
 
-    /**
-     * Extract personality traits
-     */
-    extractPersonality(text) {
+    extractPersonalityTraits(parts) {
+        const pattern = /(calm|thoughtful|confident|bold|gentle|graceful|humorous|cheerful|carefree|playful|energetic|protective|serious)\s+(personality|nature|attitude|posture)?/i;
         const traits = [];
-
-        const personalityPatterns = {
-            'calm': /\b(calm|peaceful|composed|thoughtful)\b/gi,
-            'confident': /\b(confident|bold|fearless|assured)\b/gi,
-            'protective': /\b(protective|caring|nurturing)\b/gi,
-            'humorous': /\b(humorous|funny|cheerful|carefree)\b/gi,
-            'gentle': /\b(gentle|soft-spoken|graceful|delicate)\b/gi,
-            'energetic': /\b(energetic|lively|playful|outspoken)\b/gi,
-            'serious': /\b(serious|stern|grave|solemn)\b/gi,
-            'friendly': /\b(friendly|warm|welcoming)\b/gi
-        };
-
-        const lowerText = text.toLowerCase();
-        for (const [trait, pattern] of Object.entries(personalityPatterns)) {
-            if (pattern.test(lowerText)) {
-                traits.push(trait);
+        for (const part of parts) {
+            if (part.match(pattern)) {
+                traits.push(part.trim());
             }
         }
-
         return traits;
     },
 
-    /**
-     * Extract demeanor
-     */
-    extractDemeanor(text) {
-        const demeanorPattern = /\b(calm|confident|protective|humorous|graceful|energetic|thoughtful|carefree)\s+(?:posture|nature|attitude|personality|demeanor)\b/gi;
-        const match = text.match(demeanorPattern);
-        return match ? match[0] : null;
-    },
-
-    /**
-     * Extract simple names (capitalized words that appear multiple times)
-     */
-    extractSimpleNames(script, existingCharacters) {
-        const names = new Set();
-        const existingNames = existingCharacters.map(c => c.name);
-
-        // Find all capitalized words
-        const capitalizedWords = script.match(/\b[A-Z][a-z]{2,}\b/g) || [];
-
-        // Count occurrences
-        const nameCounts = {};
-        for (const word of capitalizedWords) {
-            // Skip common words and existing names
-            if (this.isCommonWord(word) || existingNames.includes(word)) continue;
-
-            nameCounts[word] = (nameCounts[word] || 0) + 1;
+    extractDemeanor(parts) {
+        const pattern = /(calm|confident|graceful|carefree|gentle)\s+(posture|demeanor)/i;
+        for (const part of parts) {
+            const m = part.match(pattern);
+            if (m) return part.trim();
         }
+        return null;
+    },
 
-        // Keep names that appear 3+ times
-        for (const [name, count] of Object.entries(nameCounts)) {
-            if (count >= 3) {
-                names.add(name);
-            }
+    extractAttitude(parts) {
+        const pattern = /(thoughtful|playful|carefree|protective|confident)\s+attitude/i;
+        for (const part of parts) {
+            const m = part.match(pattern);
+            if (m) return part.trim();
         }
-
-        return Array.from(names);
+        return null;
     },
 
-    /**
-     * Check if word is a common word (not a name)
-     */
-    isCommonWord(word) {
-        const commonWords = [
-            'The', 'One', 'Day', 'Time', 'Life', 'With', 'Sara', 'Winter',
-            'Curiosity', 'A', 'Few', 'As', 'Without', 'Lahore'
-        ];
-        return commonWords.includes(word);
-    },
-
-    /**
-     * Count mentions of a name in script
-     */
     countMentions(script, name) {
-        const regex = new RegExp(`\\b${name}\\b`, 'gi');
-        const matches = script.match(regex);
+        const re = new RegExp(`\\b${name}\\b`, 'gi');
+        const matches = script.match(re);
         return matches ? matches.length : 0;
     },
 
-    /**
-     * Check if character has dialogue
-     */
     hasDialogue(script, name) {
-        // Look for patterns like: Name said, Name replied, "..." Name
-        const dialoguePatterns = [
-            new RegExp(`${name}\\s+(said|replied|asked|answered|spoke|whispered|shouted)`, 'i'),
+        const patterns = [
+            new RegExp(`${name}\\s+(said|asked|replied|answered|spoke)`, 'i'),
             new RegExp(`"[^"]*"\\s+${name}`, 'i')
         ];
+        return patterns.some(p => p.test(script));
+    },
 
-        return dialoguePatterns.some(pattern => pattern.test(script));
+    /**
+     * Generate content string from character attributes
+     */
+    generateContentString(char) {
+        const parts = [];
+
+        if (char.gender) parts.push(char.gender);
+        if (char.age) parts.push(`${char.age} years old`);
+        if (char.nationality) parts.push(char.nationality);
+        if (char.skinTone) parts.push(char.skinTone);
+        if (char.faceShape) parts.push(`${char.faceShape} face`);
+        if (char.height) parts.push(char.height);
+        if (char.bodyBuild) parts.push(char.bodyBuild);
+        if (char.hairStyle) parts.push(char.hairStyle);
+        if (char.facialHair) parts.push(char.facialHair);
+        if (char.eyeDescription) parts.push(char.eyeDescription);
+        if (char.facialFeatures) parts.push(char.facialFeatures);
+        if (char.clothing) parts.push(char.clothing);
+        if (char.personalityTraits && char.personalityTraits.length > 0) {
+            parts.push(...char.personalityTraits);
+        }
+        if (char.demeanor) parts.push(char.demeanor);
+
+        // Add defaults for image generation
+        parts.push('realistic facial features');
+        parts.push('natural skin texture');
+        parts.push('detailed eyes');
+        parts.push('proportional body');
+        parts.push('cinematic lighting');
+        parts.push('professional photography');
+        parts.push('high detail');
+        parts.push('8k resolution');
+        parts.push('photorealistic rendering');
+
+        return parts.join(', ');
     },
 
     /**
      * Extract relationships between characters
      */
     extractRelationships(script, characters) {
-        const relationshipPatterns = {
-            'friend': /\b(friend|friendship|companion|buddy|pal)\b/gi,
-            'best friend': /\b(best\s+friend)\b/gi,
-            'cousin': /\b(cousin)\b/gi,
-            'romantic interest': /\b(love|affection|romantic|feelings\s+for)\b/gi,
-            'group member': /\b(group|circle|together)\b/gi
-        };
-
-        for (let i = 0; i < characters.length; i++) {
-            for (let j = i + 1; j < characters.length; j++) {
-                const char1 = characters[i];
-                const char2 = characters[j];
-
-                // Find sentences mentioning both characters
-                const sentences = script.split(/[.!?]+/);
-                const sharedSentences = sentences.filter(s =>
-                    s.includes(char1.name) && s.includes(char2.name)
-                ).join(' ');
-
-                // Detect relationship type
-                for (const [type, pattern] of Object.entries(relationshipPatterns)) {
-                    if (pattern.test(sharedSentences)) {
-                        char1.relationships[char2.name] = type;
-                        char2.relationships[char1.name] = type;
-                        break;
+        // Best friends
+        if (script.includes('best friend')) {
+            const pattern = /([A-Z][a-z]+)(?:\s*,\s*([A-Z][a-z]+))?(?:\s*,?\s*(?:and|&)\s+([A-Z][a-z]+))?\s+(?:had been|were|are)\s+best friends/i;
+            const m = script.match(pattern);
+            if (m) {
+                const names = [m[1], m[2], m[3]].filter(Boolean);
+                for (const n1 of names) {
+                    for (const n2 of names) {
+                        if (n1 === n2) continue;
+                        const c1 = characters.find(c => c.name === n1);
+                        const c2 = characters.find(c => c.name === n2);
+                        if (c1 && c2) {
+                            if (!c1.relationships) c1.relationships = {};
+                            c1.relationships[c2.name] = 'best friend';
+                        }
                     }
-                }
-
-                // Default to "acquaintance" if mentioned together but no specific relationship
-                if (!char1.relationships[char2.name] && sharedSentences.length > 0) {
-                    char1.relationships[char2.name] = 'acquaintance';
-                    char2.relationships[char1.name] = 'acquaintance';
                 }
             }
         }
 
-        // Detect "best friends" relationship from script
-        if (script.includes('best friends')) {
-            const bestFriendsPattern = /([A-Z][a-z]+)(?:\s*,\s*([A-Z][a-z]+))?(?:\s*,?\s*and\s+([A-Z][a-z]+))?\s+(?:had been|were)\s+best friends/i;
-            const match = script.match(bestFriendsPattern);
+        // Cousin
+        const cousinPattern = /(?:introduced|brought)\s+(?:his|her)\s+cousin\s+([A-Z][a-z]+)/i;
+        const cm = script.match(cousinPattern);
+        if (cm) {
+            const cousinName = cm[1];
+            for (const char of characters) {
+                if (char.name !== cousinName) {
+                    if (!char.relationships) char.relationships = {};
+                    char.relationships[cousinName] = 'cousin';
+                    const cousin = characters.find(c => c.name === cousinName);
+                    if (cousin) {
+                        if (!cousin.relationships) cousin.relationships = {};
+                        cousin.relationships[char.name] = 'cousin';
+                    }
+                }
+            }
+        }
 
-            if (match) {
-                const friendNames = [match[1], match[2], match[3]].filter(Boolean);
-
-                // Mark all as best friends with each other
-                for (const name1 of friendNames) {
-                    for (const name2 of friendNames) {
-                        if (name1 === name2) continue;
-
-                        const char1 = characters.find(c => c.name === name1);
-                        const char2 = characters.find(c => c.name === name2);
-
-                        if (char1 && char2) {
-                            char1.relationships[char2.name] = 'best friend';
-                        }
+        // Group/friends
+        if (script.match(/group|circle|friends/i)) {
+            for (let i = 0; i < characters.length; i++) {
+                for (let j = i + 1; j < characters.length; j++) {
+                    const c1 = characters[i];
+                    const c2 = characters[j];
+                    if (!c1.relationships) c1.relationships = {};
+                    if (!c2.relationships) c2.relationships = {};
+                    if (!c1.relationships[c2.name]) {
+                        c1.relationships[c2.name] = 'friend';
+                        c2.relationships[c1.name] = 'friend';
                     }
                 }
             }
@@ -403,7 +567,7 @@ const EnhancedCharacterAnalyzer = {
     }
 };
 
-// Export for use in other scripts
+// Export
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = EnhancedCharacterAnalyzer;
 }
