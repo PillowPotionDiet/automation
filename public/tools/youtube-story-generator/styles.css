@@ -222,6 +222,23 @@ body {
     gap: 20px;
 }
 
+/* RADIO OPTIONS */
+.radio-option {
+    transition: all 0.2s ease;
+}
+
+.radio-option:hover {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
+}
+
+.radio-option input[type="radio"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color);
+}
+
 /* CHECKBOX */
 .checkbox-group {
     display: flex;

@@ -210,59 +210,97 @@
     <div id="validationModal" class="modal-overlay" style="display: none;">
         <div class="modal">
             <div class="modal-header">
-                <h2>🔑 API & Webhook Setup Required</h2>
+                <h2>⚙️ Setup Method</h2>
                 <!-- Admin-only close button -->
                 <button id="adminCloseBtn" class="modal-close-btn" style="display: none;" onclick="closeValidationModal()">×</button>
             </div>
             <div class="modal-body">
                 <p style="margin-bottom: 20px;">
-                    Before you can use this tool, you must configure your GeminiGen API key and webhook.
+                    Choose how you want to proceed:
                 </p>
 
-                <!-- API Key Input -->
-                <div class="form-group">
-                    <label class="form-label" for="apiKeyInput">
-                        GeminiGen API Key
-                        <span style="color: var(--error-color);">*</span>
-                    </label>
-                    <input
-                        type="password"
-                        id="apiKeyInput"
-                        class="form-input"
-                        placeholder="Enter your API key"
-                        autocomplete="off"
-                    >
-                </div>
+                <!-- Method Selection -->
+                <div style="margin-bottom: 24px;">
+                    <div style="display: flex; gap: 16px; flex-direction: column;">
+                        <label class="radio-option" style="padding: 16px; border: 2px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                            <input type="radio" name="setupMethod" id="methodExtension" value="extension" checked style="margin-right: 12px;">
+                            <div style="display: inline-block;">
+                                <strong style="font-size: 16px;">🚀 Go with Extension Automation</strong>
+                                <p style="margin: 4px 0 0 0; font-size: 13px; color: #6b7280;">No API key required. Use the browser extension to automate everything.</p>
+                            </div>
+                        </label>
 
-                <!-- Webhook Instructions -->
-                <div class="info-box" style="background: rgba(245, 158, 11, 0.1); border-left-color: var(--warning-color);">
-                    <h3>⚠️ Webhook Setup Required</h3>
-                    <p>You <strong>MUST</strong> add this webhook URL to your GeminiGen account:</p>
-                    <div style="background: white; padding: 12px; border-radius: 6px; margin: 12px 0; font-family: monospace; font-size: 13px; word-break: break-all;">
-                        https://automation.pillowpotion.com/v2/webhook
+                        <label class="radio-option" style="padding: 16px; border: 2px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                            <input type="radio" name="setupMethod" id="methodAPI" value="api" style="margin-right: 12px;">
+                            <div style="display: inline-block;">
+                                <strong style="font-size: 16px;">🔑 Use GeminiGen API</strong>
+                                <p style="margin: 4px 0 0 0; font-size: 13px; color: #6b7280;">Configure API key and webhook for direct API access.</p>
+                            </div>
+                        </label>
                     </div>
-                    <p><strong>Steps:</strong></p>
-                    <ol style="margin-left: 20px; margin-top: 8px; font-size: 13px;">
-                        <li>Login to <a href="https://geminigen.ai" target="_blank" style="color: var(--primary-color);">GeminiGen.ai</a></li>
-                        <li>Go to <strong>API Settings</strong> → <strong>Webhooks</strong></li>
-                        <li>Add the webhook URL shown above</li>
-                        <li>Click <strong>Save</strong> to activate the webhook</li>
-                    </ol>
                 </div>
 
-                <!-- Confirmation Checkbox -->
-                <div class="checkbox-group">
-                    <input type="checkbox" id="webhookConfirm" />
-                    <label for="webhookConfirm">
-                        ☑ I have added the webhook to GeminiGen
-                    </label>
+                <!-- API Setup Section (Hidden by default) -->
+                <div id="apiSetupSection" style="display: none;">
+                    <!-- API Key Input -->
+                    <div class="form-group">
+                        <label class="form-label" for="apiKeyInput">
+                            GeminiGen API Key
+                            <span style="color: var(--error-color);">*</span>
+                        </label>
+                        <input
+                            type="password"
+                            id="apiKeyInput"
+                            class="form-input"
+                            placeholder="Enter your API key"
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <!-- Webhook Instructions -->
+                    <div class="info-box" style="background: rgba(245, 158, 11, 0.1); border-left-color: var(--warning-color);">
+                        <h3>⚠️ Webhook Setup Required</h3>
+                        <p>You <strong>MUST</strong> add this webhook URL to your GeminiGen account:</p>
+                        <div style="background: white; padding: 12px; border-radius: 6px; margin: 12px 0; font-family: monospace; font-size: 13px; word-break: break-all;">
+                            https://automation.pillowpotion.com/v2/webhook
+                        </div>
+                        <p><strong>Steps:</strong></p>
+                        <ol style="margin-left: 20px; margin-top: 8px; font-size: 13px;">
+                            <li>Login to <a href="https://geminigen.ai" target="_blank" style="color: var(--primary-color);">GeminiGen.ai</a></li>
+                            <li>Go to <strong>API Settings</strong> → <strong>Webhooks</strong></li>
+                            <li>Add the webhook URL shown above</li>
+                            <li>Click <strong>Save</strong> to activate the webhook</li>
+                        </ol>
+                    </div>
+
+                    <!-- Confirmation Checkbox -->
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="webhookConfirm" />
+                        <label for="webhookConfirm">
+                            ☑ I have added the webhook to GeminiGen
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Extension Automation Info (Shown by default) -->
+                <div id="extensionInfoSection">
+                    <div class="info-box" style="background: rgba(99, 102, 241, 0.1); border-left-color: var(--primary-color);">
+                        <h3>✨ Extension Automation Benefits</h3>
+                        <ul style="margin-left: 20px; margin-top: 8px; font-size: 13px;">
+                            <li>No API key required</li>
+                            <li>Free to use</li>
+                            <li>Automated browser interactions</li>
+                            <li>Handles everything for you</li>
+                        </ul>
+                        <p style="margin-top: 12px; font-size: 13px;"><strong>Note:</strong> Make sure you have the PillowPotion Chrome Extension installed and enabled.</p>
+                    </div>
                 </div>
 
                 <div id="validationError" style="color: var(--error-color); margin-top: 12px; display: none;"></div>
             </div>
             <div class="modal-footer">
                 <button id="validateBtn" class="btn btn-primary">
-                    Validate & Continue
+                    Continue
                 </button>
             </div>
         </div>
@@ -302,10 +340,41 @@
             document.getElementById('validationModal').style.display = 'none';
         }
 
+        // Toggle between API and Extension setup
+        function toggleSetupMethod() {
+            const methodExtension = document.getElementById('methodExtension');
+            const methodAPI = document.getElementById('methodAPI');
+            const apiSetupSection = document.getElementById('apiSetupSection');
+            const extensionInfoSection = document.getElementById('extensionInfoSection');
+
+            if (methodExtension.checked) {
+                // Show extension info, hide API setup
+                apiSetupSection.style.display = 'none';
+                extensionInfoSection.style.display = 'block';
+            } else if (methodAPI.checked) {
+                // Show API setup, hide extension info
+                apiSetupSection.style.display = 'block';
+                extensionInfoSection.style.display = 'none';
+            }
+
+            // Update radio option styling
+            document.querySelectorAll('.radio-option').forEach(option => {
+                const radio = option.querySelector('input[type="radio"]');
+                if (radio.checked) {
+                    option.style.borderColor = 'var(--primary-color)';
+                    option.style.backgroundColor = 'rgba(99, 102, 241, 0.05)';
+                } else {
+                    option.style.borderColor = '#e5e7eb';
+                    option.style.backgroundColor = 'transparent';
+                }
+            });
+        }
+
         // Check if API key exists
         window.addEventListener('DOMContentLoaded', () => {
             const apiKey = StateManager.getApiKey();
             const webhookConfigured = StateManager.isWebhookConfigured();
+            const setupMethod = localStorage.getItem('setupMethod') || 'extension';
 
             // Check if user is admin - show close button
             const user = JSON.parse(localStorage.getItem('user') || 'null');
@@ -313,10 +382,26 @@
                 document.getElementById('adminCloseBtn').style.display = 'block';
             }
 
-            if (!apiKey || !webhookConfigured) {
-                // Show validation modal
+            // Check if user has selected extension automation before
+            if (setupMethod === 'extension') {
+                // Don't show modal if extension automation was previously selected
+                // Only show if they haven't made a choice yet or selected API but missing credentials
+                if (!localStorage.getItem('setupMethodChosen')) {
+                    document.getElementById('validationModal').style.display = 'flex';
+                }
+            } else if (!apiKey || !webhookConfigured) {
+                // Show validation modal if API method selected but not configured
                 document.getElementById('validationModal').style.display = 'flex';
+                document.getElementById('methodAPI').checked = true;
+                toggleSetupMethod();
             }
+
+            // Add event listeners for radio buttons
+            document.getElementById('methodExtension').addEventListener('change', toggleSetupMethod);
+            document.getElementById('methodAPI').addEventListener('change', toggleSetupMethod);
+
+            // Initialize the toggle
+            toggleSetupMethod();
 
             // Load saved script data if exists
             const savedData = StateManager.getScriptData();
@@ -330,12 +415,29 @@
 
         // Validation button handler
         document.getElementById('validateBtn').addEventListener('click', async () => {
-            const apiKey = document.getElementById('apiKeyInput').value.trim();
-            const webhookConfirmed = document.getElementById('webhookConfirm').checked;
+            const methodExtension = document.getElementById('methodExtension');
+            const methodAPI = document.getElementById('methodAPI');
             const errorDiv = document.getElementById('validationError');
 
             // Clear previous errors
             errorDiv.style.display = 'none';
+
+            // Check which method is selected
+            if (methodExtension.checked) {
+                // Extension Automation - No validation needed
+                localStorage.setItem('setupMethod', 'extension');
+                localStorage.setItem('setupMethodChosen', 'true');
+
+                // Hide modal
+                document.getElementById('validationModal').style.display = 'none';
+
+                Utils.showSuccess('Extension Automation selected! You can now proceed.');
+                return;
+            }
+
+            // API Method - Validate API key and webhook
+            const apiKey = document.getElementById('apiKeyInput').value.trim();
+            const webhookConfirmed = document.getElementById('webhookConfirm').checked;
 
             // Validate inputs
             if (!apiKey) {
@@ -362,6 +464,8 @@
                 // Save API key and webhook status
                 StateManager.saveApiKey(apiKey);
                 StateManager.setWebhookConfigured(true);
+                localStorage.setItem('setupMethod', 'api');
+                localStorage.setItem('setupMethodChosen', 'true');
 
                 // Hide modal
                 document.getElementById('validationModal').style.display = 'none';
