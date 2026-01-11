@@ -8,25 +8,60 @@ const StoryboardBrain = {
 
     /**
      * CHARACTER EXTRACTION - Detect all characters from script
-     * Uses pattern matching and NLP-like analysis
+     * Uses enhanced analyzer for detailed character detection
      */
     extractCharacters(script) {
+        // Use enhanced analyzer if available, fallback to basic
+        if (typeof EnhancedCharacterAnalyzer !== 'undefined') {
+            const detailedCharacters = EnhancedCharacterAnalyzer.extractCharacters(script);
+
+            // Convert to legacy format for compatibility
+            return detailedCharacters.map(char => ({
+                name: char.name,
+                content: this.formatCharacterContent(char)
+            }));
+        }
+
+        // Fallback to basic extraction
+        return this.basicExtractCharacters(script);
+    },
+
+    /**
+     * Format character object into content string
+     */
+    formatCharacterContent(char) {
+        const parts = [];
+
+        if (char.gender) parts.push(char.gender);
+        if (char.age) parts.push(`${char.age} years old`);
+        if (char.skin) parts.push(char.skin);
+        if (char.hairStyle) parts.push(char.hairStyle);
+        if (char.facialFeatures) parts.push(char.facialFeatures);
+        if (char.height) parts.push(char.height);
+        if (char.clothing) parts.push(`wearing ${char.clothing}`);
+        if (char.personality && char.personality.length > 0) {
+            parts.push(char.personality.join(', ') + ' personality');
+        }
+        if (char.appearance) parts.push(char.appearance);
+
+        return parts.join(', ');
+    },
+
+    /**
+     * Basic character extraction (fallback)
+     */
+    basicExtractCharacters(script) {
         const characters = [];
         const characterMap = new Map();
 
         // Common name patterns and indicators
         const namePatterns = [
-            // Direct dialogue attribution: "John said", "Mary replied"
             /([A-Z][a-z]+)\s+(said|replied|asked|shouted|whispered|called|answered|continued|exclaimed)/g,
-            // Possessive forms: "John's", "Mary's"
             /([A-Z][a-z]+)'s/g,
-            // Subject-verb patterns: "John walked", "Mary runs"
             /([A-Z][a-z]+)\s+(walked|runs|sits|stands|looked|went|came|left|entered|approached)/g,
-            // Common character references
             /\b(he|she|his|her|him|her|Mr\.|Mrs\.|Ms\.|Dr\.)\s+([A-Z][a-z]+)/gi
         ];
 
-        // Extract potential character names
         namePatterns.forEach(pattern => {
             let match;
             while ((match = pattern.exec(script)) !== null) {
@@ -37,9 +72,8 @@ const StoryboardBrain = {
             }
         });
 
-        // Filter by frequency (characters mentioned multiple times)
         characterMap.forEach((count, name) => {
-            if (count >= 2) {  // Mentioned at least twice
+            if (count >= 2) {
                 characters.push({
                     name: name,
                     content: this.generateCharacterDescription(name, script)
@@ -225,16 +259,60 @@ const StoryboardBrain = {
 
     /**
      * ENVIRONMENT EXTRACTION - Detect all settings/locations
+     * Uses enhanced analyzer for detailed environment detection
      */
     extractEnvironments(script) {
+        // Use enhanced analyzer if available, fallback to basic
+        if (typeof EnhancedEnvironmentAnalyzer !== 'undefined') {
+            const detailedEnvironments = EnhancedEnvironmentAnalyzer.extractEnvironments(script);
+
+            // Convert to legacy format for compatibility
+            return detailedEnvironments.map(env => ({
+                name: env.name,
+                content: this.formatEnvironmentContent(env)
+            }));
+        }
+
+        // Fallback to basic extraction
+        return this.basicExtractEnvironments(script);
+    },
+
+    /**
+     * Format environment object into content string
+     */
+    formatEnvironmentContent(env) {
+        const parts = [];
+
+        if (env.timeOfDay) parts.push(`${env.timeOfDay} time`);
+        if (env.season) parts.push(env.season);
+        if (env.weather) parts.push(env.weather);
+        if (env.lighting) parts.push(env.lighting + ' lighting');
+        if (env.atmosphere) parts.push(env.atmosphere + ' atmosphere');
+        if (env.type) parts.push(env.type);
+        if (env.mood) parts.push(env.mood + ' mood');
+        if (env.colors) parts.push(env.colors);
+
+        // Always add cinematic defaults
+        parts.push('cinematic composition');
+        parts.push('professional photography');
+        parts.push('detailed architecture');
+        parts.push('realistic textures');
+        parts.push('depth of field');
+        parts.push('8k resolution');
+        parts.push('photorealistic rendering');
+
+        return parts.join(', ');
+    },
+
+    /**
+     * Basic environment extraction (fallback)
+     */
+    basicExtractEnvironments(script) {
         const environments = [];
         const envMap = new Map();
 
-        // Location indicators
         const locationPatterns = [
-            // "in the/at the" patterns
             /(?:in|at|inside|outside|near|by)\s+(?:the|a|an)\s+([a-z\s]{3,30}?)(?:\.|,|\s+(?:he|she|they|it|there|where))/gi,
-            // Common location types
             /(room|house|building|street|park|forest|city|town|village|office|shop|store|restaurant|cafe|bar|school|church|beach|mountain|valley|river|lake|field|garden)/gi
         ];
 
@@ -249,7 +327,6 @@ const StoryboardBrain = {
             }
         });
 
-        // Filter and generate descriptions
         envMap.forEach((count, location) => {
             if (count >= 1) {
                 environments.push({
@@ -259,7 +336,6 @@ const StoryboardBrain = {
             }
         });
 
-        // If no environments detected, add default
         if (environments.length === 0) {
             environments.push({
                 name: 'General Scene',
