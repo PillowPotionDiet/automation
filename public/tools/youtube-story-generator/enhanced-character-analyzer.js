@@ -472,28 +472,68 @@ const EnhancedCharacterAnalyzer = {
 
     /**
      * Generate content string from character attributes
+     * AI-powered: Generates realistic defaults if attributes are missing
      */
     generateContentString(char) {
         const parts = [];
 
-        if (char.gender) parts.push(char.gender);
-        if (char.age) parts.push(`${char.age} years old`);
-        if (char.nationality) parts.push(char.nationality);
-        if (char.skinTone) parts.push(char.skinTone);
-        if (char.faceShape) parts.push(`${char.faceShape} face`);
-        if (char.height) parts.push(char.height);
-        if (char.bodyBuild) parts.push(char.bodyBuild);
-        if (char.hairStyle) parts.push(char.hairStyle);
-        if (char.facialHair) parts.push(char.facialHair);
-        if (char.eyeDescription) parts.push(char.eyeDescription);
-        if (char.facialFeatures) parts.push(char.facialFeatures);
-        if (char.clothing) parts.push(char.clothing);
+        // Gender and age
+        const gender = char.gender || 'person';
+        const age = char.age || this.generateDefaultAge(gender);
+
+        parts.push(gender);
+        if (age) parts.push(`${age} years old`);
+
+        // Nationality
+        const nationality = char.nationality || this.inferNationalityFromName(char.name);
+        if (nationality) parts.push(nationality);
+
+        // Physical appearance - generate defaults if missing
+        const skinTone = char.skinTone || this.generateDefaultSkinTone(nationality, gender);
+        if (skinTone) parts.push(skinTone);
+
+        const faceShape = char.faceShape || this.generateDefaultFaceShape(gender);
+        if (faceShape) parts.push(`${faceShape} face`);
+
+        const height = char.height || this.generateDefaultHeight(gender);
+        if (height) parts.push(height);
+
+        const bodyBuild = char.bodyBuild || this.generateDefaultBuild(gender, age);
+        if (bodyBuild) parts.push(bodyBuild);
+
+        // Hair
+        const hairStyle = char.hairStyle || this.generateDefaultHair(gender, nationality);
+        if (hairStyle) parts.push(hairStyle);
+
+        // Facial hair (only for males)
+        if (gender === 'male') {
+            const facialHair = char.facialHair || this.generateDefaultFacialHair(nationality);
+            if (facialHair) parts.push(facialHair);
+        }
+
+        // Eyes
+        const eyeDescription = char.eyeDescription || this.generateDefaultEyes(nationality);
+        if (eyeDescription) parts.push(eyeDescription);
+
+        // Facial features
+        const facialFeatures = char.facialFeatures || this.generateDefaultFacialFeatures(gender);
+        if (facialFeatures) parts.push(facialFeatures);
+
+        // Clothing
+        const clothing = char.clothing || this.generateDefaultClothing(gender, nationality);
+        if (clothing) parts.push(clothing);
+
+        // Personality
         if (char.personalityTraits && char.personalityTraits.length > 0) {
             parts.push(...char.personalityTraits);
+        } else {
+            const defaultPersonality = this.generateDefaultPersonality(gender);
+            if (defaultPersonality) parts.push(defaultPersonality);
         }
+
         if (char.demeanor) parts.push(char.demeanor);
 
-        // Add defaults for image generation
+        // Add cinematic defaults for image generation
         parts.push('realistic facial features');
         parts.push('natural skin texture');
         parts.push('detailed eyes');
@@ -505,6 +545,96 @@ const EnhancedCharacterAnalyzer = {
         parts.push('photorealistic rendering');
 
         return parts.join(', ');
+    },
+
+    // ========== AI DEFAULT GENERATORS ==========
+
+    generateDefaultAge(gender) {
+        // Generate realistic age based on gender
+        if (gender === 'male') return 28;
+        if (gender === 'female') return 25;
+        return 27;
+    },
+
+    inferNationalityFromName(name) {
+        const pakistaniNames = ['ayaan', 'hamza', 'saad', 'ali', 'omar', 'zara', 'sara', 'fatima', 'ayesha'];
+        const indianNames = ['raj', 'priya', 'amit', 'sanjay', 'deepak'];
+        const westernNames = ['john', 'sarah', 'michael', 'emma'];
+
+        const lowerName = name.toLowerCase();
+        if (pakistaniNames.includes(lowerName)) return 'Pakistani';
+        if (indianNames.includes(lowerName)) return 'Indian';
+        if (westernNames.includes(lowerName)) return 'American';
+        return null;
+    },
+
+    generateDefaultSkinTone(nationality, gender) {
+        if (nationality === 'Pakistani' || nationality === 'Indian') {
+            return 'wheatish skin';
+        } else if (nationality === 'American' || nationality === 'British') {
+            return 'fair skin';
+        }
+        return 'natural skin tone';
+    },
+
+    generateDefaultFaceShape(gender) {
+        if (gender === 'male') return 'oval';
+        if (gender === 'female') return 'heart-shaped';
+        return 'oval';
+    },
+
+    generateDefaultHeight(gender) {
+        if (gender === 'male') return 'average height';
+        if (gender === 'female') return 'medium height';
+        return 'average height';
+    },
+
+    generateDefaultBuild(gender, age) {
+        if (gender === 'male') return 'athletic build';
+        if (gender === 'female') return 'slim build';
+        return 'average build';
+    },
+
+    generateDefaultHair(gender, nationality) {
+        if (nationality === 'Pakistani' || nationality === 'Indian') {
+            if (gender === 'male') return 'short black hair';
+            return 'long black hair';
+        }
+        if (gender === 'male') return 'short brown hair';
+        return 'shoulder-length brown hair';
+    },
+
+    generateDefaultFacialHair(nationality) {
+        if (nationality === 'Pakistani' || nationality === 'Indian') {
+            return 'light trimmed beard';
+        }
+        return 'clean-shaven';
+    },
+
+    generateDefaultEyes(nationality) {
+        if (nationality === 'Pakistani' || nationality === 'Indian') {
+            return 'deep brown eyes';
+        }
+        return 'expressive eyes';
+    },
+
+    generateDefaultFacialFeatures(gender) {
+        if (gender === 'male') return 'strong jawline';
+        return 'delicate features';
+    },
+
+    generateDefaultClothing(gender, nationality) {
+        if (nationality === 'Pakistani') {
+            if (gender === 'male') return 'wearing casual kurta with jeans';
+            return 'wearing pastel kurta with dupatta';
+        }
+        if (gender === 'male') return 'wearing casual shirt and jeans';
+        return 'wearing casual dress';
+    },
+
+    generateDefaultPersonality(gender) {
+        if (gender === 'male') return 'confident personality';
+        return 'graceful personality';
     },
 
     /**
