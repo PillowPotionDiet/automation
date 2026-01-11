@@ -261,7 +261,10 @@ const EnhancedCharacterAnalyzer = {
             'The', 'One', 'Day', 'Time', 'Life', 'With', 'Winter', 'Curiosity',
             'A', 'Few', 'As', 'Without', 'Lahore', 'Mr', 'Mrs', 'Ms', 'Dr',
             'When', 'Where', 'What', 'How', 'Why', 'Who', 'Which', 'Before',
-            'After', 'During', 'While', 'Since', 'Until', 'Because', 'Although'
+            'After', 'During', 'While', 'Since', 'Until', 'Because', 'Although',
+            // Nationalities (not character names)
+            'Pakistani', 'Indian', 'American', 'British', 'Chinese', 'Japanese',
+            'Korean', 'Arab', 'Turkish', 'Persian', 'Afghan', 'Bangladeshi'
         ];
         return common.includes(word);
     },

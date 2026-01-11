@@ -183,7 +183,7 @@ const Utils = {
         }
 
         // Show details if provided
-        if (details.details) {
+        if (details.details && progressMessage) {
             if (details.details.charactersFound !== undefined) {
                 progressMessage.textContent = `${message} (${details.details.charactersFound} found)`;
             } else if (details.details.environmentsFound !== undefined) {
