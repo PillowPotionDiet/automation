@@ -75,6 +75,193 @@ const Utils = {
     },
 
     /**
+     * Show progress bar with detailed status
+     * @param {string} stage - Current stage name
+     * @param {number} percentage - Completion percentage (0-100)
+     * @param {string} message - Status message to display
+     * @param {object} details - Additional details (completed stages, etc.)
+     */
+    showProgress(stage, percentage, message, details = {}) {
+        let overlay = document.getElementById('loadingOverlay');
+
+        // Create overlay if it doesn't exist
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'loading-overlay';
+            overlay.id = 'loadingOverlay';
+            overlay.innerHTML = `
+                <div class="progress-container">
+                    <h3 class="progress-title">Processing Your Script...</h3>
+
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                    </div>
+
+                    <div class="progress-percentage" id="progressPercentage">0%</div>
+
+                    <div class="progress-stages" id="progressStages">
+                        <div class="stage-item" data-stage="parse">
+                            <span class="stage-icon">⏳</span>
+                            <span class="stage-label">Parsing script</span>
+                        </div>
+                        <div class="stage-item" data-stage="characters">
+                            <span class="stage-icon">⏳</span>
+                            <span class="stage-label">Analyzing characters</span>
+                        </div>
+                        <div class="stage-item" data-stage="environments">
+                            <span class="stage-icon">⏳</span>
+                            <span class="stage-label">Detecting environments</span>
+                        </div>
+                        <div class="stage-item" data-stage="paragraphs">
+                            <span class="stage-icon">⏳</span>
+                            <span class="stage-label">Splitting paragraphs</span>
+                        </div>
+                        <div class="stage-item" data-stage="scenes">
+                            <span class="stage-icon">⏳</span>
+                            <span class="stage-label">Generating scenes</span>
+                        </div>
+                        <div class="stage-item" data-stage="prompts">
+                            <span class="stage-icon">⏳</span>
+                            <span class="stage-label">Creating prompts</span>
+                        </div>
+                    </div>
+
+                    <p class="progress-message" id="progressMessage">Initializing...</p>
+
+                    <p class="time-remaining" id="timeRemaining"></p>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        // Update progress bar
+        const progressBar = overlay.querySelector('#progressBar');
+        const progressPercentage = overlay.querySelector('#progressPercentage');
+        const progressMessage = overlay.querySelector('#progressMessage');
+        const timeRemaining = overlay.querySelector('#timeRemaining');
+
+        if (progressBar) {
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        if (progressPercentage) {
+            progressPercentage.textContent = `${Math.round(percentage)}%`;
+        }
+
+        if (progressMessage) {
+            progressMessage.textContent = message;
+        }
+
+        // Update completed stages
+        if (details.completed && Array.isArray(details.completed)) {
+            details.completed.forEach(completedStage => {
+                const stageItem = overlay.querySelector(`[data-stage="${completedStage}"]`);
+                if (stageItem && !stageItem.classList.contains('completed')) {
+                    stageItem.classList.add('completed');
+                    const icon = stageItem.querySelector('.stage-icon');
+                    if (icon) icon.textContent = '✓';
+                }
+            });
+        }
+
+        // Update current active stage
+        const allStages = overlay.querySelectorAll('.stage-item');
+        allStages.forEach(item => item.classList.remove('active'));
+        const currentStage = overlay.querySelector(`[data-stage="${stage}"]`);
+        if (currentStage && !currentStage.classList.contains('completed')) {
+            currentStage.classList.add('active');
+            const icon = currentStage.querySelector('.stage-icon');
+            if (icon && icon.textContent !== '✓') icon.textContent = '⟳';
+        }
+
+        // Update time estimate
+        if (details.estimatedTime && timeRemaining) {
+            timeRemaining.textContent = `Estimated time remaining: ${details.estimatedTime}`;
+            timeRemaining.style.display = 'block';
+        } else if (timeRemaining) {
+            timeRemaining.style.display = 'none';
+        }
+
+        // Show details if provided
+        if (details.details) {
+            if (details.details.charactersFound !== undefined) {
+                progressMessage.textContent = `${message} (${details.details.charactersFound} found)`;
+            } else if (details.details.environmentsFound !== undefined) {
+                progressMessage.textContent = `${message} (${details.details.environmentsFound} found)`;
+            } else if (details.details.currentScene && details.details.totalScenes) {
+                progressMessage.textContent = `Generating scene ${details.details.currentScene} of ${details.details.totalScenes}...`;
+            }
+        }
+    },
+
+    /**
+     * Show error recovery UI
+     * @param {string} errorType - Type of error (timeout, stall, error)
+     * @param {string} errorMessage - Error message to display
+     * @param {object} options - Options including onRetry, onReduce, onCancel callbacks
+     */
+    showErrorRecovery(errorType, errorMessage, options = {}) {
+        const overlay = document.getElementById('loadingOverlay') || document.createElement('div');
+        overlay.className = 'loading-overlay';
+        overlay.id = 'loadingOverlay';
+
+        overlay.innerHTML = `
+            <div class="error-recovery-container">
+                <div class="error-icon">⚠️</div>
+                <h2>Processing Failed</h2>
+                <p class="error-message">${errorMessage}</p>
+
+                <div class="error-details">
+                    <strong>Error Type:</strong> ${errorType}<br>
+                    ${options.elapsed ? `<strong>Time Elapsed:</strong> ${Math.round(options.elapsed / 1000)}s` : ''}
+                </div>
+
+                <div class="recovery-actions">
+                    <button id="retryBtn" class="btn btn-primary">
+                        🔄 Retry Processing
+                    </button>
+                    <button id="reduceScriptBtn" class="btn btn-secondary">
+                        ✂️ Try with Shorter Script
+                    </button>
+                    <button id="cancelBtn" class="btn btn-danger">
+                        ✖ Cancel
+                    </button>
+                </div>
+
+                <div class="error-tips">
+                    <strong>💡 Tips to avoid this:</strong>
+                    <ul>
+                        <li>Use shorter scripts (under 5000 words)</li>
+                        <li>Reduce number of paragraphs or scenes</li>
+                        <li>Simplify complex character descriptions</li>
+                        <li>Remove special characters or formatting</li>
+                    </ul>
+                </div>
+            </div>
+        `;
+
+        if (!document.getElementById('loadingOverlay')) {
+            document.body.appendChild(overlay);
+        }
+
+        // Add event listeners
+        setTimeout(() => {
+            document.getElementById('retryBtn')?.addEventListener('click', () => {
+                if (options.onRetry) options.onRetry();
+            });
+
+            document.getElementById('reduceScriptBtn')?.addEventListener('click', () => {
+                if (options.onReduce) options.onReduce();
+            });
+
+            document.getElementById('cancelBtn')?.addEventListener('click', () => {
+                this.hideLoading();
+                if (options.onCancel) options.onCancel();
+            });
+        }, 100);
+    },
+
+    /**
      * Navigate to another page
      */
     navigateTo(page) {

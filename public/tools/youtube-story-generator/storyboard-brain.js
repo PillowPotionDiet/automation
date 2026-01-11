@@ -587,29 +587,108 @@ const StoryboardBrain = {
     },
 
     /**
-     * MAIN PIPELINE ORCHESTRATOR
+     * MAIN PIPELINE ORCHESTRATOR WITH PROGRESS TRACKING AND ERROR HANDLING
      */
     async runEnhancedPipeline(config, progressCallback) {
         const { script, paragraphCount, scenesPerParagraph } = config;
 
+        // Initialize timeout and heartbeat monitoring
+        const overallTimeout = new ProcessingTimeout(120000); // 2 minutes total
+        const heartbeat = new ProcessingHeartbeat(3000, 15000); // Check every 3s, stall after 15s
+
         try {
-            // STEP 1: Extract Characters
-            if (progressCallback) progressCallback('Analyzing characters...');
+            // Set up error recovery for timeout
+            overallTimeout.start((error) => {
+                heartbeat.stop();
+                Utils.hideLoading();
+                Utils.showErrorRecovery('timeout', error.message, {
+                    elapsed: error.elapsed,
+                    onRetry: () => {
+                        window.location.reload();
+                    },
+                    onReduce: () => {
+                        Utils.hideLoading();
+                        Utils.showToast('Try reducing the number of paragraphs or scenes', 'warning');
+                        window.history.back();
+                    },
+                    onCancel: () => {
+                        window.location.href = 'index.html';
+                    }
+                });
+            });
+
+            // Set up error recovery for stalls
+            heartbeat.start((error) => {
+                overallTimeout.clear();
+                Utils.hideLoading();
+                Utils.showErrorRecovery('stall', error.message, {
+                    timeSinceLastBeat: error.timeSinceLastBeat,
+                    onRetry: () => {
+                        window.location.reload();
+                    },
+                    onCancel: () => {
+                        window.location.href = 'index.html';
+                    }
+                });
+            });
+
+            // STEP 1: Parse Script (0-10%)
+            heartbeat.beat();
+            Utils.showProgress('parse', 5, 'Parsing script...');
+            // Minimal delay to show progress
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            heartbeat.beat();
+            Utils.showProgress('parse', 10, 'Script parsed successfully', {
+                completed: []
+            });
+
+            // STEP 2: Extract Characters (10-25%)
+            heartbeat.beat();
+            Utils.showProgress('characters', 12, 'Analyzing characters...');
+
             const characters = this.extractCharacters(script);
+            heartbeat.beat();
+
             StateManager.saveExtractedCharacters(characters);
+            heartbeat.beat();
 
-            // STEP 2: Extract Environments
-            if (progressCallback) progressCallback('Analyzing environments...');
+            Utils.showProgress('characters', 25, `Found ${characters.length} characters`, {
+                completed: ['parse', 'characters'],
+                details: { charactersFound: characters.length }
+            });
+
+            // STEP 3: Extract Environments (25-40%)
+            heartbeat.beat();
+            Utils.showProgress('environments', 27, 'Detecting environments...');
+
             const environments = this.extractEnvironments(script);
+            heartbeat.beat();
+
             StateManager.saveExtractedEnvironments(environments);
+            heartbeat.beat();
 
-            // STEP 3: Split into Paragraphs
-            if (progressCallback) progressCallback('Splitting script into paragraphs...');
+            Utils.showProgress('environments', 40, `Found ${environments.length} environments`, {
+                completed: ['parse', 'characters', 'environments'],
+                details: { environmentsFound: environments.length }
+            });
+
+            // STEP 4: Split into Paragraphs (40-50%)
+            heartbeat.beat();
+            Utils.showProgress('paragraphs', 42, 'Splitting into paragraphs...');
+
             const paragraphs = this.splitIntoParagraphs(script, paragraphCount);
-            StateManager.saveParagraphs(paragraphs);
+            heartbeat.beat();
 
-            // STEP 4 & 5: Generate Scenes and Frame Prompts
-            if (progressCallback) progressCallback('Generating scenes and frame prompts...');
+            StateManager.saveParagraphs(paragraphs);
+            heartbeat.beat();
+
+            Utils.showProgress('paragraphs', 50, `Created ${paragraphs.length} paragraphs`, {
+                completed: ['parse', 'characters', 'environments', 'paragraphs']
+            });
+
+            // STEP 5: Generate Scenes (50-90%)
+            const totalScenes = paragraphCount * scenesPerParagraph;
             const allScenes = [];
             let globalSceneNumber = 1;
 
@@ -617,6 +696,14 @@ const StoryboardBrain = {
                 const scenes = this.generateScenesFromParagraph(paragraphText, scenesPerParagraph);
 
                 scenes.forEach((sceneText, sceneIndex) => {
+                    heartbeat.beat();
+
+                    const sceneProgress = 50 + ((globalSceneNumber / totalScenes) * 40);
+                    Utils.showProgress('scenes', sceneProgress, `Generating scene ${globalSceneNumber} of ${totalScenes}...`, {
+                        completed: ['parse', 'characters', 'environments', 'paragraphs'],
+                        details: { currentScene: globalSceneNumber, totalScenes }
+                    });
+
                     const framePrompts = this.generateFramePrompts(sceneText);
 
                     allScenes.push({
@@ -627,11 +714,28 @@ const StoryboardBrain = {
                         startingFrame: framePrompts.startingFrame,
                         endingFrame: framePrompts.endingFrame
                     });
+
+                    heartbeat.beat();
                 });
             });
 
             StateManager.saveScenes(allScenes);
+            heartbeat.beat();
 
+            // STEP 6: Complete (90-100%)
+            Utils.showProgress('prompts', 95, 'Finalizing prompts...');
+            await new Promise(resolve => setTimeout(resolve, 200));
+
+            heartbeat.beat();
+            Utils.showProgress('prompts', 100, 'Processing complete!', {
+                completed: ['parse', 'characters', 'environments', 'paragraphs', 'scenes', 'prompts']
+            });
+
+            // Clean up monitoring
+            overallTimeout.clear();
+            heartbeat.stop();
+
+            // Legacy callback support
             if (progressCallback) progressCallback('Processing complete!');
 
             return {
@@ -644,6 +748,22 @@ const StoryboardBrain = {
 
         } catch (error) {
             console.error('Storyboard Brain error:', error);
+
+            // Clean up monitoring
+            overallTimeout.clear();
+            heartbeat.stop();
+
+            // Show error recovery
+            Utils.hideLoading();
+            Utils.showErrorRecovery('error', error.message || 'An unexpected error occurred during processing', {
+                onRetry: () => {
+                    window.location.reload();
+                },
+                onCancel: () => {
+                    window.location.href = 'index.html';
+                }
+            });
+
             return {
                 success: false,
                 message: error.message
