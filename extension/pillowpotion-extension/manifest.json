@@ -1,0 +1,68 @@
+{
+"update_url": "https://clients2.google.com/service/update2/crx",
+
+  "author": {
+    "email": "pillowpotion.com@gmail.com"
+  },
+  "name": "PillowPotion - AI Video Automation",
+  "description": "Process multiple prompts simultaneously and download videos, images on Google Flow AI with PillowPotion automation.",
+  "version": "3.1.0.0",
+  "version_name": "3.1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_title": "PillowPotion - AI Video Automation"
+  },
+  "background": {
+    "service_worker": "service-worker-loader.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "js": [
+        "assets/index.ts-D54SgmvI.js"
+      ],
+      "all_frames": false,
+      "matches": [
+        "*://labs.google/*"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "side_panel": {
+    "default_path": "src/auth/login.html"
+  },
+  "offline_enabled": true,
+  "host_permissions": [
+    "*://labs.google/*",
+    "*://automation.pillowpotion.com/*",
+    "http://localhost/*"
+  ],
+  "permissions": [
+    "storage",
+    "tabs",
+    "background",
+    "sidePanel",
+    "activeTab",
+    "downloads"
+  ],
+  "web_accessible_resources": [
+    {
+      "matches": [
+        "*://labs.google/*"
+      ],
+      "resources": [
+        "assets/index.ts-D54SgmvI.js"
+      ],
+      "use_dynamic_url": false
+    }
+  ],
+  "icons": {
+    "16": "src/assets/logo.png",
+    "24": "src/assets/logo.png",
+    "32": "src/assets/logo.png",
+    "128": "src/assets/logo.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;"
+  }
+}

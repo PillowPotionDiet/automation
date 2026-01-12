@@ -1,0 +1,79 @@
+/**
+ * Minimal UI Fixes - Only Specific Issues
+ * Does NOT override existing design
+ */
+
+/* ==============================================
+   1. Enhanced Credit Header ONLY
+   ============================================== */
+.auth-header-bar {
+  min-height: 48px !important;
+  max-height: 48px !important;
+  height: 48px !important;
+  padding: 10px 16px !important;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
+  border-bottom: 2px solid #667eea !important;
+}
+
+.credits-badge {
+  padding: 6px 12px !important;
+  font-size: 0.875rem !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4) !important;
+}
+
+.credits-icon {
+  font-size: 1rem !important;
+}
+
+.credits-balance {
+  font-size: 0.9375rem !important;
+  font-weight: 700 !important;
+}
+
+.user-email {
+  font-size: 0.8125rem !important;
+  color: #e9ecef !important;
+}
+
+.btn-logout {
+  padding: 6px 12px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.btn-logout:hover {
+  background: #dc3545 !important;
+  border-color: #dc3545 !important;
+}
+
+/* ==============================================
+   2. Add Vertical Spacing Between Sections
+   ============================================== */
+body > *:not(:first-child),
+#app > *:not(:first-child) {
+  margin-top: 1rem !important;
+}
+
+/* Spacing for common container classes */
+.p-card + .p-card,
+.p-panel + .p-panel,
+.p-fieldset + .p-fieldset,
+section + section {
+  margin-top: 1rem !important;
+}
+
+/* ==============================================
+   3. Body Background for Container Contrast
+   ============================================== */
+body {
+  background: #f0f2f5 !important;
+}
+
+#app {
+  background: #f0f2f5 !important;
+}
+
+/* ==============================================
+   That's it - No other changes
+   ============================================== */

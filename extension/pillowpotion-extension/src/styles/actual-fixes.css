@@ -1,0 +1,73 @@
+/**
+ * Actual UI Fixes - Based on real DOM structure
+ * Aggressive spacing fixes to ensure visibility
+ */
+
+/* ==============================================
+   1. Enhanced Credit Header
+   ============================================== */
+
+/* Adjust app padding to account for larger header */
+#app {
+  padding-top: 56px !important;
+  background-color: #f0f2f5 !important;
+}
+
+/* ==============================================
+   2. Background - Light Gray
+   ============================================== */
+body {
+  background-color: #f0f2f5 !important;
+}
+
+/* ==============================================
+   3. AGGRESSIVE VERTICAL SPACING
+   ============================================== */
+
+/* Add spacing to ALL div elements inside the main content */
+#app div {
+  margin-bottom: 1rem !important;
+}
+
+/* Specific spacing for form fields */
+.p-field,
+[class*="field"],
+.field {
+  margin-bottom: 1.25rem !important;
+}
+
+/* Spacing for all PrimeVue components */
+.p-card,
+.p-panel,
+.p-fieldset,
+.p-dropdown,
+.p-inputtext,
+.p-textarea {
+  margin-bottom: 1.25rem !important;
+}
+
+/* Tab panels need padding */
+.p-tabview-panels {
+  padding: 1.5rem !important;
+}
+
+/* Every section, article, or major container */
+section,
+article,
+[role="region"],
+[class*="section"],
+[class*="container"] {
+  margin-bottom: 1.5rem !important;
+  padding: 1rem !important;
+}
+
+/* ==============================================
+   4. Ensure last elements don't add extra space
+   ============================================== */
+*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* ==============================================
+   That's it - aggressive but effective
+   ============================================== */

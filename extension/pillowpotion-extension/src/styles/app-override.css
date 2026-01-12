@@ -1,0 +1,678 @@
+/**
+ * App Override Styles
+ * Prevents Tailwind CSS from breaking the PillowPotion UI
+ * Loaded AFTER Tailwind to override aggressive resets
+ */
+
+/* ==============================================
+   Critical overrides for Tailwind CSS resets
+   ============================================== */
+
+/* Prevent Tailwind from removing default margins/padding */
+.p-tabview,
+.p-tabview-panel,
+.p-tabview-nav,
+.p-dialog,
+.p-dialog-content,
+.p-card,
+.p-card-body,
+.p-card-content,
+.p-button,
+.p-inputtext,
+.p-dropdown,
+.p-multiselect,
+.p-checkbox,
+.p-radiobutton,
+.p-accordion,
+.p-accordion-header,
+.p-accordion-content,
+.p-panel,
+.p-panel-header,
+.p-panel-content,
+.p-fieldset,
+.p-fieldset-legend,
+.p-fieldset-content,
+.p-toast,
+.p-toast-message,
+.p-confirm-dialog,
+.p-sidebar,
+.p-menu,
+.p-menubar,
+.p-contextmenu,
+.p-tieredmenu,
+.p-megamenu,
+.p-panelmenu,
+.p-steps,
+.p-breadcrumb,
+.p-toolbar,
+.p-splitbutton,
+.p-fileupload,
+.p-datatable,
+.p-tree,
+.p-organizationchart,
+.p-timeline,
+.p-picklist,
+.p-orderlist,
+.p-progressbar,
+.p-slider,
+.p-rating,
+.p-chip,
+.p-scrollpanel,
+.p-scrolltop,
+.p-skeleton,
+.p-avatar,
+.p-badge,
+.p-tag,
+.p-divider {
+  /* Restore default box-sizing and spacing */
+  box-sizing: border-box !important;
+}
+
+/* PrimeVue Tab Components - Fix spacing */
+.p-tabview-nav {
+  padding: 0 !important;
+  margin: 0 !important;
+  border-bottom: 2px solid #dee2e6 !important;
+  background: transparent !important;
+}
+
+.p-tabview-nav-link {
+  padding: 1rem 1.5rem !important;
+  margin: 0 !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  background: transparent !important;
+  transition: all 0.2s !important;
+}
+
+.p-tabview-nav-link:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-bottom-color: #6366f1 !important;
+}
+
+.p-tabview-nav-link.p-highlight {
+  border-bottom-color: #6366f1 !important;
+  color: #6366f1 !important;
+  font-weight: 600 !important;
+}
+
+.p-tabview-panels {
+  padding: 1.5rem 1rem !important;
+  background: transparent !important;
+}
+
+.p-tabview-panel {
+  padding: 0 !important;
+}
+
+/* PrimeVue Dialog - Fix spacing */
+.p-dialog {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3) !important;
+  border-radius: 12px !important;
+  border: none !important;
+}
+
+.p-dialog-header {
+  padding: 1.5rem !important;
+  border-bottom: 1px solid #dee2e6 !important;
+  background: #f8f9fa !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.p-dialog-title {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.p-dialog-content {
+  padding: 1.5rem !important;
+  background: white !important;
+}
+
+.p-dialog-footer {
+  padding: 1rem 1.5rem !important;
+  border-top: 1px solid #dee2e6 !important;
+  background: #f8f9fa !important;
+  border-radius: 0 0 12px 12px !important;
+  display: flex !important;
+  gap: 0.75rem !important;
+  justify-content: flex-end !important;
+}
+
+/* PrimeVue Button - Fix spacing */
+.p-button {
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 0.9375rem !important;
+  transition: all 0.2s !important;
+  border: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+}
+
+.p-button-sm {
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
+}
+
+.p-button-lg {
+  padding: 1rem 2rem !important;
+  font-size: 1rem !important;
+}
+
+/* PrimeVue Input - Fix spacing */
+.p-inputtext,
+.p-dropdown,
+.p-multiselect,
+.p-inputnumber-input {
+  padding: 0.75rem !important;
+  border: 2px solid #dee2e6 !important;
+  border-radius: 8px !important;
+  font-size: 0.9375rem !important;
+  transition: all 0.2s !important;
+  background: white !important;
+  width: 100% !important;
+}
+
+.p-inputtext:focus,
+.p-dropdown:focus,
+.p-multiselect:focus,
+.p-inputnumber-input:focus {
+  outline: none !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+}
+
+/* PrimeVue Dropdown - Fix spacing */
+.p-dropdown-panel {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 8px !important;
+  margin-top: 4px !important;
+}
+
+.p-dropdown-items {
+  padding: 0.5rem 0 !important;
+}
+
+.p-dropdown-item {
+  padding: 0.75rem 1rem !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  transition: all 0.2s !important;
+}
+
+.p-dropdown-item:hover {
+  background: rgba(99, 102, 241, 0.1) !important;
+}
+
+.p-dropdown-item.p-highlight {
+  background: rgba(99, 102, 241, 0.15) !important;
+  color: #6366f1 !important;
+  font-weight: 600 !important;
+}
+
+/* PrimeVue Card - Fix spacing */
+.p-card {
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #dee2e6 !important;
+  background: white !important;
+  overflow: hidden !important;
+}
+
+.p-card-header {
+  padding: 1.5rem !important;
+  border-bottom: 1px solid #dee2e6 !important;
+  background: #f8f9fa !important;
+}
+
+.p-card-body {
+  padding: 1.5rem !important;
+}
+
+.p-card-title {
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  margin: 0 0 0.5rem 0 !important;
+}
+
+.p-card-subtitle {
+  font-size: 0.875rem !important;
+  color: #6c757d !important;
+  margin: 0 !important;
+}
+
+.p-card-content {
+  padding: 0 !important;
+}
+
+.p-card-footer {
+  padding: 1rem 1.5rem !important;
+  border-top: 1px solid #dee2e6 !important;
+  background: #f8f9fa !important;
+}
+
+/* Form layouts - Fix spacing */
+.form-group,
+.p-field {
+  margin-bottom: 1.25rem !important;
+}
+
+.form-group:last-child,
+.p-field:last-child {
+  margin-bottom: 0 !important;
+}
+
+.form-group label,
+.p-field label {
+  display: block !important;
+  margin-bottom: 0.5rem !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  color: #2d3748 !important;
+}
+
+/* Grid layouts - Fix spacing */
+.p-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  margin: -0.5rem !important;
+}
+
+.p-col,
+.p-col-1,
+.p-col-2,
+.p-col-3,
+.p-col-4,
+.p-col-5,
+.p-col-6,
+.p-col-7,
+.p-col-8,
+.p-col-9,
+.p-col-10,
+.p-col-11,
+.p-col-12 {
+  padding: 0.5rem !important;
+  box-sizing: border-box !important;
+}
+
+/* Toast notifications - Fix spacing */
+.p-toast {
+  opacity: 1 !important;
+}
+
+.p-toast-message {
+  margin: 0 0 1rem 0 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 8px !important;
+  border: none !important;
+}
+
+.p-toast-message-content {
+  padding: 1rem 1.25rem !important;
+  border-radius: 8px !important;
+}
+
+.p-toast-message-text {
+  margin: 0 0 0 1rem !important;
+}
+
+.p-toast-message-icon {
+  font-size: 1.5rem !important;
+}
+
+.p-toast-summary {
+  font-weight: 700 !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.p-toast-detail {
+  margin: 0 !important;
+}
+
+/* Toolbar - Fix spacing */
+.p-toolbar {
+  padding: 1rem !important;
+  background: #f8f9fa !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.p-toolbar-group-left,
+.p-toolbar-group-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+}
+
+/* Scrollpanel - Fix spacing */
+.p-scrollpanel {
+  border: 1px solid #dee2e6 !important;
+  border-radius: 8px !important;
+  background: white !important;
+}
+
+.p-scrollpanel-content {
+  padding: 1rem !important;
+}
+
+/* Accordion - Fix spacing */
+.p-accordion {
+  border: 1px solid #dee2e6 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+.p-accordion-header {
+  margin: 0 !important;
+  border-top: 1px solid #dee2e6 !important;
+}
+
+.p-accordion-header:first-child {
+  border-top: none !important;
+}
+
+.p-accordion-header-link {
+  padding: 1.25rem !important;
+  background: #f8f9fa !important;
+  border: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  transition: all 0.2s !important;
+}
+
+.p-accordion-header-link:hover {
+  background: #e9ecef !important;
+}
+
+.p-accordion-header-link.p-highlight {
+  background: white !important;
+  color: #6366f1 !important;
+  font-weight: 600 !important;
+}
+
+.p-accordion-content {
+  padding: 1.25rem !important;
+  border: none !important;
+  background: white !important;
+}
+
+/* Prevent Tailwind from breaking flex/grid layouts */
+.flex {
+  display: flex !important;
+}
+
+.grid {
+  display: grid !important;
+}
+
+.flex-col {
+  flex-direction: column !important;
+}
+
+.flex-row {
+  flex-direction: row !important;
+}
+
+.items-center {
+  align-items: center !important;
+}
+
+.items-start {
+  align-items: flex-start !important;
+}
+
+.items-end {
+  align-items: flex-end !important;
+}
+
+.justify-center {
+  justify-content: center !important;
+}
+
+.justify-between {
+  justify-content: space-between !important;
+}
+
+.justify-start {
+  justify-content: flex-start !important;
+}
+
+.justify-end {
+  justify-content: flex-end !important;
+}
+
+/* Gap utilities */
+.gap-1 {
+  gap: 0.25rem !important;
+}
+
+.gap-2 {
+  gap: 0.5rem !important;
+}
+
+.gap-3 {
+  gap: 0.75rem !important;
+}
+
+.gap-4 {
+  gap: 1rem !important;
+}
+
+.gap-6 {
+  gap: 1.5rem !important;
+}
+
+.gap-8 {
+  gap: 2rem !important;
+}
+
+/* Spacing utilities that shouldn't be reset */
+.p-0 {
+  padding: 0 !important;
+}
+
+.p-1 {
+  padding: 0.25rem !important;
+}
+
+.p-2 {
+  padding: 0.5rem !important;
+}
+
+.p-3 {
+  padding: 0.75rem !important;
+}
+
+.p-4 {
+  padding: 1rem !important;
+}
+
+.p-6 {
+  padding: 1.5rem !important;
+}
+
+.p-8 {
+  padding: 2rem !important;
+}
+
+.m-0 {
+  margin: 0 !important;
+}
+
+.m-1 {
+  margin: 0.25rem !important;
+}
+
+.m-2 {
+  margin: 0.5rem !important;
+}
+
+.m-3 {
+  margin: 0.75rem !important;
+}
+
+.m-4 {
+  margin: 1rem !important;
+}
+
+.m-6 {
+  margin: 1.5rem !important;
+}
+
+.m-8 {
+  margin: 2rem !important;
+}
+
+/* Width/Height utilities */
+.w-full {
+  width: 100% !important;
+}
+
+.h-full {
+  height: 100% !important;
+}
+
+/* Text alignment */
+.text-center {
+  text-align: center !important;
+}
+
+.text-left {
+  text-align: left !important;
+}
+
+.text-right {
+  text-align: right !important;
+}
+
+/* Font weights */
+.font-normal {
+  font-weight: 400 !important;
+}
+
+.font-medium {
+  font-weight: 500 !important;
+}
+
+.font-semibold {
+  font-weight: 600 !important;
+}
+
+.font-bold {
+  font-weight: 700 !important;
+}
+
+/* ==============================================
+   App container fixes
+   ============================================== */
+
+#app {
+  min-height: 100vh !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+}
+
+/* Main content area */
+.main-content {
+  padding: 1.5rem !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Section spacing */
+section {
+  margin-bottom: 2rem !important;
+}
+
+section:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-bottom: 1rem !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+h1 {
+  font-size: 2rem !important;
+}
+
+h2 {
+  font-size: 1.5rem !important;
+}
+
+h3 {
+  font-size: 1.25rem !important;
+}
+
+h4 {
+  font-size: 1.125rem !important;
+}
+
+/* Paragraphs */
+p {
+  margin-bottom: 1rem !important;
+  line-height: 1.6 !important;
+}
+
+p:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Lists */
+ul,
+ol {
+  margin-bottom: 1rem !important;
+  padding-left: 1.5rem !important;
+}
+
+li {
+  margin-bottom: 0.5rem !important;
+}
+
+/* ==============================================
+   Animation and transition fixes
+   ============================================== */
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease !important;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0 !important;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease !important;
+}
+
+.slide-enter-from {
+  transform: translateY(-20px) !important;
+}
+
+.slide-leave-to {
+  transform: translateY(20px) !important;
+}

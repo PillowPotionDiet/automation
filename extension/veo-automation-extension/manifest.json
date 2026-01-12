@@ -1,0 +1,63 @@
+{
+"update_url": "https://clients2.google.com/service/update2/crx",
+
+  "author": {
+    "email": "kylenguyenaws@gmail.com"
+  },
+  "name": "VEO Automation - Google Flow AI VEO Automation",
+  "description": "Process multiple prompts simultaneously and download videos, images on Google Flow AI VEO Automation.",
+  "version": "2.1.3.0",
+  "version_name": "2.1.3",
+  "manifest_version": 3,
+  "action": {
+    "default_title": "VEO Automation - Google Flow AI VEO Automation"
+  },
+  "background": {
+    "service_worker": "service-worker-loader.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "js": [
+        "assets/index.ts-D54SgmvI.js"
+      ],
+      "all_frames": false,
+      "matches": [
+        "*://labs.google/*"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "side_panel": {
+    "default_path": "src/ui/side-panel/index.html"
+  },
+  "offline_enabled": true,
+  "host_permissions": [
+    "*://labs.google/*"
+  ],
+  "permissions": [
+    "storage",
+    "tabs",
+    "background",
+    "sidePanel",
+    "activeTab",
+    "downloads"
+  ],
+  "web_accessible_resources": [
+    {
+      "matches": [
+        "*://labs.google/*"
+      ],
+      "resources": [
+        "assets/index.ts-D54SgmvI.js"
+      ],
+      "use_dynamic_url": false
+    }
+  ],
+  "icons": {
+    "16": "src/assets/logo.png",
+    "24": "src/assets/logo.png",
+    "32": "src/assets/logo.png",
+    "128": "src/assets/logo.png"
+  }
+}

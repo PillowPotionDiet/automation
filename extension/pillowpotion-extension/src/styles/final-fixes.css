@@ -1,0 +1,76 @@
+/**
+ * Final UI Fixes - Balanced and Symmetrical
+ * Based on actual requirements
+ */
+
+/* ==============================================
+   1. Credit Header - Remove Extra Space Below
+   ============================================== */
+#app {
+  padding-top: 56px !important;
+  background-color: #f0f2f5 !important;
+  margin: 0 !important;
+}
+
+body {
+  background-color: #f0f2f5 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Remove any top margin from first element in app */
+#app > *:first-child {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* ==============================================
+   2. Moderate Vertical Spacing (Not Too Much)
+   ============================================== */
+
+/* Only add spacing between major form sections */
+.p-field {
+  margin-bottom: 0.875rem !important;
+}
+
+/* Spacing for cards/panels only */
+.p-card,
+.p-panel {
+  margin-bottom: 0.875rem !important;
+}
+
+/* Tab content needs minimal padding */
+.p-tabview-panels {
+  padding: 1rem !important;
+}
+
+/* ==============================================
+   3. Reset Aggressive Spacing from Other Files
+   ============================================== */
+
+/* Don't add margin to every div */
+#app div {
+  margin-bottom: 0 !important;
+}
+
+/* Don't add padding to every section */
+section,
+article {
+  padding: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* ==============================================
+   4. Symmetrical Layout - Side by Side Elements
+   ============================================== */
+
+/* Make Concurrent Prompts and Prompt Delay sit side by side */
+.p-field:has(label:contains("Concurrent")) + .p-field:has(label:contains("Delay")) {
+  display: inline-block !important;
+  width: 48% !important;
+  margin-right: 2% !important;
+}
+
+/* ==============================================
+   That's it - balanced spacing
+   ============================================== */
