@@ -149,57 +149,163 @@ function waitForTabLoad(tabId) {
 }
 
 /**
- * Execute automation steps
+ * Execute automation steps using DOM commands
  */
 async function executeAutomation(sourceTabId, flowTabId) {
-    console.log('[VEO Background] Executing automation on tab:', flowTabId);
+    console.log('[VEO Background] Executing automation - Source tab:', sourceTabId, 'Flow tab:', flowTabId);
 
-    // Step 1: Open side panel (20%)
-    sendProgressUpdate(sourceTabId, 20, 'Opening VEO Automaton side panel...');
-    await openSidePanel(flowTabId);
-    await sleep(2000);
+    try {
+        // Step 1: Prepare prompts (20%)
+        sendProgressUpdate(sourceTabId, 20, 'Preparing prompts...');
+        const prompts = preparePrompts();
+        const promptText = prompts.map(p => p.content).join('\n\n');
+        console.log('[VEO Background] Prepared', prompts.length, 'prompts');
 
-    // Step 2: Prepare prompts (30%)
-    sendProgressUpdate(sourceTabId, 30, 'Preparing prompts...');
-    const prompts = preparePrompts();
-    console.log('[VEO Background] Prepared', prompts.length, 'prompts');
+        // Step 2: Open side panel (30%)
+        sendProgressUpdate(sourceTabId, 30, 'Opening VEO Automaton side panel...');
+        try {
+            await chrome.sidePanel.open({ tabId: flowTabId });
+            console.log('[VEO Background] Side panel opened for tab:', flowTabId);
+        } catch (error) {
+            console.warn('[VEO Background] Could not open side panel automatically:', error.message);
+            sendProgressUpdate(sourceTabId, 30, 'Please click the VEO Automaton extension icon to open side panel');
+        }
 
-    // Step 3: Inject prompts into extension UI (40%)
-    sendProgressUpdate(sourceTabId, 40, 'Populating prompts...');
-    await injectPrompts(flowTabId, prompts);
-    await sleep(1000);
+        // Wait for side panel to initialize
+        await sleep(2000);
 
-    // Step 4: Configure settings (50%)
-    sendProgressUpdate(sourceTabId, 50, 'Configuring extension settings...');
-    await configureExtension(flowTabId);
-    await sleep(1000);
+        // Step 3: Wait for textarea to appear (40%)
+        sendProgressUpdate(sourceTabId, 40, 'Waiting for extension UI...');
+        await sendDOMCommand({
+            type: 'WAIT',
+            selector: '.p-textarea, textarea',
+            timeout: 10000
+        });
 
-    // Step 5: Start generation (60%)
-    sendProgressUpdate(sourceTabId, 60, 'Starting image generation...');
-    await startGeneration(flowTabId);
+        // Step 4: Fill prompts (50%)
+        sendProgressUpdate(sourceTabId, 50, 'Populating prompts...');
+        await sendDOMCommand({
+            type: 'FILL_INPUT',
+            selector: '.p-textarea, textarea',
+            value: promptText
+        });
+        console.log('[VEO Background] Prompts filled');
 
-    // Step 6: Monitor progress (60-90%)
-    sendProgressUpdate(sourceTabId, 65, 'Generating images...');
-    await monitorGeneration(sourceTabId, flowTabId, prompts.length);
+        // Step 5: Set concurrent to 1 (60%)
+        sendProgressUpdate(sourceTabId, 60, 'Configuring settings...');
+        try {
+            await sendDOMCommand({
+                type: 'SELECT_OPTION',
+                selector: '.p-select',
+                value: '1'
+            });
+        } catch (error) {
+            console.warn('[VEO Background] Could not set concurrent (may not be visible):', error.message);
+        }
 
-    // Step 7: Collect results (90-95%)
-    sendProgressUpdate(sourceTabId, 90, 'Collecting generated images...');
-    const images = await collectGeneratedImages(flowTabId);
-    automationState.generatedImages = images;
+        // Step 6: Switch to Text to Image tab (65%)
+        sendProgressUpdate(sourceTabId, 65, 'Switching to Text to Image tab...');
+        try {
+            await sendDOMCommand({
+                type: 'CLICK_TAB',
+                tabName: 'Text to Image'
+            });
+        } catch (error) {
+            console.warn('[VEO Background] Could not switch tab (may already be selected):', error.message);
+        }
 
-    // Step 8: Send completion notification (100%)
-    sendProgressUpdate(sourceTabId, 100, 'Automation complete!');
+        // Step 7: Click Run button (70%)
+        sendProgressUpdate(sourceTabId, 70, 'Starting image generation...');
+        await sendDOMCommand({
+            type: 'CLICK_BUTTON',
+            text: 'Run'
+        });
+        console.log('[VEO Background] Run button clicked');
 
-    chrome.tabs.sendMessage(sourceTabId, {
-        type: 'AUTOMATION_COMPLETE',
-        success: true,
-        images: images,
-        downloadPath: 'Check your Downloads folder'
+        // Step 8: Monitor completion (75-95%)
+        sendProgressUpdate(sourceTabId, 75, 'Generating images...');
+        const monitorResult = await sendDOMCommand({
+            type: 'MONITOR',
+            completionSelector: '.complete-indicator'
+        });
+
+        if (monitorResult.completed) {
+            // Step 9: Complete (100%)
+            sendProgressUpdate(sourceTabId, 100, 'Automation complete!');
+
+            chrome.tabs.sendMessage(sourceTabId, {
+                type: 'AUTOMATION_COMPLETE',
+                success: true,
+                images: [],
+                downloadPath: 'Check your Downloads folder'
+            }).catch(err => console.warn('[VEO Background] Could not send completion:', err));
+        } else {
+            sendProgressUpdate(sourceTabId, 95, 'Generation may still be processing. Check Downloads folder.');
+        }
+
+        automationState.isRunning = false;
+        console.log('[VEO Background] Automation completed successfully');
+
+    } catch (error) {
+        console.error('[VEO Background] Automation error:', error);
+        automationState.isRunning = false;
+
+        sendProgressUpdate(sourceTabId, 0, 'Error: ' + error.message);
+
+        chrome.tabs.sendMessage(sourceTabId, {
+            type: 'AUTOMATION_ERROR',
+            error: error.message,
+            step: automationState.currentStep
+        }).catch(err => console.warn('[VEO Background] Could not send error:', err));
+    }
+}
+
+/**
+ * Send DOM command to side panel and wait for response
+ */
+async function sendDOMCommand(command) {
+    return new Promise((resolve, reject) => {
+        const commandId = generateCommandId();
+
+        console.log('[VEO Background] Sending command:', command.type, commandId);
+
+        // Send command to side panel via runtime message
+        chrome.runtime.sendMessage({
+            type: 'DOM_COMMAND',
+            command: command,
+            commandId: commandId
+        });
+
+        // Listen for response
+        const listener = (message) => {
+            if (message.type === 'DOM_COMMAND_RESULT' && message.commandId === commandId) {
+                chrome.runtime.onMessage.removeListener(listener);
+
+                if (message.success) {
+                    console.log('[VEO Background] Command success:', command.type);
+                    resolve(message.result);
+                } else {
+                    console.error('[VEO Background] Command failed:', command.type, message.error);
+                    reject(new Error(message.error));
+                }
+            }
+        };
+
+        chrome.runtime.onMessage.addListener(listener);
+
+        // Timeout after 60 seconds
+        setTimeout(() => {
+            chrome.runtime.onMessage.removeListener(listener);
+            reject(new Error(`Command timeout: ${command.type}`));
+        }, 60000);
     });
+}
 
-    // Cleanup
-    automationState.isRunning = false;
-    console.log('[VEO Background] Automation completed successfully');
+/**
+ * Generate unique command ID
+ */
+function generateCommandId() {
+    return 'cmd_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
 /**

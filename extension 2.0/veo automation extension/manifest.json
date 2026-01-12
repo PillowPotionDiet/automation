@@ -6,8 +6,8 @@
   },
   "name": "VEO Automation - Google Flow AI VEO Automation",
   "description": "Process multiple prompts simultaneously and download videos, images on Google Flow AI VEO Automation.",
-  "version": "2.3.0.0",
-  "version_name": "2.3.0",
+  "version": "2.4.0.0",
+  "version_name": "2.4.0",
   "manifest_version": 3,
   "action": {
     "default_title": "VEO Automation - Google Flow AI VEO Automation"
