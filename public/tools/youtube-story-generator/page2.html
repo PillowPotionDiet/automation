@@ -421,6 +421,11 @@
     <script src="google-labs-flow-automator.js?v=2.0"></script>
     <script src="automation-progress.js?v=1.0"></script>
     <script>
+        // FORCE Extension Automation mode (API is disabled)
+        localStorage.setItem('setupMethod', 'extension');
+        localStorage.setItem('setupMethodChosen', 'true');
+        console.log('[Page2] Forced extension automation mode');
+
         // Initialize step indicator (6 steps now)
         document.getElementById('stepIndicator').innerHTML = Utils.createStepIndicator(2);
 

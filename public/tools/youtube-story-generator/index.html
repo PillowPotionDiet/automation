@@ -367,9 +367,13 @@
 
         // Check if API key exists
         window.addEventListener('DOMContentLoaded', () => {
+            // FORCE Extension Automation mode (API is completely disabled)
+            localStorage.setItem('setupMethod', 'extension');
+            localStorage.setItem('setupMethodChosen', 'true');
+            console.log('[Index] Forced extension automation mode');
+
             const apiKey = StateManager.getApiKey();
             const webhookConfigured = StateManager.isWebhookConfigured();
-            const setupMethod = localStorage.getItem('setupMethod') || 'extension';
 
             // Check if user is admin - show close button
             const user = JSON.parse(localStorage.getItem('user') || 'null');
@@ -377,18 +381,10 @@
                 document.getElementById('adminCloseBtn').style.display = 'block';
             }
 
-            // Check if user has selected extension automation before
-            if (setupMethod === 'extension') {
-                // Don't show modal if extension automation was previously selected
-                // Only show if they haven't made a choice yet or selected API but missing credentials
-                if (!localStorage.getItem('setupMethodChosen')) {
-                    document.getElementById('validationModal').style.display = 'flex';
-                }
-            } else if (!apiKey || !webhookConfigured) {
-                // Show validation modal if API method selected but not configured
+            // Don't show validation modal since extension is the only option
+            // Only show if they haven't made a choice yet (first time users)
+            if (!localStorage.getItem('setupMethodChosen')) {
                 document.getElementById('validationModal').style.display = 'flex';
-                document.getElementById('methodAPI').checked = true;
-                toggleSetupMethod();
             }
 
             // Add event listeners for radio buttons
