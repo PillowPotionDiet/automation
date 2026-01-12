@@ -418,6 +418,8 @@
     <script src="api-handler.js?v=19.0"></script>
     <script src="common.js?v=6.0"></script>
     <script src="identity-manager.js?v=1.0"></script>
+    <script src="google-labs-flow-automator.js?v=2.0"></script>
+    <script src="automation-progress.js?v=1.0"></script>
     <script>
         // Initialize step indicator (6 steps now)
         document.getElementById('stepIndicator').innerHTML = Utils.createStepIndicator(2);
@@ -581,84 +583,83 @@
             generateBtn.textContent = 'Generating...';
             progressDiv.classList.add('active');
 
-            const settings = {
-                model: document.getElementById('aiModel').value,
-                aspectRatio: document.getElementById('aspectRatio').value,
-                style: 'Photorealistic'
-            };
+            // Check which automation method to use
+            const setupMethod = localStorage.getItem('setupMethod') || 'extension';
 
-            const apiKey = StateManager.getApiKey();
-            const total = charCount + envCount;
-            let completed = 0;
+            if (setupMethod === 'extension') {
+                // ✨ EXTENSION AUTOMATION - FULL AUTO
+                console.log('[Page2] Using Extension Automation');
 
-            // Update progress UI
-            function updateProgress(message) {
-                completed++;
-                const percent = Math.round((completed / total) * 100);
-                document.getElementById('progressPercent').textContent = `${percent}%`;
-                document.getElementById('progressBarFill').style.width = `${percent}%`;
-                document.getElementById('progressText').textContent = message;
-            }
-
-            // Generate master images
-            const result = await IdentityManager.generateMasterImages(
-                globalState,
-                apiKey,
-                settings,
-                (message) => {
-                    document.getElementById('progressText').textContent = message;
-                    // Update individual card status
-                    const match = message.match(/Generating master image for (.+?)\.\.\./);
-                    if (match) {
-                        const name = match[1].toLowerCase().replace(/\s+/g, '_');
-                        const card = document.querySelector(`[data-key="${name}"]`);
-                        if (card) {
-                            card.classList.add('generating');
-                            card.querySelector('.status-indicator').className = 'status-indicator generating';
-                        }
-                    }
+                // Initialize automator if not already done
+                if (typeof GoogleLabsFlowAutomator === 'undefined') {
+                    Utils.showError('Automation system not loaded. Please refresh the page.');
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = 'Generate Identities';
+                    progressDiv.classList.remove('active');
+                    return;
                 }
-            );
 
-            progressDiv.classList.remove('active');
+                const automator = new GoogleLabsFlowAutomator();
 
-            if (result.success) {
-                // Update global state
-                globalState = result.globalState;
-                StateManager.saveGlobalState(globalState);
+                // Prepare character and environment data
+                const characters = globalState.characters.map(char => ({
+                    name: char.name,
+                    content: char.content,
+                    prompt: char.content,
+                    attributes: char.attributes || {}
+                }));
 
-                // Update UI
-                renderCharacters();
-                renderEnvironments();
+                const environments = globalState.environments.map(env => ({
+                    name: env.name,
+                    content: env.content,
+                    prompt: env.content,
+                    attributes: env.attributes || {}
+                }));
 
-                // Show success
-                document.getElementById('lockedBanner').classList.add('visible');
-                generateBtn.textContent = 'Locked';
-                document.getElementById('nextBtn').disabled = false;
-                document.getElementById('settingsSection').style.display = 'none';
-                document.getElementById('creditsEstimate').style.display = 'none';
+                // Progress callback
+                const progressCallback = (percentage, message) => {
+                    document.getElementById('progressPercent').textContent = `${Math.round(percentage)}%`;
+                    document.getElementById('progressBarFill').style.width = `${percentage}%`;
+                    document.getElementById('progressText').textContent = message;
+                };
 
-                Utils.showSuccess(`Identities locked! Used ${result.creditsUsed} credits.`);
+                // Start automation
+                const result = await automator.startAutomation(characters, environments, progressCallback);
+
+                if (!result.success) {
+                    // Automation failed to start
+                    progressDiv.classList.remove('active');
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = 'Retry Generation';
+                    Utils.showError(result.error || 'Failed to start automation');
+                    return;
+                }
+
+                // Automation started successfully
+                // The automator will handle progress updates and navigation automatically
+                console.log('[Page2] Extension automation started successfully');
+
+                // Note: The GoogleLabsFlowAutomator will automatically:
+                // 1. Open Google Labs Flow
+                // 2. Inject prompts into VEO Automaton
+                // 3. Start generation
+                // 4. Monitor progress
+                // 5. Navigate to next page when complete
+
             } else {
-                // Show errors
+                // ❌ API METHOD - DISABLED
+                progressDiv.classList.remove('active');
                 generateBtn.disabled = false;
-                generateBtn.textContent = 'Retry Generation';
+                generateBtn.textContent = 'Generate Identities';
 
-                const errorMessages = result.errors.join('\n');
-                Utils.showError('Some generations failed:\n' + errorMessages);
+                Utils.showError('API method is disabled. Please use Extension Automation only.\n\nTo enable Extension Automation:\n1. Go back to Step 1\n2. Select "Extension Automation"\n3. Reload the page');
 
-                // Mark failed cards
-                result.errors.forEach(err => {
-                    const match = err.match(/Failed to generate (.+?):/);
-                    if (match) {
-                        const name = match[1].toLowerCase().replace(/\s+/g, '_');
-                        const card = document.querySelector(`[data-key="${name}"]`);
-                        if (card) {
-                            card.classList.add('error');
-                            card.querySelector('.status-indicator').className = 'status-indicator error';
-                        }
-                    }
-                });
+                // Show modal to switch to extension automation
+                if (confirm('API method is disabled.\n\nWould you like to switch to Extension Automation?\n\n(This will restart from Step 1)')) {
+                    localStorage.setItem('setupMethod', 'extension');
+                    localStorage.setItem('setupMethodChosen', 'true');
+                    Utils.navigateTo('index.html');
+                }
             }
         });
 

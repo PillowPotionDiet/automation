@@ -156,10 +156,10 @@
 
                 <div style="display: flex; flex-direction: column; gap: 16px;">
                     <!-- Storyboard Brain Option -->
-                    <label class="brain-option" for="brainStoryboard">
-                        <input type="radio" name="brainType" id="brainStoryboard" value="storyboard" checked>
+                    <label class="brain-option" style="border-color: var(--success-color); background: rgba(34, 197, 94, 0.05);">
+                        <input type="radio" name="brainType" id="brainStoryboard" value="storyboard" checked disabled style="cursor: default;">
                         <div class="brain-option-content">
-                            <div class="brain-option-title">✅ Storyboard Brain (Local AI)</div>
+                            <div class="brain-option-title" style="color: var(--success-color);">✅ Storyboard Brain (Enabled)</div>
                             <div class="brain-option-desc">
                                 Built-in AI intelligence with:
                                 <ul style="margin: 6px 0 0 20px; font-size: 12px;">
@@ -169,30 +169,20 @@
                                     <li>AI-driven scene generation</li>
                                     <li>Smart frame prompt creation</li>
                                 </ul>
-                                <div style="margin-top: 6px; color: var(--success-color); font-size: 11px;">
-                                    ✨ Fast, local processing. No API credits used.
+                                <div style="margin-top: 6px; color: var(--success-color); font-size: 11px; font-weight: 600;">
+                                    ✨ Fast, local processing. No API credits used. This is the only available brain.
                                 </div>
                             </div>
                         </div>
                     </label>
 
-                    <!-- GeminiGen Brain Option -->
-                    <label class="brain-option" for="brainGeminigen">
-                        <input type="radio" name="brainType" id="brainGeminigen" value="geminigen">
+                    <!-- GeminiGen Brain Option (DISABLED) -->
+                    <label class="brain-option" style="opacity: 0.5; cursor: not-allowed; background: #f9fafb;">
+                        <input type="radio" name="brainType" id="brainGeminigen" value="geminigen" disabled style="cursor: not-allowed;">
                         <div class="brain-option-content">
-                            <div class="brain-option-title">✅ GeminiGen Brain (AI-Powered)</div>
-                            <div class="brain-option-desc">
-                                Advanced 5-step AI pipeline:
-                                <ol style="margin: 8px 0 0 20px; font-size: 12px;">
-                                    <li>Character Identification</li>
-                                    <li>Environment Identification</li>
-                                    <li>Script → Paragraph Splitting</li>
-                                    <li>Paragraph → Scene Generation</li>
-                                    <li>Scene → Frame Prompts</li>
-                                </ol>
-                                <div style="margin-top: 8px; color: var(--warning-color); font-size: 11px;">
-                                    ⚠️ Uses GeminiGen API credits. Takes longer but produces better results.
-                                </div>
+                            <div class="brain-option-title" style="color: #9ca3af;">❌ GeminiGen Brain (Disabled)</div>
+                            <div class="brain-option-desc" style="color: #9ca3af;">
+                                This brain has been disabled. Only Storyboard Brain with Extension Automation is supported.
                             </div>
                         </div>
                     </label>
@@ -222,19 +212,20 @@
                 <!-- Method Selection -->
                 <div style="margin-bottom: 24px;">
                     <div style="display: flex; gap: 16px; flex-direction: column;">
-                        <label class="radio-option" style="padding: 16px; border: 2px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-                            <input type="radio" name="setupMethod" id="methodExtension" value="extension" checked style="margin-right: 12px;">
+                        <label class="radio-option" style="padding: 16px; border: 2px solid var(--success-color); border-radius: 8px; background: rgba(34, 197, 94, 0.05); cursor: default;">
+                            <input type="radio" name="setupMethod" id="methodExtension" value="extension" checked disabled style="margin-right: 12px;">
                             <div style="display: inline-block;">
-                                <strong style="font-size: 16px;">🚀 Go with Extension Automation</strong>
-                                <p style="margin: 4px 0 0 0; font-size: 13px; color: #6b7280;">No API key required. Use the browser extension to automate everything.</p>
+                                <strong style="font-size: 16px;">🚀 Extension Automation (Enabled)</strong>
+                                <p style="margin: 4px 0 0 0; font-size: 13px; color: #6b7280;">No API key required. Browser extension automates everything for you.</p>
+                                <p style="margin: 6px 0 0 0; font-size: 12px; color: var(--success-color); font-weight: 600;">✓ This is the only available method</p>
                             </div>
                         </label>
 
-                        <label class="radio-option" style="padding: 16px; border: 2px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-                            <input type="radio" name="setupMethod" id="methodAPI" value="api" style="margin-right: 12px;">
+                        <label class="radio-option" style="padding: 16px; border: 2px solid #e5e7eb; border-radius: 8px; opacity: 0.5; cursor: not-allowed; background: #f9fafb;">
+                            <input type="radio" name="setupMethod" id="methodAPI" value="api" disabled style="margin-right: 12px;">
                             <div style="display: inline-block;">
-                                <strong style="font-size: 16px;">🔑 Use GeminiGen API</strong>
-                                <p style="margin: 4px 0 0 0; font-size: 13px; color: #6b7280;">Configure API key and webhook for direct API access.</p>
+                                <strong style="font-size: 16px; color: #9ca3af;">🔑 GeminiGen API (Disabled)</strong>
+                                <p style="margin: 4px 0 0 0; font-size: 13px; color: #9ca3af;">API method has been disabled. Extension automation is now the only supported method.</p>
                             </div>
                         </label>
                     </div>
@@ -426,71 +417,15 @@
             // Clear previous errors
             errorDiv.style.display = 'none';
 
-            // Check which method is selected
-            if (methodExtension.checked) {
-                // Extension Automation - No validation needed
-                localStorage.setItem('setupMethod', 'extension');
-                localStorage.setItem('setupMethodChosen', 'true');
+            // ONLY Extension Automation is allowed
+            // Extension Automation - No validation needed
+            localStorage.setItem('setupMethod', 'extension');
+            localStorage.setItem('setupMethodChosen', 'true');
 
-                // Hide modal
-                document.getElementById('validationModal').style.display = 'none';
+            // Hide modal
+            document.getElementById('validationModal').style.display = 'none';
 
-                Utils.showSuccess('Extension Automation selected! You can now proceed.');
-                return;
-            }
-
-            // API Method - Validate API key and webhook
-            const apiKey = document.getElementById('apiKeyInput').value.trim();
-            const webhookConfirmed = document.getElementById('webhookConfirm').checked;
-
-            // Validate inputs
-            if (!apiKey) {
-                errorDiv.textContent = 'Please enter your GeminiGen API key';
-                errorDiv.style.display = 'block';
-                return;
-            }
-
-            if (!webhookConfirmed) {
-                errorDiv.textContent = 'Please confirm you have added the webhook';
-                errorDiv.style.display = 'block';
-                return;
-            }
-
-            // Show loading
-            Utils.showLoading('Validating API key...');
-
-            // Test API connection
-            const result = await APIHandler.testConnection(apiKey);
-
-            Utils.hideLoading();
-
-            if (result.success) {
-                // Save API key and webhook status
-                StateManager.saveApiKey(apiKey);
-                StateManager.setWebhookConfigured(true);
-                localStorage.setItem('setupMethod', 'api');
-                localStorage.setItem('setupMethodChosen', 'true');
-
-                // Hide modal
-                document.getElementById('validationModal').style.display = 'none';
-
-                Utils.showSuccess('API key validated successfully!');
-            } else {
-                // Extract detailed error message from API response
-                let errorMessage = result.message || 'API validation failed';
-
-                // Check for detailed error in geminigen_raw
-                if (result.geminigen_raw && result.geminigen_raw.detail) {
-                    if (result.geminigen_raw.detail.error_message) {
-                        errorMessage = result.geminigen_raw.detail.error_message;
-                    } else if (result.geminigen_raw.detail.error_code) {
-                        errorMessage = APIHandler.getErrorMessage(result.geminigen_raw.detail.error_code);
-                    }
-                }
-
-                errorDiv.textContent = errorMessage;
-                errorDiv.style.display = 'block';
-            }
+            Utils.showSuccess('Extension Automation enabled! You can now proceed.');
         });
 
         // Form submission - Show brain selection modal
@@ -522,7 +457,8 @@
 
         // Brain selection confirmation
         document.getElementById('confirmBrainBtn').addEventListener('click', async () => {
-            const selectedBrain = document.querySelector('input[name="brainType"]:checked').value;
+            // ONLY Storyboard Brain is allowed now
+            const selectedBrain = 'storyboard'; // Force storyboard brain
 
             // Save brain type
             StateManager.saveBrainType(selectedBrain);
@@ -533,58 +469,28 @@
             // Get script data
             const scriptData = StateManager.getScriptData();
 
-            if (selectedBrain === 'geminigen') {
-                // Run GeminiGen Brain Pipeline
-                Utils.showLoading('Initializing GeminiGen Brain Pipeline...');
+            // Use Enhanced Storyboard Brain with local AI intelligence
+            Utils.showLoading('Processing with Storyboard Brain...');
 
-                const apiKey = StateManager.getApiKey();
-
-                const result = await GeminiGenBrain.runCompletePipeline(
-                    {
-                        apiKey: apiKey,
-                        script: scriptData.script,
-                        paragraphCount: scriptData.numParagraphs,
-                        scenesPerParagraph: scriptData.scenesPerParagraph
-                    },
-                    (message) => {
-                        // Progress callback
-                        Utils.showLoading(message);
-                    }
-                );
-
-                Utils.hideLoading();
-
-                if (result.success) {
-                    Utils.showSuccess(`Pipeline completed! Used ${result.creditsUsed.total} credits.`);
-                    setTimeout(() => Utils.navigateTo('page2.html'), 1500);
-                } else {
-                    Utils.showError('Pipeline failed: ' + result.message);
+            const result = await StoryboardBrain.runEnhancedPipeline(
+                {
+                    script: scriptData.script,
+                    paragraphCount: scriptData.numParagraphs,
+                    scenesPerParagraph: scriptData.scenesPerParagraph
+                },
+                (message) => {
+                    // Progress callback
+                    Utils.showLoading(message);
                 }
+            );
 
+            Utils.hideLoading();
+
+            if (result.success) {
+                Utils.showSuccess('Storyboard processing complete!');
+                setTimeout(() => Utils.navigateTo('page2.html'), 1000);
             } else {
-                // Use Enhanced Storyboard Brain with local AI intelligence
-                Utils.showLoading('Processing with Storyboard Brain...');
-
-                const result = await StoryboardBrain.runEnhancedPipeline(
-                    {
-                        script: scriptData.script,
-                        paragraphCount: scriptData.numParagraphs,
-                        scenesPerParagraph: scriptData.scenesPerParagraph
-                    },
-                    (message) => {
-                        // Progress callback
-                        Utils.showLoading(message);
-                    }
-                );
-
-                Utils.hideLoading();
-
-                if (result.success) {
-                    Utils.showSuccess('Storyboard processing complete!');
-                    setTimeout(() => Utils.navigateTo('page2.html'), 1000);
-                } else {
-                    Utils.showError('Processing failed: ' + result.message);
-                }
+                Utils.showError('Processing failed: ' + result.message);
             }
         });
     </script>
