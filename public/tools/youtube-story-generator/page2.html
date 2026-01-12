@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeminiGen Automation - Step 2: Lock Identities</title>
+    <title>GeminiGen Automation - Step 2: Lock Identities [v2.1 EXTENSION ONLY]</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=6.1">
+    <link rel="stylesheet" href="styles.css?v=6.2">
     <style>
         .identity-section {
             margin-bottom: 30px;
@@ -414,22 +414,25 @@
     </div>
 
     <!-- Scripts -->
-    <script src="state-manager.js?v=8.0"></script>
-    <script src="api-handler.js?v=19.0"></script>
-    <script src="common.js?v=6.0"></script>
-    <script src="identity-manager.js?v=1.0"></script>
-    <script src="google-labs-flow-automator.js?v=2.1"></script>
-    <script src="automation-progress.js?v=1.0"></script>
+    <script src="state-manager.js?v=8.1"></script>
+    <script src="api-handler.js?v=19.1"></script>
+    <script src="common.js?v=6.1"></script>
+    <script src="identity-manager.js?v=1.1"></script>
+    <script src="google-labs-flow-automator.js?v=2.2"></script>
+    <script src="automation-progress.js?v=1.1"></script>
     <script>
         // ============================================
-        // PAGE2.HTML v2.1 - EXTENSION AUTOMATION ONLY
+        // PAGE2.HTML v2.2 - EXTENSION AUTOMATION ONLY
         // ============================================
-        console.log('%c[Page2 v2.1] LOADED - Extension Automation Only Mode', 'background: #22c55e; color: white; font-size: 14px; padding: 4px 8px; border-radius: 4px;');
+        console.log('%c███ PAGE2.HTML v2.2 LOADED ███', 'background: #ff0000; color: white; font-size: 20px; font-weight: bold; padding: 10px;');
+        console.log('%c[Page2 v2.2] EXTENSION AUTOMATION ONLY MODE', 'background: #22c55e; color: white; font-size: 16px; padding: 6px 12px; border-radius: 4px;');
+        alert('✅ Page2.html v2.2 loaded! Extension Automation ONLY mode active.');
 
-        // FORCE Extension Automation mode (API is disabled)
+        // FORCE Extension Automation mode (API is completely disabled)
         localStorage.setItem('setupMethod', 'extension');
         localStorage.setItem('setupMethodChosen', 'true');
-        console.log('[Page2] Forced extension automation mode');
+        localStorage.removeItem('apiKey'); // Remove any old API keys
+        console.log('[Page2 v2.2] Forced extension automation mode + removed API key');
 
         // Initialize step indicator (6 steps now)
         document.getElementById('stepIndicator').innerHTML = Utils.createStepIndicator(2);
