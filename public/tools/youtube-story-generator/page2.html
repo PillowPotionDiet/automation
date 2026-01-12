@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeminiGen Automation - Step 2: Lock Identities [v2.1 EXTENSION ONLY]</title>
+    <title>GeminiGen Automation - Step 2: Lock Identities [v2.3 EXTENSION ONLY]</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css?v=6.2">
     <style>
@@ -422,17 +422,17 @@
     <script src="automation-progress.js?v=1.1"></script>
     <script>
         // ============================================
-        // PAGE2.HTML v2.2 - EXTENSION AUTOMATION ONLY
+        // PAGE2.HTML v2.3 - EXTENSION AUTOMATION ONLY
         // ============================================
-        console.log('%c███ PAGE2.HTML v2.2 LOADED ███', 'background: #ff0000; color: white; font-size: 20px; font-weight: bold; padding: 10px;');
-        console.log('%c[Page2 v2.2] EXTENSION AUTOMATION ONLY MODE', 'background: #22c55e; color: white; font-size: 16px; padding: 6px 12px; border-radius: 4px;');
-        alert('✅ Page2.html v2.2 loaded! Extension Automation ONLY mode active.');
+        console.log('%c███ PAGE2.HTML v2.3 LOADED ███', 'background: #ff0000; color: white; font-size: 20px; font-weight: bold; padding: 10px;');
+        console.log('%c[Page2 v2.3] EXTENSION AUTOMATION ONLY MODE', 'background: #22c55e; color: white; font-size: 16px; padding: 6px 12px; border-radius: 4px;');
+        alert('✅ Page2.html v2.3 loaded! Extension Automation ONLY mode active.');
 
         // FORCE Extension Automation mode (API is completely disabled)
         localStorage.setItem('setupMethod', 'extension');
         localStorage.setItem('setupMethodChosen', 'true');
         localStorage.removeItem('apiKey'); // Remove any old API keys
-        console.log('[Page2 v2.2] Forced extension automation mode + removed API key');
+        console.log('[Page2 v2.3] Forced extension automation mode + removed API key');
 
         // Initialize step indicator (6 steps now)
         document.getElementById('stepIndicator').innerHTML = Utils.createStepIndicator(2);
@@ -615,14 +615,15 @@
                 const automator = new GoogleLabsFlowAutomator();
 
                 // Prepare character and environment data
-                const characters = globalState.characters.map(char => ({
+                // Convert objects to arrays using Object.values()
+                const characters = Object.values(globalState.characters || {}).map(char => ({
                     name: char.name,
                     content: char.content,
                     prompt: char.content,
                     attributes: char.attributes || {}
                 }));
 
-                const environments = globalState.environments.map(env => ({
+                const environments = Object.values(globalState.environments || {}).map(env => ({
                     name: env.name,
                     content: env.content,
                     prompt: env.content,
