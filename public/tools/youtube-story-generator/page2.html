@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeminiGen Automation - Step 2: Lock Identities</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="styles.css?v=6.0">
+    <link rel="stylesheet" href="styles.css?v=6.1">
     <style>
         .identity-section {
             margin-bottom: 30px;
@@ -418,9 +418,14 @@
     <script src="api-handler.js?v=19.0"></script>
     <script src="common.js?v=6.0"></script>
     <script src="identity-manager.js?v=1.0"></script>
-    <script src="google-labs-flow-automator.js?v=2.0"></script>
+    <script src="google-labs-flow-automator.js?v=2.1"></script>
     <script src="automation-progress.js?v=1.0"></script>
     <script>
+        // ============================================
+        // PAGE2.HTML v2.1 - EXTENSION AUTOMATION ONLY
+        // ============================================
+        console.log('%c[Page2 v2.1] LOADED - Extension Automation Only Mode', 'background: #22c55e; color: white; font-size: 14px; padding: 4px 8px; border-radius: 4px;');
+
         // FORCE Extension Automation mode (API is disabled)
         localStorage.setItem('setupMethod', 'extension');
         localStorage.setItem('setupMethodChosen', 'true');
