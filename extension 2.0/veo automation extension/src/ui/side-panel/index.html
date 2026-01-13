@@ -18,6 +18,341 @@
   <body>
     <div id="app"></div>
     <!-- DOM Controller for YouTube Story Generator integration -->
-    <script src="../../../side-panel-controller.js"></script>
+    <script>
+/**
+ * Side Panel DOM Controller
+ * Runs in VEO Extension side panel context
+ * Receives DOM manipulation commands from background script and executes them
+ * Version 2.4.0
+ */
+
+console.log('[VEO Controller] Side panel controller initialized');
+
+// Listen for DOM commands from background script
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === 'DOM_COMMAND') {
+        console.log('[VEO Controller] Received command:', message.command.type);
+
+        executeCommand(message.command, message.commandId)
+            .then(result => {
+                console.log('[VEO Controller] Command success:', message.command.type, result);
+                sendResponse({
+                    type: 'DOM_COMMAND_RESULT',
+                    commandId: message.commandId,
+                    success: true,
+                    result: result
+                });
+            })
+            .catch(error => {
+                console.error('[VEO Controller] Command failed:', message.command.type, error);
+                sendResponse({
+                    type: 'DOM_COMMAND_RESULT',
+                    commandId: message.commandId,
+                    success: false,
+                    error: error.message
+                });
+            });
+
+        return true; // Keep message channel open for async response
+    }
+});
+
+/**
+ * Execute a DOM command
+ */
+async function executeCommand(command) {
+    switch (command.type) {
+        case 'FILL_INPUT':
+            return await fillInput(command.selector, command.value);
+
+        case 'CLICK_BUTTON':
+            return await clickButton(command.selector, command.text);
+
+        case 'SELECT_OPTION':
+            return await selectOption(command.selector, command.value);
+
+        case 'CLICK_TAB':
+            return await clickTab(command.tabName);
+
+        case 'WAIT':
+            return await waitForElement(command.selector, command.timeout || 10000);
+
+        case 'GET_VALUE':
+            return await getValue(command.selector);
+
+        case 'CHECK_EXISTS':
+            return checkExists(command.selector);
+
+        case 'MONITOR':
+            return await monitorCompletion(command.completionSelector);
+
+        default:
+            throw new Error('Unknown command type: ' + command.type);
+    }
+}
+
+/**
+ * Fill input/textarea with value
+ */
+async function fillInput(selector, value) {
+    const element = document.querySelector(selector);
+    if (!element) {
+        throw new Error('Element not found: ' + selector);
+    }
+
+    // Set value
+    element.value = value;
+
+    // Trigger events to ensure framework reactivity (PrimeVue)
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+    element.dispatchEvent(new Event('change', { bubbles: true }));
+
+    // Also try triggering blur for frameworks that need it
+    element.dispatchEvent(new Event('blur', { bubbles: true }));
+
+    console.log('[VEO Controller] Filled input:', selector, `(${value.length} chars)`);
+    return { filled: true, length: value.length };
+}
+
+/**
+ * Click a button (by selector or text content)
+ */
+async function clickButton(selector, text) {
+    let button;
+
+    if (selector) {
+        button = document.querySelector(selector);
+    } else if (text) {
+        // Find button by text content
+        const buttons = Array.from(document.querySelectorAll('button, .p-button'));
+        button = buttons.find(b => {
+            const buttonText = b.textContent.toLowerCase().trim();
+            const searchText = text.toLowerCase().trim();
+            return buttonText.includes(searchText);
+        });
+    }
+
+    if (!button) {
+        throw new Error(`Button not found: ${selector || text}`);
+    }
+
+    // Check if button is disabled
+    if (button.disabled || button.classList.contains('p-disabled')) {
+        throw new Error('Button is disabled');
+    }
+
+    // Click the button
+    button.click();
+
+    console.log('[VEO Controller] Clicked button:', selector || text);
+    return { clicked: true, buttonText: button.textContent.trim() };
+}
+
+/**
+ * Select dropdown option (PrimeVue p-select)
+ */
+async function selectOption(selector, value) {
+    const selectComponent = document.querySelector(selector);
+    if (!selectComponent) {
+        throw new Error('Select component not found: ' + selector);
+    }
+
+    // For PrimeVue select, we need to:
+    // 1. Click the select to open dropdown
+    selectComponent.click();
+    await sleep(300);
+
+    // 2. Find and click the option with matching value
+    const options = document.querySelectorAll('.p-select-option');
+    let selectedOption = null;
+
+    for (const option of options) {
+        const optionValue = option.getAttribute('data-value') || option.textContent.trim();
+        if (optionValue === value || optionValue.includes(value)) {
+            selectedOption = option;
+            break;
+        }
+    }
+
+    if (!selectedOption) {
+        throw new Error(`Option not found: ${value}`);
+    }
+
+    selectedOption.click();
+    await sleep(200);
+
+    console.log('[VEO Controller] Selected option:', value);
+    return { selected: true, value: value };
+}
+
+/**
+ * Click a tab by name
+ */
+async function clickTab(tabName) {
+    // Find tab buttons
+    const tabs = Array.from(document.querySelectorAll('[role="tab"], .p-tabview-nav button'));
+
+    const tab = tabs.find(t => {
+        const tabText = t.textContent.toLowerCase().trim();
+        const searchText = tabName.toLowerCase().trim();
+        return tabText.includes(searchText);
+    });
+
+    if (!tab) {
+        throw new Error(`Tab not found: ${tabName}`);
+    }
+
+    tab.click();
+    await sleep(300);
+
+    console.log('[VEO Controller] Clicked tab:', tabName);
+    return { clicked: true, tabName: tabName };
+}
+
+/**
+ * Wait for element to appear
+ */
+async function waitForElement(selector, timeout) {
+    console.log('[VEO Controller] Waiting for element:', selector);
+
+    const startTime = Date.now();
+
+    return new Promise((resolve, reject) => {
+        // Check if element already exists
+        const existing = document.querySelector(selector);
+        if (existing) {
+            console.log('[VEO Controller] Element already exists:', selector);
+            resolve({ found: true, waitTime: 0 });
+            return;
+        }
+
+        // Use MutationObserver to watch for element
+        const observer = new MutationObserver(() => {
+            const element = document.querySelector(selector);
+            if (element) {
+                observer.disconnect();
+                clearTimeout(timeoutId);
+                const waitTime = Date.now() - startTime;
+                console.log('[VEO Controller] Element found:', selector, `(${waitTime}ms)`);
+                resolve({ found: true, waitTime: waitTime });
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        // Timeout
+        const timeoutId = setTimeout(() => {
+            observer.disconnect();
+            reject(new Error(`Timeout waiting for element: ${selector} (${timeout}ms)`));
+        }, timeout);
+    });
+}
+
+/**
+ * Get element value or text content
+ */
+async function getValue(selector) {
+    const element = document.querySelector(selector);
+    if (!element) {
+        throw new Error('Element not found: ' + selector);
+    }
+
+    let value;
+    if (element.value !== undefined) {
+        value = element.value;
+    } else {
+        value = element.textContent.trim();
+    }
+
+    console.log('[VEO Controller] Got value:', selector, value);
+    return { value: value };
+}
+
+/**
+ * Check if element exists
+ */
+function checkExists(selector) {
+    const element = document.querySelector(selector);
+    const exists = !!element;
+    console.log('[VEO Controller] Check exists:', selector, exists);
+    return { exists: exists };
+}
+
+/**
+ * Monitor completion (auto-watch for completion indicators)
+ */
+async function monitorCompletion(completionSelector) {
+    console.log('[VEO Controller] Starting auto-monitor for completion');
+
+    return new Promise((resolve, reject) => {
+        let checkCount = 0;
+        const maxChecks = 120; // 10 minutes max (5s intervals)
+
+        const checkInterval = setInterval(() => {
+            checkCount++;
+
+            // Check for completion indicators
+            const completionIndicators = [
+                '.p-button:not(.p-button-loading)', // Button not loading anymore
+                completionSelector,
+                '[class*="complete"]',
+                '[class*="done"]',
+                '[class*="finished"]'
+            ];
+
+            for (const selector of completionIndicators) {
+                const element = document.querySelector(selector);
+                if (element) {
+                    const text = element.textContent.toLowerCase();
+                    if (text.includes('complete') || text.includes('done') || text.includes('finished')) {
+                        clearInterval(checkInterval);
+                        console.log('[VEO Controller] Completion detected!');
+                        resolve({ completed: true, checks: checkCount });
+                        return;
+                    }
+                }
+            }
+
+            // Check if button is back to normal state (not loading)
+            const buttons = document.querySelectorAll('.p-button');
+            const allButtonsNotLoading = Array.from(buttons).every(btn =>
+                !btn.classList.contains('p-button-loading')
+            );
+
+            if (allButtonsNotLoading && checkCount > 5) {
+                // Give it a bit of time, then assume complete
+                clearInterval(checkInterval);
+                console.log('[VEO Controller] Auto-monitor complete (buttons not loading)');
+                resolve({ completed: true, checks: checkCount });
+                return;
+            }
+
+            // Timeout
+            if (checkCount >= maxChecks) {
+                clearInterval(checkInterval);
+                console.warn('[VEO Controller] Monitor timeout reached');
+                resolve({ completed: false, timeout: true, checks: checkCount });
+            }
+
+            // Log progress every 12 checks (1 minute)
+            if (checkCount % 12 === 0) {
+                console.log(`[VEO Controller] Still monitoring... (${checkCount * 5}s elapsed)`);
+            }
+        }, 5000); // Check every 5 seconds
+    });
+}
+
+/**
+ * Utility: Sleep
+ */
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+console.log('[VEO Controller] Ready to receive DOM commands');
+    </script>
   </body>
 </html>
