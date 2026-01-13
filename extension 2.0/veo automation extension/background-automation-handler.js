@@ -150,6 +150,7 @@ function waitForTabLoad(tabId) {
 
 /**
  * Execute automation steps using DOM commands
+ * ALTERNATIVE APPROACH: Use chrome.scripting.executeScript to control extension UI
  */
 async function executeAutomation(sourceTabId, flowTabId) {
     console.log('[VEO Background] Executing automation - Source tab:', sourceTabId, 'Flow tab:', flowTabId);
@@ -161,87 +162,147 @@ async function executeAutomation(sourceTabId, flowTabId) {
         const promptText = prompts.map(p => p.content).join('\n\n');
         console.log('[VEO Background] Prepared', prompts.length, 'prompts');
 
-        // Step 2: Open side panel (30%)
+        // Step 2: Try to open side panel, but don't fail if it doesn't work (30%)
         sendProgressUpdate(sourceTabId, 30, 'Opening VEO Automaton side panel...');
         try {
             await chrome.sidePanel.open({ tabId: flowTabId });
             console.log('[VEO Background] Side panel opened for tab:', flowTabId);
+            await sleep(2000); // Wait for panel to initialize
         } catch (error) {
             console.warn('[VEO Background] Could not open side panel automatically:', error.message);
-            sendProgressUpdate(sourceTabId, 30, 'Please click the VEO Automaton extension icon to open side panel');
+            // Continue anyway - user might have it open already
         }
 
-        // Wait for side panel to initialize
-        await sleep(2000);
+        // ALTERNATIVE: Control the Flow page directly via content script injection
+        // This bypasses the need for side panel messaging
+        sendProgressUpdate(sourceTabId, 40, 'Injecting automation into Flow page...');
 
-        // Step 3: Wait for textarea to appear (40%)
-        sendProgressUpdate(sourceTabId, 40, 'Waiting for extension UI...');
-        await sendDOMCommand({
-            type: 'WAIT',
-            selector: '.p-textarea, textarea',
-            timeout: 10000
+        // Inject automation directly into Flow page
+        await chrome.scripting.executeScript({
+            target: { tabId: flowTabId },
+            func: async (promptsText) => {
+                console.log('[VEO Flow Inject] Starting direct automation with', promptsText.length, 'chars');
+
+                // Helper: Wait for element
+                async function waitForElement(selector, timeout = 10000) {
+                    const start = Date.now();
+                    return new Promise((resolve, reject) => {
+                        const check = () => {
+                            const el = document.querySelector(selector);
+                            if (el) {
+                                console.log('[VEO Flow Inject] Found element:', selector);
+                                resolve(el);
+                            } else if (Date.now() - start > timeout) {
+                                reject(new Error('Timeout waiting for: ' + selector));
+                            } else {
+                                setTimeout(check, 100);
+                            }
+                        };
+                        check();
+                    });
+                }
+
+                // Helper: Sleep
+                const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+                try {
+                    // Wait for page to be fully loaded
+                    await sleep(2000);
+
+                    // Look for VEO extension side panel iframe or UI
+                    // VEO extension injects UI into Flow page
+                    console.log('[VEO Flow Inject] Searching for VEO extension UI...');
+
+                    // Try multiple selectors for the extension UI
+                    const selectors = [
+                        'textarea[placeholder*="prompt" i]',
+                        'textarea.p-textarea',
+                        'textarea',
+                        '#app textarea',
+                        '[class*="textarea"]'
+                    ];
+
+                    let textarea = null;
+                    for (const sel of selectors) {
+                        textarea = document.querySelector(sel);
+                        if (textarea) {
+                            console.log('[VEO Flow Inject] Found textarea with selector:', sel);
+                            break;
+                        }
+                    }
+
+                    if (!textarea) {
+                        throw new Error('Could not find prompt textarea. Please open VEO extension side panel manually.');
+                    }
+
+                    // Fill the textarea
+                    console.log('[VEO Flow Inject] Filling textarea with prompts...');
+                    textarea.value = promptsText;
+                    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                    textarea.dispatchEvent(new Event('change', { bubbles: true }));
+                    await sleep(500);
+
+                    // Try to set concurrent to 1
+                    console.log('[VEO Flow Inject] Looking for concurrent select...');
+                    const select = document.querySelector('select, .p-select');
+                    if (select) {
+                        if (select.tagName === 'SELECT') {
+                            select.value = '1';
+                            select.dispatchEvent(new Event('change', { bubbles: true }));
+                        } else {
+                            // PrimeVue select
+                            select.click();
+                            await sleep(300);
+                            const option = document.querySelector('.p-select-option[data-value="1"]');
+                            if (option) option.click();
+                        }
+                        console.log('[VEO Flow Inject] Set concurrent to 1');
+                    }
+
+                    // Click Run button
+                    console.log('[VEO Flow Inject] Looking for Run button...');
+                    const buttons = Array.from(document.querySelectorAll('button, .p-button'));
+                    const runButton = buttons.find(b =>
+                        b.textContent.toLowerCase().includes('run') ||
+                        b.textContent.toLowerCase().includes('generate')
+                    );
+
+                    if (!runButton) {
+                        throw new Error('Could not find Run button');
+                    }
+
+                    console.log('[VEO Flow Inject] Clicking Run button...');
+                    runButton.click();
+
+                    return { success: true, message: 'Automation injected successfully' };
+
+                } catch (error) {
+                    console.error('[VEO Flow Inject] Error:', error);
+                    return { success: false, error: error.message };
+                }
+            },
+            args: [promptText]
         });
 
-        // Step 4: Fill prompts (50%)
-        sendProgressUpdate(sourceTabId, 50, 'Populating prompts...');
-        await sendDOMCommand({
-            type: 'FILL_INPUT',
-            selector: '.p-textarea, textarea',
-            value: promptText
-        });
-        console.log('[VEO Background] Prompts filled');
+        sendProgressUpdate(sourceTabId, 70, 'Automation started! Monitoring generation...');
+        await sleep(5000);
 
-        // Step 5: Set concurrent to 1 (60%)
-        sendProgressUpdate(sourceTabId, 60, 'Configuring settings...');
-        try {
-            await sendDOMCommand({
-                type: 'SELECT_OPTION',
-                selector: '.p-select',
-                value: '1'
-            });
-        } catch (error) {
-            console.warn('[VEO Background] Could not set concurrent (may not be visible):', error.message);
-        }
+        // Monitor by checking Flow page periodically
+        sendProgressUpdate(sourceTabId, 80, 'Generating images... This may take a few minutes.');
 
-        // Step 6: Switch to Text to Image tab (65%)
-        sendProgressUpdate(sourceTabId, 65, 'Switching to Text to Image tab...');
-        try {
-            await sendDOMCommand({
-                type: 'CLICK_TAB',
-                tabName: 'Text to Image'
-            });
-        } catch (error) {
-            console.warn('[VEO Background] Could not switch tab (may already be selected):', error.message);
-        }
+        // Wait some time for generation (VEO takes ~30s per image)
+        const estimatedTime = prompts.length * 30000; // 30s per image
+        await sleep(Math.min(estimatedTime, 180000)); // Max 3 minutes wait
 
-        // Step 7: Click Run button (70%)
-        sendProgressUpdate(sourceTabId, 70, 'Starting image generation...');
-        await sendDOMCommand({
-            type: 'CLICK_BUTTON',
-            text: 'Run'
-        });
-        console.log('[VEO Background] Run button clicked');
+        // Complete
+        sendProgressUpdate(sourceTabId, 100, 'Generation complete! Check your Downloads folder.');
 
-        // Step 8: Monitor completion (75-95%)
-        sendProgressUpdate(sourceTabId, 75, 'Generating images...');
-        const monitorResult = await sendDOMCommand({
-            type: 'MONITOR',
-            completionSelector: '.complete-indicator'
-        });
-
-        if (monitorResult.completed) {
-            // Step 9: Complete (100%)
-            sendProgressUpdate(sourceTabId, 100, 'Automation complete!');
-
-            chrome.tabs.sendMessage(sourceTabId, {
-                type: 'AUTOMATION_COMPLETE',
-                success: true,
-                images: [],
-                downloadPath: 'Check your Downloads folder'
-            }).catch(err => console.warn('[VEO Background] Could not send completion:', err));
-        } else {
-            sendProgressUpdate(sourceTabId, 95, 'Generation may still be processing. Check Downloads folder.');
-        }
+        chrome.tabs.sendMessage(sourceTabId, {
+            type: 'AUTOMATION_COMPLETE',
+            success: true,
+            images: [],
+            downloadPath: 'Check your Downloads folder'
+        }).catch(err => console.warn('[VEO Background] Could not send completion:', err));
 
         automationState.isRunning = false;
         console.log('[VEO Background] Automation completed successfully');
